@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Green Trends Kothapet - Staff & Payroll Management System</title>
   
-  <!-- Google Fonts: Syne & Plus Jakarta Sans -->
+  <!-- Google Fonts: Outfit (Luxury Headings) & Plus Jakarta Sans (Clean UI Body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -18,8 +18,10 @@
       theme: {
         extend: {
           fontFamily: {
-            syne: ['Syne', 'sans-serif'],
+            heading: ['Outfit', 'sans-serif'],
+            syne: ['Outfit', 'sans-serif'],
             sans: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
           },
           colors: {
             brand: {
@@ -142,82 +144,95 @@
     </div>
   </div>
 
-  <!-- Top Navigation Header (Normal View - No Admin button visible) -->
-  <header class="sticky top-0 z-40 bg-[#090910]/95 backdrop-blur-xl border-b border-[#1c1c2c]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+  <!-- Top Navigation Header - Ultra-Luxury Design -->
+  <header class="sticky top-0 z-40 bg-[#07070d]/95 backdrop-blur-xl border-b border-[#1c1c2e] shadow-2xl shadow-black/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
       
       <!-- Brand Logo: Green Trends Kothapet -->
-      <div class="flex items-center gap-3.5 cursor-pointer" onclick="navigateTo('attendance')">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#ff2a85] via-[#ff5c99] to-[#ff7eb3] p-0.5 shadow-xl shadow-[#ff2a85]/25 flex items-center justify-center">
-          <div class="w-full h-full bg-[#090910] rounded-[14px] flex items-center justify-center">
-            <i class="fa-solid fa-scissors text-[#ff2a85] text-xl"></i>
+      <div class="flex items-center gap-3.5 cursor-pointer select-none" onclick="navigateTo('attendance')">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#ff2a85] via-[#ff5c99] to-[#ff7eb3] p-0.5 shadow-xl shadow-[#ff2a85]/30 flex items-center justify-center">
+          <div class="w-full h-full bg-[#07070d] rounded-[14px] flex items-center justify-center">
+            <i class="fa-solid fa-scissors text-[#ff2a85] text-xl transform -rotate-45"></i>
           </div>
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <span class="font-syne font-extrabold text-xl tracking-wider bg-gradient-to-r from-white via-pink-100 to-[#ff7eb3] bg-clip-text text-transparent">
+            <span class="font-heading font-black text-xl tracking-wider text-white">
               GREEN TRENDS
             </span>
-            <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] border border-[#ff2a85]/30 tracking-wider">
+            <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] border border-[#ff2a85]/40 tracking-widest uppercase">
               KOTHAPET
             </span>
           </div>
-          <p class="text-xs text-gray-400 font-medium">Salon Attendance, Roster Scanner & Payroll System</p>
+          <p class="text-xs text-gray-400 font-medium">Salon Attendance, Roster Scanner & Payroll Portal</p>
         </div>
       </div>
 
-      <!-- Navigation Tabs (4 Primary Tabs - Admin is completely hidden) -->
-      <nav id="mainNav" class="hidden md:flex items-center gap-1.5 bg-[#0f0f18] p-1.5 rounded-2xl border border-[#1f1f30] shadow-inner">
+      <!-- Navigation Tabs (5 Tabs - Now includes Admin Settings with small icon) -->
+      <nav id="mainNav" class="hidden md:flex items-center gap-1 bg-[#0d0d18] p-1.5 rounded-2xl border border-[#232338] shadow-2xl">
         <button id="navBtn-attendance" onclick="navigateTo('attendance')" 
-          class="nav-tab active px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2">
+          class="nav-tab active px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 cursor-pointer">
           <i class="fa-solid fa-calendar-check text-[#ff2a85]"></i>
           <span>Daily Attendance</span>
         </button>
 
         <button id="navBtn-payroll" onclick="navigateTo('payroll')" 
-          class="nav-tab px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-2">
+          class="nav-tab px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-2 cursor-pointer">
           <i class="fa-solid fa-file-invoice-dollar text-[#ff2a85]"></i>
           <span>Monthly Payroll</span>
         </button>
 
         <button id="navBtn-incentives" onclick="navigateTo('incentives')" 
-          class="nav-tab px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-2">
+          class="nav-tab px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-2 cursor-pointer">
           <i class="fa-solid fa-trophy text-[#ff2a85]"></i>
           <span>Incentive Tracker</span>
         </button>
 
-        <!-- 4th TAB: ROSTER UPLOAD / PASTE -->
         <button id="navBtn-roster" onclick="navigateTo('roster')" 
-          class="nav-tab px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-2">
-          <i class="fa-solid fa-calendar-day text-[#ff2a85]"></i>
+          class="nav-tab px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-camera text-[#ff2a85]"></i>
           <span>Roster Scanner</span>
+        </button>
+
+        <button id="navBtn-admin" onclick="navigateTo('admin')" 
+          class="nav-tab px-3.5 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer" title="Salon Settings, Percentages & Credentials">
+          <i class="fa-solid fa-sliders text-[#ff2a85]"></i>
+          <span>Admin</span>
         </button>
       </nav>
 
       <!-- Right Header: User Badge, Logout & Live Clock -->
       <div class="flex items-center gap-3">
-        <div class="hidden sm:flex flex-col text-right bg-[#0f0f1a] border border-[#1f1f30] px-3.5 py-2 rounded-xl">
-          <span id="liveTime" class="text-xs font-mono font-extrabold text-[#ff7eb3] tracking-widest">--:--:--</span>
+        <div class="hidden sm:flex flex-col text-right bg-[#0d0d18] border border-[#222238] px-3.5 py-2 rounded-2xl shadow-inner">
+          <div class="flex items-center justify-end gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="liveTime" class="text-xs font-mono font-extrabold text-[#ff7eb3] tracking-widest">--:--:--</span>
+          </div>
           <span id="liveDate" class="text-[10px] text-gray-400 font-medium">Loading date...</span>
         </div>
 
-        <div id="userHeaderBadge" class="hidden flex items-center gap-2 bg-[#0d0d15] border border-[#222234] pl-3 pr-1.5 py-1.5 rounded-2xl">
+        <div id="userHeaderBadge" class="hidden flex items-center gap-2 bg-[#0d0d18] border border-[#222238] pl-3 pr-1.5 py-1.5 rounded-2xl shadow-lg">
           <div class="flex items-center gap-1.5 text-xs font-bold text-gray-300">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             <span id="headerUserName">Admin</span>
           </div>
+          <button type="button" onclick="navigateTo('admin')" 
+            class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-[#141424] hover:bg-[#1e1e36] text-gray-300 hover:text-white border border-[#25253e] transition-all flex items-center gap-1.5 cursor-pointer" title="Admin Settings">
+            <i class="fa-solid fa-gear text-[11px] text-[#ff7eb3]"></i>
+            <span class="hidden lg:inline">Settings</span>
+          </button>
           <button type="button" onclick="logoutUser()" 
-            class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-[#1a0c16] hover:bg-rose-950/60 text-rose-400 border border-rose-500/30 hover:border-rose-500/60 transition-all flex items-center gap-1.5" title="Sign Out">
+            class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-[#1a0c16] hover:bg-rose-950/60 text-rose-400 border border-rose-500/30 hover:border-rose-500/60 transition-all flex items-center gap-1.5 cursor-pointer" title="Sign Out">
             <i class="fa-solid fa-power-off text-[10px]"></i>
-            <span class="hidden md:inline">Logout</span>
+            <span class="hidden lg:inline">Logout</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Mobile Subnav Bar (4 Tabs + Mobile Logout) -->
-    <div class="md:hidden flex items-center justify-between bg-[#0b0b14] px-2 py-2 border-t border-[#1c1c2c]">
-      <div class="grid grid-cols-4 gap-1 flex-1 text-center">
+    <!-- Mobile Subnav Bar (5 Tabs + Logout) -->
+    <div class="md:hidden flex items-center justify-between bg-[#07070d] px-2 py-2 border-t border-[#1c1c2e]">
+      <div class="grid grid-cols-5 gap-1 flex-1 text-center">
         <button onclick="navigateTo('attendance')" id="mobileNav-attendance" class="py-1.5 text-[11px] font-bold rounded-xl text-[#ff2a85] bg-[#ff2a85]/15">
           <i class="fa-solid fa-calendar-check block text-xs mb-0.5"></i> Attd.
         </button>
@@ -228,7 +243,10 @@
           <i class="fa-solid fa-trophy block text-xs mb-0.5"></i> Incen.
         </button>
         <button onclick="navigateTo('roster')" id="mobileNav-roster" class="py-1.5 text-[11px] font-bold rounded-xl text-gray-400">
-          <i class="fa-solid fa-calendar-day block text-xs mb-0.5"></i> Roster
+          <i class="fa-solid fa-camera block text-xs mb-0.5"></i> Roster
+        </button>
+        <button onclick="navigateTo('admin')" id="mobileNav-admin" class="py-1.5 text-[11px] font-bold rounded-xl text-gray-400">
+          <i class="fa-solid fa-sliders block text-xs mb-0.5"></i> Admin
         </button>
       </div>
       <button onclick="logoutUser()" class="ml-2 px-2.5 py-2 rounded-xl text-xs font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20" title="Logout">
@@ -282,83 +300,89 @@
           </button>
 
           <button onclick="bulkMarkAllPresent()" 
-            class="px-5 py-2.5 rounded-2xl text-xs font-bold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] hover:brightness-110 text-white shadow-xl shadow-[#ff2a85]/25 transition-all flex items-center gap-2">
+            class="px-5 py-2.5 rounded-2xl text-xs font-bold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] hover:brightness-110 text-white shadow-xl shadow-[#ff2a85]/25 transition-all flex items-center gap-2 cursor-pointer">
             <i class="fa-solid fa-check-double"></i>
             <span>Mark All Present</span>
+          </button>
+
+          <button onclick="clearAllAttendanceDataToZero(this)" 
+            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-amber-950/40 hover:bg-amber-900/60 text-amber-200 border border-amber-800/50 transition-all flex items-center gap-1.5 shadow-lg shadow-amber-950/30 cursor-pointer" title="Wipe all data and reset to 0">
+            <i class="fa-solid fa-rotate-left text-amber-400"></i>
+            <span>Reset All to 0</span>
           </button>
         </div>
       </div>
 
-      <!-- Quick KPI Metric Cards -->
+      <!-- Quick KPI Metric Cards - Crisp Typography, Zero Distortion -->
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
         <!-- Present Card -->
-        <div class="bg-[#0d0d15] p-4 rounded-2xl border border-[#1f1f30] relative overflow-hidden">
+        <div class="bg-[#0d0d18] p-4 rounded-2xl border border-[#222238] shadow-lg relative overflow-hidden">
           <div class="flex items-center justify-between">
-            <span class="text-xs text-gray-400 font-semibold">Present Today</span>
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-lg shadow-emerald-500/50"></span>
+            <span class="text-xs text-gray-400 font-semibold tracking-wide">Present Today</span>
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-md shadow-emerald-400/50"></span>
           </div>
-          <div class="mt-2.5 flex items-baseline gap-2">
-            <span id="kpiPresentCount" class="text-2xl font-extrabold font-syne text-white">0</span>
-            <span class="text-[11px] text-gray-500 font-medium">/ 8 Staff</span>
+          <div class="mt-2.5 flex items-baseline gap-1.5">
+            <span id="kpiPresentCount" class="text-2xl font-black font-heading text-white tracking-tight">0</span>
+            <span class="text-xs text-gray-400 font-bold">/ 8 Staff</span>
           </div>
         </div>
 
         <!-- Weekly Off Card -->
-        <div class="bg-[#0d0d15] p-4 rounded-2xl border border-[#1f1f30]">
+        <div class="bg-[#0d0d18] p-4 rounded-2xl border border-[#222238] shadow-lg">
           <div class="flex items-center justify-between">
-            <span class="text-xs text-gray-400 font-semibold">Weekly Off</span>
+            <span class="text-xs text-gray-400 font-semibold tracking-wide">Weekly Off</span>
             <i class="fa-solid fa-mug-hot text-indigo-400 text-xs"></i>
           </div>
-          <div class="mt-2.5">
-            <span id="kpiWeeklyOffCount" class="text-2xl font-extrabold font-syne text-indigo-400">0</span>
-            <span class="text-[10px] text-gray-500 block font-medium">1 day/week allowed</span>
+          <div class="mt-2.5 flex items-baseline justify-between">
+            <span id="kpiWeeklyOffCount" class="text-2xl font-black font-heading text-indigo-400 tracking-tight">0</span>
+            <span class="text-[10px] text-gray-500 font-medium">1/wk allowed</span>
           </div>
         </div>
 
         <!-- Leaves Card -->
-        <div class="bg-[#0d0d15] p-4 rounded-2xl border border-[#1f1f30]">
+        <div class="bg-[#0d0d18] p-4 rounded-2xl border border-[#222238] shadow-lg">
           <div class="flex items-center justify-between">
-            <span class="text-xs text-gray-400 font-semibold">Leaves (Cut)</span>
+            <span class="text-xs text-gray-400 font-semibold tracking-wide">Leaves (Cut)</span>
             <i class="fa-solid fa-user-xmark text-rose-400 text-xs"></i>
           </div>
-          <div class="mt-2.5">
-            <span id="kpiLeaveCount" class="text-2xl font-extrabold font-syne text-rose-400">0</span>
-            <span class="text-[10px] text-rose-500/80 block font-medium">Salary cut</span>
+          <div class="mt-2.5 flex items-baseline justify-between">
+            <span id="kpiLeaveCount" class="text-2xl font-black font-heading text-rose-400 tracking-tight">0</span>
+            <span class="text-[10px] text-rose-400/80 font-bold">Salary cut</span>
           </div>
         </div>
 
         <!-- Overtime Card -->
-        <div class="bg-[#0d0d15] p-4 rounded-2xl border border-[#1f1f30]">
+        <div class="bg-[#0d0d18] p-4 rounded-2xl border border-[#222238] shadow-lg">
           <div class="flex items-center justify-between">
-            <span class="text-xs text-gray-400 font-semibold">Today's OT</span>
+            <span class="text-xs text-gray-400 font-semibold tracking-wide">Today's OT</span>
             <i class="fa-solid fa-clock text-[#ff2a85] text-xs"></i>
           </div>
           <div class="mt-2.5">
-            <span id="kpiOvertimePay" class="text-2xl font-extrabold font-syne text-[#ff7eb3]">₹0</span>
-            <span id="kpiOvertimeHours" class="text-[10px] text-gray-500 block font-mono">0 hrs logged</span>
+            <span id="kpiOvertimePay" class="text-2xl font-black font-heading text-[#ff7eb3] tracking-tight">₹0</span>
+            <span id="kpiOvertimeHours" class="text-[10px] text-gray-500 block font-mono font-medium">0 hrs logged</span>
           </div>
         </div>
 
         <!-- Services Done Card -->
-        <div class="bg-[#0d0d15] p-4 rounded-2xl border border-[#1f1f30]">
+        <div class="bg-[#0d0d18] p-4 rounded-2xl border border-[#222238] shadow-lg">
           <div class="flex items-center justify-between">
-            <span class="text-xs text-gray-400 font-semibold">Services Logged</span>
+            <span class="text-xs text-gray-400 font-semibold tracking-wide">Services Logged</span>
             <i class="fa-solid fa-spa text-purple-400 text-xs"></i>
           </div>
           <div class="mt-2.5">
-            <span id="kpiServicesTotal" class="text-2xl font-extrabold font-syne text-purple-400">₹0</span>
+            <span id="kpiServicesTotal" class="text-2xl font-black font-heading text-purple-400 tracking-tight">₹0</span>
             <span class="text-[10px] text-gray-500 block font-medium">Daily Total</span>
           </div>
         </div>
 
         <!-- Products Sold Card -->
-        <div class="bg-[#0d0d15] p-4 rounded-2xl border border-[#1f1f30]">
+        <div class="bg-[#0d0d18] p-4 rounded-2xl border border-[#222238] shadow-lg">
           <div class="flex items-center justify-between">
-            <span class="text-xs text-gray-400 font-semibold">Products Sold</span>
+            <span class="text-xs text-gray-400 font-semibold tracking-wide">Products Sold</span>
             <i class="fa-solid fa-bag-shopping text-pink-400 text-xs"></i>
           </div>
           <div class="mt-2.5">
-            <span id="kpiProductsTotal" class="text-2xl font-extrabold font-syne text-pink-400">₹0</span>
+            <span id="kpiProductsTotal" class="text-2xl font-black font-heading text-pink-400 tracking-tight">₹0</span>
             <span class="text-[10px] text-gray-500 block font-medium">Daily Total</span>
           </div>
         </div>
@@ -388,35 +412,47 @@
     <!-- ========================================== -->
     <section id="view-payroll" class="view-panel hidden space-y-6">
       
-      <!-- Payroll Month Selector Bar -->
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#0d0d15] p-5 rounded-3xl border border-[#1f1f30] shadow-2xl">
-        <div>
-          <h1 class="text-2xl font-syne font-extrabold text-white flex items-center gap-3">
-            <span>Monthly Payroll & Salary Sheet</span>
-            <span id="payrollMonthBadge" class="text-xs font-sans font-bold px-3 py-1 rounded-full bg-[#ff2a85]/15 text-[#ff7eb3] border border-[#ff2a85]/30">
-              September 2026
-            </span>
-          </h1>
-          <p class="text-xs text-gray-400 mt-1 font-medium">
-            Strict per-day salary (Base ÷ Month Days), shortfall OT deductions, and percentage-based commissions.
-          </p>
+      <!-- Payroll Month Selector Bar - Ultra-Luxe Design (Image 2 Fix) -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5 bg-gradient-to-r from-[#0d0d18] via-[#090912] to-[#0d0d18] p-6 rounded-3xl border border-[#222238] shadow-2xl shadow-black/80">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#ff2a85] to-[#ff7eb3] p-0.5 shadow-lg shadow-[#ff2a85]/30 flex-shrink-0">
+            <div class="w-full h-full bg-[#090912] rounded-[14px] flex items-center justify-center">
+              <i class="fa-solid fa-file-invoice-dollar text-[#ff7eb3] text-xl"></i>
+            </div>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <h1 class="text-2xl font-black font-heading text-white tracking-tight">
+                Monthly Payroll & Salary Sheet
+              </h1>
+              <span id="payrollMonthBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] border border-[#ff2a85]/40 tracking-wide uppercase">
+                September 2026
+              </span>
+            </div>
+            <p class="text-xs text-gray-400 mt-1 font-medium">
+              Strict per-day salary (Base ÷ Month Days), shortfall OT deductions, and percentage commissions.
+            </p>
+          </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
-          <div class="flex items-center bg-[#131320] rounded-2xl border border-[#252538] px-3.5 py-2">
-            <i class="fa-regular fa-calendar text-gray-400 mr-2 text-xs"></i>
+          <!-- Month Selector -->
+          <div class="flex items-center bg-[#131322] rounded-2xl border border-[#26263e] hover:border-[#ff2a85]/50 px-4 py-2.5 shadow-inner transition-all">
+            <i class="fa-regular fa-calendar text-[#ff7eb3] mr-2 text-xs"></i>
             <input type="month" id="selectedMonthInput" onchange="onPayrollMonthChanged()" 
-              class="bg-transparent text-white text-xs font-bold focus:outline-none cursor-pointer font-mono">
+              class="bg-transparent text-white text-xs font-bold focus:outline-none cursor-pointer font-mono tracking-wide">
           </div>
 
+          <!-- Print Paysheet -->
           <button onclick="window.print()" 
-            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-[#171726] hover:bg-[#202032] text-gray-200 border border-[#252538] transition-all flex items-center gap-2">
-            <i class="fa-solid fa-print"></i>
+            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-[#161628] hover:bg-[#202038] text-gray-200 hover:text-white border border-[#26263e] transition-all flex items-center gap-2 shadow-md cursor-pointer">
+            <i class="fa-solid fa-print text-gray-400"></i>
             <span>Print Sheet</span>
           </button>
 
+          <!-- Export CSV -->
           <button onclick="exportPayrollCSV()" 
-            class="px-5 py-2.5 rounded-2xl text-xs font-bold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] hover:brightness-110 text-white shadow-xl shadow-[#ff2a85]/25 transition-all flex items-center gap-2">
+            class="px-5 py-2.5 rounded-2xl text-xs font-extrabold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] hover:brightness-110 text-white shadow-lg shadow-[#ff2a85]/30 transition-all flex items-center gap-2 cursor-pointer">
             <i class="fa-solid fa-file-csv"></i>
             <span>Export CSV</span>
           </button>
@@ -462,29 +498,29 @@
         </div>
       </div>
 
-      <!-- Monthly Summary Highlight Cards -->
+      <!-- Monthly Summary Highlight Cards - Clean Crisp Typography -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-[#0d0d15] p-5 rounded-2xl border border-[#1f1f30]">
+        <div class="bg-[#0d0d18] p-5 rounded-3xl border border-[#222238] shadow-lg">
           <span class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Total Gross Payroll</span>
-          <div class="mt-2 text-2xl font-syne font-bold text-white" id="summaryGrossBase">₹0</div>
+          <div class="mt-2 text-2xl font-black font-heading text-white tracking-tight" id="summaryGrossBase">₹0</div>
           <span class="text-[11px] text-gray-500 mt-1 block">Base + Food Allowances</span>
         </div>
 
-        <div class="bg-[#0d0d15] p-5 rounded-2xl border border-[#1f1f30]">
+        <div class="bg-[#0d0d18] p-5 rounded-3xl border border-[#222238] shadow-lg">
           <span class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Total Leave Deductions</span>
-          <div class="mt-2 text-2xl font-syne font-bold text-rose-400" id="summaryDeductions">₹0</div>
-          <span class="text-[11px] text-rose-400/70 mt-1 block">For unpaid leaves</span>
+          <div class="mt-2 text-2xl font-black font-heading text-rose-400 tracking-tight" id="summaryDeductions">₹0</div>
+          <span class="text-[11px] text-rose-400/80 mt-1 block font-medium">For unpaid leaves</span>
         </div>
 
-        <div class="bg-[#0d0d15] p-5 rounded-2xl border border-[#1f1f30]">
+        <div class="bg-[#0d0d18] p-5 rounded-3xl border border-[#222238] shadow-lg">
           <span class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Net Overtime & Incentives</span>
-          <div class="mt-2 text-2xl font-syne font-bold text-[#ff7eb3]" id="summaryAdditions">₹0</div>
-          <span class="text-[11px] text-gray-500 mt-1 block">OT (Shortfall Adjusted) + % Commission</span>
+          <div class="mt-2 text-2xl font-black font-heading text-[#ff7eb3] tracking-tight" id="summaryAdditions">₹0</div>
+          <span class="text-[11px] text-gray-500 mt-1 block">OT (Shortfall Net) + Commissions</span>
         </div>
 
-        <div class="bg-gradient-to-br from-[#170c1a] to-[#0d0d15] p-5 rounded-2xl border border-[#ff2a85]/40 shadow-xl">
+        <div class="bg-gradient-to-br from-[#1a0b1c] to-[#0d0d18] p-5 rounded-3xl border border-[#ff2a85]/40 shadow-xl shadow-[#ff2a85]/10">
           <span class="text-xs text-[#ff7eb3] uppercase tracking-wider font-bold">Total Net Salon Payout</span>
-          <div class="mt-2 text-3xl font-syne font-extrabold text-[#ff2a85]" id="summaryNetPayout">₹0</div>
+          <div class="mt-2 text-3xl font-black font-heading text-[#ff2a85] tracking-tight" id="summaryNetPayout">₹0</div>
           <span class="text-[11px] text-gray-400 mt-1 block">Green Trends Kothapet monthly payout</span>
         </div>
       </div>
@@ -495,26 +531,40 @@
     <!-- ========================================== -->
     <section id="view-incentives" class="view-panel hidden space-y-6">
       
-      <!-- Incentive Top Banner -->
-      <div class="bg-[#0d0d15] p-5 rounded-3xl border border-[#1f1f30] shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 class="text-2xl font-syne font-extrabold text-white flex items-center gap-3">
-            <span>Percentage-Based Incentive Tracker</span>
-            <span class="text-xs font-sans font-bold px-3 py-1 rounded-full bg-[#ff2a85]/15 text-[#ff7eb3] border border-[#ff2a85]/30">
-              Live Commission Rules
-            </span>
-          </h1>
-          <p class="text-xs text-gray-400 mt-1 font-medium">
-            Kalyan Manager gets <strong class="text-white">1% on total salon service revenue</strong>. Stylists get <strong class="text-white">5% on services</strong> (5x salary target) and <strong class="text-white">5% / 8% tiered on products</strong>.
-          </p>
+      <!-- Incentive Top Banner - Ultra-Luxe -->
+      <div class="bg-gradient-to-r from-[#0d0d18] via-[#090912] to-[#0d0d18] p-6 rounded-3xl border border-[#222238] shadow-2xl shadow-black/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#ff2a85] to-purple-500 p-0.5 shadow-lg shadow-purple-500/20 flex-shrink-0">
+            <div class="w-full h-full bg-[#090912] rounded-[14px] flex items-center justify-center">
+              <i class="fa-solid fa-trophy text-[#ff7eb3] text-xl"></i>
+            </div>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <h1 class="text-2xl font-black font-heading text-white tracking-tight">
+                Percentage-Based Incentive Tracker
+              </h1>
+              <span class="text-[10px] font-bold px-3 py-1 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] border border-[#ff2a85]/40 tracking-wider uppercase">
+                Active Commission Rules
+              </span>
+            </div>
+            <p class="text-xs text-gray-400 mt-1 font-medium">
+              Kalyan Manager gets <strong class="text-white">1% on total salon revenue</strong> (₹6,00,000 target). Stylists get <strong class="text-white">5% on services</strong> (5x salary target) and <strong class="text-white">5% / 8% tiered on products</strong>.
+            </p>
+          </div>
         </div>
-        <div>
-          <button onclick="resetAllSalesAndIncentivesToZero()"
-            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-purple-950/50 hover:bg-purple-900/70 text-purple-200 border border-purple-700/60 transition-all flex items-center gap-2 shadow-lg shadow-purple-950/40">
+        <div class="flex items-center gap-3">
+          <button onclick="resetAllSalesAndIncentivesToZero(this)"
+            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 border border-purple-700/50 transition-all flex items-center gap-2 shadow-lg shadow-purple-950/40 cursor-pointer">
             <i class="fa-solid fa-coins text-[#ff7eb3]"></i>
             <span>Reset All Sales & Incentives to ₹0</span>
           </button>
         </div>
+      </div>
+
+      <!-- Live Salon Revenue & Incentives Summary Highlights -->
+      <div id="incentivesSummaryHighlights" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Dynamically rendered by JS -->
       </div>
 
       <!-- Staff Progress Grid -->
@@ -558,50 +608,68 @@
       <!-- Main Scanner Grid: Left Image Paste / Upload Box | Right Detected Staff Preview -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
-        <!-- Left Box: Image Paste (Ctrl+V) & File Upload -->
-        <div class="bg-[#0d0d15] rounded-3xl border border-[#1f1f30] p-6 shadow-2xl space-y-4">
+        <!-- Left Box: Multi-Image Paste (Ctrl+V) & File Upload Gallery -->
+        <div class="bg-[#0d0d18] rounded-3xl border border-[#222238] p-6 shadow-2xl space-y-4">
           
           <div class="flex items-center justify-between">
-            <h3 class="font-syne font-bold text-base text-white">Paste or Upload Roster Image</h3>
-            <span class="text-[10px] text-gray-400 font-mono bg-[#141422] px-2.5 py-1 rounded-full border border-[#222234]">
-              Ctrl + V Supported
-            </span>
+            <div>
+              <h3 class="font-heading font-bold text-base text-white flex items-center gap-2">
+                <span>Roster Schedule Photos</span>
+                <span id="rosterImageCountBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] border border-[#ff2a85]/40 font-mono">
+                  0 Pics
+                </span>
+              </h3>
+              <p class="text-[11px] text-gray-400 mt-0.5">Paste multiple screenshots (<kbd class="px-1.5 py-0.5 rounded bg-[#1c1c2e] text-[#ff7eb3] font-mono text-[10px]">Ctrl+V</kbd>) - 1, 2, 3+ photos supported!</p>
+            </div>
+            <button id="clearAllImagesBtn" onclick="clearAllRosterImages()" class="hidden text-xs text-rose-400 hover:text-rose-300 font-bold transition-colors cursor-pointer">
+              <i class="fa-solid fa-trash-can mr-1"></i>Clear All
+            </button>
           </div>
 
-          <!-- Drop & Paste Interactive Box -->
-          <div id="dropZone" onclick="document.getElementById('rosterFileInput').click()"
-            class="border-2 border-dashed border-[#2b2b40] hover:border-[#ff2a85] rounded-3xl p-6 text-center cursor-pointer transition-all bg-[#08080f] hover:bg-[#10101b] group relative">
-            <input type="file" id="rosterFileInput" accept="image/*" class="hidden" onchange="handleRosterImageSelected(event)">
+          <!-- Hidden Multi-file Input -->
+          <input type="file" id="rosterFileInput" accept="image/*" multiple class="hidden" onchange="handleRosterMultipleImages(event)">
+
+          <!-- Drop & Paste Multi-Image Interactive Box -->
+          <div id="dropZone"
+            class="border-2 border-dashed border-[#2b2b42] hover:border-[#ff2a85] rounded-3xl p-5 text-center transition-all bg-[#080811] hover:bg-[#0f0f1c] relative min-h-[180px] flex flex-col justify-center items-center">
             
-            <div id="uploadPrompt" class="space-y-3 py-4">
-              <div class="w-16 h-16 rounded-2xl bg-[#ff2a85]/10 text-[#ff2a85] flex items-center justify-center mx-auto text-3xl group-hover:scale-110 transition-transform">
-                <i class="fa-solid fa-image"></i>
+            <!-- Default Prompt when 0 images -->
+            <div id="uploadPrompt" onclick="document.getElementById('rosterFileInput').click()" class="space-y-3 py-4 cursor-pointer w-full">
+              <div class="w-16 h-16 rounded-2xl bg-[#ff2a85]/10 text-[#ff2a85] flex items-center justify-center mx-auto text-3xl group-hover:scale-110 transition-transform shadow-lg shadow-[#ff2a85]/20">
+                <i class="fa-solid fa-images"></i>
               </div>
               <div>
-                <p class="text-sm font-bold text-white">Press <kbd class="px-2 py-0.5 rounded bg-[#1e1e30] border border-[#33334c] text-[#ff7eb3] font-mono">Ctrl + V</kbd> to Paste Image</p>
-                <p class="text-xs text-gray-400 mt-1">or click to browse WhatsApp screenshot / photo</p>
+                <p class="text-sm font-bold text-white">Press <kbd class="px-2 py-0.5 rounded bg-[#1e1e32] border border-[#33334e] text-[#ff7eb3] font-mono">Ctrl + V</kbd> to Paste Any Schedule Pic</p>
+                <p class="text-xs text-gray-400 mt-1.5">You can paste 1, 2, 3 or more photos! Click here to browse</p>
               </div>
             </div>
 
-            <div id="imagePreviewContainer" class="hidden">
-              <img id="rosterImgPreview" src="" alt="Roster Preview" class="max-h-64 mx-auto rounded-2xl border border-[#232336] shadow-2xl">
-              <p class="text-[11px] text-[#ff7eb3] font-bold mt-2.5 flex items-center justify-center gap-1.5">
-                <i class="fa-solid fa-circle-check"></i> Image loaded into scanner
-              </p>
+            <!-- Multi-Image Thumbnails Gallery Grid (Visible when images added) -->
+            <div id="rosterGalleryContainer" class="hidden w-full space-y-3">
+              <div id="rosterGalleryGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full">
+                <!-- Dynamically populated thumbnails -->
+              </div>
+              <div class="flex items-center justify-center gap-2 pt-2">
+                <button type="button" onclick="document.getElementById('rosterFileInput').click()" 
+                  class="text-xs font-bold text-[#ff7eb3] hover:text-white bg-[#151526] hover:bg-[#202038] border border-[#2b2b44] px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer">
+                  <i class="fa-solid fa-plus text-[10px]"></i> Add Another Pic
+                </button>
+                <span class="text-[11px] text-gray-500">or press <kbd class="text-gray-300 font-mono">Ctrl+V</kbd></span>
+              </div>
             </div>
           </div>
 
           <!-- Quick Action Buttons -->
           <div class="flex items-center gap-3">
             <button type="button" onclick="pasteImageFromClipboard()" 
-              class="flex-1 py-3 rounded-2xl text-xs font-bold bg-[#171728] hover:bg-[#202034] text-white border border-[#26263a] transition-all flex items-center justify-center gap-2">
+              class="flex-1 py-3 rounded-2xl text-xs font-bold bg-[#141424] hover:bg-[#1e1e36] text-white border border-[#26263e] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md">
               <i class="fa-solid fa-paste text-[#ff2a85]"></i>
-              <span>Paste from Clipboard</span>
+              <span>Paste Image (Ctrl+V)</span>
             </button>
             <button type="button" onclick="document.getElementById('rosterFileInput').click()" 
-              class="flex-1 py-3 rounded-2xl text-xs font-bold bg-[#171728] hover:bg-[#202034] text-white border border-[#26263a] transition-all flex items-center justify-center gap-2">
+              class="flex-1 py-3 rounded-2xl text-xs font-bold bg-[#141424] hover:bg-[#1e1e36] text-white border border-[#26263e] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md">
               <i class="fa-solid fa-folder-open text-purple-400"></i>
-              <span>Browse Image</span>
+              <span>Browse Multiple Images</span>
             </button>
           </div>
 
@@ -611,16 +679,16 @@
               <span id="ocrStatusText">Enhancing image contrast & reading schedule...</span>
               <span id="ocrPercent" class="font-mono text-[#ff7eb3] font-bold">0%</span>
             </div>
-            <div class="w-full bg-[#141420] h-2.5 rounded-full overflow-hidden">
-              <div id="ocrProgressBar" class="h-full bg-gradient-to-r from-purple-500 to-[#ff2a85] transition-all duration-300" style="width: 0%"></div>
+            <div class="w-full bg-[#141422] h-2.5 rounded-full overflow-hidden">
+              <div id="ocrProgressBar" class="h-full bg-gradient-to-r from-purple-500 via-[#ff2a85] to-emerald-400 transition-all duration-300" style="width: 0%"></div>
             </div>
           </div>
 
           <!-- Main Scan Button -->
           <button id="scanRosterBtn" onclick="scanUploadedRoster()" 
-            class="w-full py-3.5 rounded-2xl text-xs font-extrabold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] hover:brightness-110 text-white shadow-xl shadow-[#ff2a85]/30 transition-all flex items-center justify-center gap-2">
+            class="w-full py-3.5 rounded-2xl text-xs font-extrabold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] hover:brightness-110 text-white shadow-xl shadow-[#ff2a85]/30 transition-all flex items-center justify-center gap-2 cursor-pointer">
             <i class="fa-solid fa-bolt"></i>
-            <span>Scan Schedule Image with AI</span>
+            <span id="scanBtnLabel">Scan Schedule Image with AI</span>
           </button>
         </div>
 
@@ -805,14 +873,14 @@
               </button>
               <input type="file" id="restoreFileInput" onchange="restoreSystemData(event)" accept=".json" class="hidden">
 
-              <button onclick="resetAllSalesAndIncentivesToZero()" 
-                class="w-full py-2.5 rounded-xl text-xs font-bold bg-purple-950/30 hover:bg-purple-900/50 text-purple-200 border border-purple-800/40 transition-all flex items-center justify-center gap-2">
+              <button onclick="resetAllSalesAndIncentivesToZero(this)" 
+                class="w-full py-2.5 rounded-xl text-xs font-bold bg-purple-950/30 hover:bg-purple-900/50 text-purple-200 border border-purple-800/40 transition-all flex items-center justify-center gap-2 cursor-pointer">
                 <i class="fa-solid fa-coins text-[#ff7eb3]"></i>
                 <span>Reset All Sales & Incentives to ₹0</span>
               </button>
 
-              <button onclick="clearAllAttendanceDataToZero()" 
-                class="w-full py-2.5 rounded-xl text-xs font-bold bg-amber-950/30 hover:bg-amber-900/50 text-amber-200 border border-amber-800/40 transition-all flex items-center justify-center gap-2">
+              <button onclick="clearAllAttendanceDataToZero(this)" 
+                class="w-full py-2.5 rounded-xl text-xs font-bold bg-amber-950/30 hover:bg-amber-900/50 text-amber-200 border border-amber-800/40 transition-all flex items-center justify-center gap-2 cursor-pointer">
                 <i class="fa-solid fa-calendar-xmark text-amber-400"></i>
                 <span>Clear All Attendance Records (Clean Slate)</span>
               </button>
@@ -981,7 +1049,7 @@
               <span class="text-[10px] text-gray-400">Green Trends Kothapet</span>
             </div>
             <div class="text-right">
-              <span class="text-2xl sm:text-3xl font-syne font-extrabold text-[#ff2a85]" id="psNetPayable">₹26,500</span>
+              <span class="text-2xl sm:text-3xl font-heading font-extrabold text-[#ff2a85] font-mono tracking-tight" id="psNetPayable">₹26,500</span>
             </div>
           </div>
         </div>
@@ -1061,6 +1129,6 @@
   </div>
 
   <!-- Application Logic Scripts -->
-  <script src="app.js"></script>
+  <script src="app.js?v=20260926_v6"></script>
 </body>
 </html>

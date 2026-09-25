@@ -1241,20 +1241,122 @@ function exportPayrollCSV() {
 
 function renderIncentivesView() {
   const container = document.getElementById('incentivesProgressContainer');
+  const summaryBox = document.getElementById('incentivesSummaryHighlights');
   if (!container) return;
 
   const [yearStr, monthStr] = selectedMonthStr.split('-');
   const year = parseInt(yearStr, 10);
   const month = parseInt(monthStr, 10);
 
+  // 1. Calculate overall salon statistics for this month
+  const totalSalonRev = calculateTotalSalonServiceRevenue(year, month);
+  const salonTarget = salonRules.salonMonthlyServiceTarget || 600000;
+  const managerRate = salonRules.managerCommissionRate || 1;
+  const managerAchieved = totalSalonRev >= salonTarget;
+  const managerCommissionEarned = managerAchieved ? Math.round(totalSalonRev * (managerRate / 100)) : 0;
+
+  let totalStylistCommissions = 0;
+  let activeCommissionEarners = 0;
+  let topServiceStylist = { name: 'None', amount: 0, commission: 0 };
+  let topProductStylist = { name: 'None', amount: 0, commission: 0 };
+
+  staffList.forEach(staff => {
+    if (staff.isManager || staff.isHousekeeping) return;
+    const p = calculateStaffMonthPayroll(staff, year, month);
+    totalStylistCommissions += p.totalIncentives;
+    if (p.totalIncentives > 0) activeCommissionEarners++;
+
+    if (p.totalServicesDone > topServiceStylist.amount) {
+      topServiceStylist = { name: staff.name, amount: p.totalServicesDone, commission: p.serviceCommission };
+    }
+    if (p.totalProductsSold > topProductStylist.amount) {
+      topProductStylist = { name: staff.name, amount: p.totalProductsSold, commission: p.productCommission };
+    }
+  });
+
+  // Render Top Highlights Summary Cards
+  if (summaryBox) {
+    const targetPct = Math.min(100, Math.round((totalSalonRev / salonTarget) * 100));
+    summaryBox.innerHTML = `
+      <!-- Card 1: Salon Target & Kalyan Manager 1% -->
+      <div class="bg-[#0e0e18] p-4 rounded-2xl border border-[#232338] shadow-lg relative overflow-hidden">
+        <div class="flex items-center justify-between text-xs text-gray-400 font-semibold">
+          <span>Salon Target (Kalyan 1%)</span>
+          <span class="px-2 py-0.5 rounded-full ${managerAchieved ? 'bg-emerald-500/20 text-emerald-400' : 'bg-purple-500/20 text-purple-300'} font-bold font-mono text-[10px]">
+            ${targetPct}%
+          </span>
+        </div>
+        <div class="mt-2">
+          <div class="flex items-baseline justify-between">
+            <span class="text-xl font-black font-heading text-white">₹${totalSalonRev.toLocaleString('en-IN')}</span>
+            <span class="text-[10px] text-gray-500 font-mono">/ ₹${salonTarget.toLocaleString('en-IN')}</span>
+          </div>
+          <div class="w-full bg-[#161628] h-1.5 rounded-full overflow-hidden mt-2">
+            <div class="h-full ${managerAchieved ? 'bg-gradient-to-r from-purple-500 to-emerald-400' : 'bg-[#ff2a85]'} transition-all" style="width: ${targetPct}%"></div>
+          </div>
+          <span class="text-[10px] mt-1.5 block ${managerAchieved ? 'text-emerald-400 font-bold' : 'text-gray-400'}">
+            ${managerAchieved ? `✓ Target Met! Kalyan 1% = +₹${managerCommissionEarned.toLocaleString('en-IN')}` : `₹${Math.max(0, salonTarget - totalSalonRev).toLocaleString('en-IN')} left to unlock 1%`}
+          </span>
+        </div>
+      </div>
+
+      <!-- Card 2: Total Stylist Commission Pool -->
+      <div class="bg-[#0e0e18] p-4 rounded-2xl border border-[#232338] shadow-lg">
+        <div class="flex items-center justify-between text-xs text-gray-400 font-semibold">
+          <span>Total Commission Pool</span>
+          <i class="fa-solid fa-coins text-[#ff7eb3] text-xs"></i>
+        </div>
+        <div class="mt-2">
+          <span class="text-xl font-black font-heading text-[#ff7eb3]">₹${totalStylistCommissions.toLocaleString('en-IN')}</span>
+          <span class="text-[10px] text-gray-400 block mt-1">
+            ${activeCommissionEarners} of ${staffList.filter(s => !s.isManager && !s.isHousekeeping).length} stylists earned incentives
+          </span>
+        </div>
+      </div>
+
+      <!-- Card 3: Top Service Performer -->
+      <div class="bg-[#0e0e18] p-4 rounded-2xl border border-[#232338] shadow-lg">
+        <div class="flex items-center justify-between text-xs text-gray-400 font-semibold">
+          <span>Top Service Performer</span>
+          <i class="fa-solid fa-trophy text-amber-400 text-xs"></i>
+        </div>
+        <div class="mt-2">
+          <div class="flex items-center justify-between">
+            <span class="text-base font-bold font-heading text-white truncate">${topServiceStylist.name}</span>
+            <span class="text-xs font-mono font-bold text-purple-400">₹${topServiceStylist.amount.toLocaleString('en-IN')}</span>
+          </div>
+          <span class="text-[10px] text-emerald-400 font-bold block mt-1">
+            ${topServiceStylist.commission > 0 ? `+₹${topServiceStylist.commission.toLocaleString('en-IN')} commission (5%)` : 'Target in progress'}
+          </span>
+        </div>
+      </div>
+
+      <!-- Card 4: Top Product Seller -->
+      <div class="bg-[#0e0e18] p-4 rounded-2xl border border-[#232338] shadow-lg">
+        <div class="flex items-center justify-between text-xs text-gray-400 font-semibold">
+          <span>Top Product Retailer</span>
+          <i class="fa-solid fa-bottle-droplet text-pink-400 text-xs"></i>
+        </div>
+        <div class="mt-2">
+          <div class="flex items-center justify-between">
+            <span class="text-base font-bold font-heading text-white truncate">${topProductStylist.name}</span>
+            <span class="text-xs font-mono font-bold text-pink-400">₹${topProductStylist.amount.toLocaleString('en-IN')}</span>
+          </div>
+          <span class="text-[10px] text-[#ff7eb3] font-bold block mt-1">
+            ${topProductStylist.commission > 0 ? `+₹${topProductStylist.commission.toLocaleString('en-IN')} commission` : 'Below min tier'}
+          </span>
+        </div>
+      </div>
+    `;
+  }
+
+  // Render Individual Staff Progress Cards
   let html = '';
 
   staffList.forEach(staff => {
     const p = calculateStaffMonthPayroll(staff, year, month);
 
     if (staff.isManager) {
-      const totalSalonRev = calculateTotalSalonServiceRevenue(year, month);
-      const salonTarget = salonRules.salonMonthlyServiceTarget || 600000;
       const targetPercent = Math.min(100, Math.round((totalSalonRev / salonTarget) * 100));
       const achieved = totalSalonRev >= salonTarget;
 
@@ -1262,17 +1364,17 @@ function renderIncentivesView() {
         <div class="bg-[#0d0d15] p-6 rounded-3xl border border-[#1f1f30] shadow-xl space-y-4">
           <div class="flex items-center justify-between border-b border-[#181826] pb-3">
             <div class="flex items-center gap-3">
-              <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#1f1024] to-[#2a102e] border border-[#ff2a85]/30 flex items-center justify-center font-syne font-bold text-white text-sm">
+              <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#1f1024] to-[#2a102e] border border-[#ff2a85]/30 flex items-center justify-center font-bold text-white text-sm">
                 KY
               </div>
               <div>
-                <h3 class="font-syne font-bold text-white text-base">${staff.name}</h3>
-                <p class="text-xs text-gray-400">Salon Manager (1% Total Salon Revenue)</p>
+                <h3 class="font-heading font-bold text-white text-base">${staff.name}</h3>
+                <p class="text-xs text-gray-400">Salon Manager (${salonRules.managerCommissionRate || 1}% Total Salon Revenue)</p>
               </div>
             </div>
             <div class="text-right">
               <span class="text-[10px] text-gray-400 uppercase tracking-wider block">Commission Earned</span>
-              <span class="font-syne font-bold text-lg ${p.serviceCommission > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">
+              <span class="font-heading font-bold text-lg ${p.serviceCommission > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">
                 +₹${p.serviceCommission.toLocaleString('en-IN')}
               </span>
             </div>
@@ -1281,17 +1383,17 @@ function renderIncentivesView() {
           <div class="space-y-1.5 text-xs">
             <div class="flex items-center justify-between">
               <span class="text-gray-300">
-                Salon Monthly Service Revenue: <strong class="text-white font-mono">₹${totalSalonRev.toLocaleString('en-IN')}</strong> / ₹${salonTarget.toLocaleString('en-IN')}
+                Salon Service Revenue: <strong class="text-white font-mono">₹${totalSalonRev.toLocaleString('en-IN')}</strong> / ₹${salonTarget.toLocaleString('en-IN')}
               </span>
               ${achieved ? 
-                `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">Target Reached (1% = ₹${p.serviceCommission})</span>` : 
+                `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">Target Reached (${salonRules.managerCommissionRate || 1}% = ₹${p.serviceCommission})</span>` : 
                 `<span class="text-gray-400 font-mono text-[10px]">${targetPercent}%</span>`
               }
             </div>
             <div class="w-full bg-[#131320] h-2.5 rounded-full overflow-hidden">
               <div class="h-full rounded-full transition-all duration-500 ${achieved ? 'bg-gradient-to-r from-purple-500 to-emerald-400' : 'bg-purple-500'}" style="width: ${targetPercent}%"></div>
             </div>
-            <p class="text-[10px] text-gray-500 italic mt-1">* Kalyan receives 1% on total salon service revenue only; no product commission.</p>
+            <p class="text-[10px] text-gray-500 italic mt-1">* Kalyan receives ${salonRules.managerCommissionRate || 1}% on total salon service revenue only; no product commission.</p>
           </div>
         </div>
       `;
@@ -1303,11 +1405,11 @@ function renderIncentivesView() {
         <div class="bg-[#0d0d15] p-6 rounded-3xl border border-[#1f1f30] shadow-xl space-y-4">
           <div class="flex items-center justify-between border-b border-[#181826] pb-3">
             <div class="flex items-center gap-3">
-              <div class="w-11 h-11 rounded-2xl bg-[#141420] border border-[#222234] flex items-center justify-center font-syne font-bold text-white text-sm">
+              <div class="w-11 h-11 rounded-2xl bg-[#141420] border border-[#222234] flex items-center justify-center font-bold text-white text-sm">
                 AN
               </div>
               <div>
-                <h3 class="font-syne font-bold text-white text-base">${staff.name}</h3>
+                <h3 class="font-heading font-bold text-white text-base">${staff.name}</h3>
                 <p class="text-xs text-gray-400">House Keeping</p>
               </div>
             </div>
@@ -1324,39 +1426,42 @@ function renderIncentivesView() {
     const servTarget = staff.serviceTarget || (staff.baseSalary * 5);
     const servPercent = Math.min(100, Math.round((p.totalServicesDone / servTarget) * 100));
     const servAchieved = p.totalServicesDone >= servTarget;
+    const servRate = staff.serviceCommissionRate || 5;
 
-    const t1 = staff.productTier1Min || 8000;
-    const t2 = staff.productTier2Min || 15000;
-    let prodTierLabel = `${staff.productTier1Rate}% at ₹${t1.toLocaleString('en-IN')}, ${staff.productTier2Rate}% above ₹${t2.toLocaleString('en-IN')}`;
+    const t1Min = staff.productTier1Min || 8000;
+    const t1Rate = staff.productTier1Rate || 5;
+    const t2Min = staff.productTier2Min || 15000;
+    const t2Rate = staff.productTier2Rate || 8;
+    const prodTierLabel = `${t1Rate}% above ₹${t1Min.toLocaleString('en-IN')}, ${t2Rate}% above ₹${t2Min.toLocaleString('en-IN')}`;
 
     html += `
       <div class="bg-[#0d0d15] p-6 rounded-3xl border border-[#1f1f30] shadow-xl space-y-4">
         <div class="flex items-center justify-between border-b border-[#181826] pb-3">
           <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#ff2a85]/20 to-purple-500/20 border border-[#ff2a85]/30 flex items-center justify-center font-syne font-bold text-white text-sm">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#ff2a85]/20 to-purple-500/20 border border-[#ff2a85]/30 flex items-center justify-center font-bold text-white text-sm">
               ${staff.name.substring(0, 2).toUpperCase()}
             </div>
             <div>
-              <h3 class="font-syne font-bold text-white text-base">${staff.name}</h3>
+              <h3 class="font-heading font-bold text-white text-base">${staff.name}</h3>
               <p class="text-xs text-gray-400">${staff.role}</p>
             </div>
           </div>
           <div class="text-right">
             <span class="text-[10px] text-gray-400 uppercase tracking-wider block">Commissions Earned</span>
-            <span class="font-syne font-bold text-lg ${p.totalIncentives > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">
+            <span class="font-heading font-bold text-lg ${p.totalIncentives > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">
               +₹${p.totalIncentives.toLocaleString('en-IN')}
             </span>
           </div>
         </div>
 
-        <!-- Services 5% on 5x Salary Target -->
+        <!-- Services Commission on Target -->
         <div class="space-y-1.5 text-xs">
           <div class="flex items-center justify-between">
             <span class="text-gray-300">
-              Services (5% on 5x Target): <strong class="text-white font-mono">₹${p.totalServicesDone.toLocaleString('en-IN')}</strong> / ₹${servTarget.toLocaleString('en-IN')}
+              Services (${servRate}% on Target): <strong class="text-white font-mono">₹${p.totalServicesDone.toLocaleString('en-IN')}</strong> / ₹${servTarget.toLocaleString('en-IN')}
             </span>
             ${servAchieved ? 
-              `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">5% Earned (+₹${p.serviceCommission})</span>` : 
+              `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">${servRate}% Earned (+₹${p.serviceCommission.toLocaleString('en-IN')})</span>` : 
               `<span class="text-gray-400 font-mono text-[10px]">${servPercent}%</span>`
             }
           </div>
@@ -1366,17 +1471,27 @@ function renderIncentivesView() {
         </div>
 
         <!-- Products Tiered Commission -->
-        <div class="space-y-1.5 text-xs pt-1 border-t border-[#181826]">
+        <div class="space-y-1.5 text-xs pt-2 border-t border-[#181826]">
           <div class="flex items-center justify-between">
             <span class="text-gray-300">
               Product Sales: <strong class="text-white font-mono">₹${p.totalProductsSold.toLocaleString('en-IN')}</strong>
             </span>
             ${p.productCommission > 0 ? 
-              `<span class="px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-400 font-bold text-[10px]">Commission: +₹${p.productCommission}</span>` : 
-              `<span class="text-gray-500 text-[10px] font-mono">Below ₹${t1.toLocaleString('en-IN')}</span>`
+              `<span class="px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-400 font-bold text-[10px]">Commission: +₹${p.productCommission.toLocaleString('en-IN')}</span>` : 
+              `<span class="text-gray-500 text-[10px] font-mono">Below ₹${t1Min.toLocaleString('en-IN')}</span>`
             }
           </div>
           <span class="text-[10px] text-gray-500 block">Rule: ${prodTierLabel}</span>
+        </div>
+
+        <!-- Quick Log Sales for This Staff Button -->
+        <div class="pt-2 border-t border-[#181826] flex items-center justify-between">
+          <span class="text-[10px] text-gray-500">Log daily billings for ${selectedDateStr}</span>
+          <button type="button" onclick="openQuickSalesModal('${staff.id}')" 
+            class="px-3 py-1.5 rounded-xl bg-[#171728] hover:bg-[#ff2a85]/20 text-gray-300 hover:text-[#ff7eb3] border border-[#2b2b40] hover:border-[#ff2a85]/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+            <i class="fa-solid fa-plus-circle text-[#ff2a85]"></i>
+            <span>Log Daily Sales</span>
+          </button>
         </div>
 
       </div>
@@ -1386,106 +1501,245 @@ function renderIncentivesView() {
   container.innerHTML = html;
 }
 
+/**
+ * Quick Modal/Prompt for logging daily service and product sales directly from the Incentive Tracker
+ */
+function openQuickSalesModal(staffId) {
+  const staff = staffList.find(s => s.id === staffId);
+  if (!staff) return;
+
+  const currentRecord = attendanceData[selectedDateStr]?.[staffId] || { servicesDone: 0, productsSold: 0 };
+  const currentServ = currentRecord.servicesDone || 0;
+  const currentProd = currentRecord.productsSold || 0;
+
+  const servPrompt = prompt(`Enter Service Revenue for ${staff.name} on ${selectedDateStr} (in ₹):\n(Currently: ₹${currentServ})`, currentServ);
+  if (servPrompt === null) return;
+
+  const prodPrompt = prompt(`Enter Retail Products Sold by ${staff.name} on ${selectedDateStr} (in ₹):\n(Currently: ₹${currentProd})`, currentProd);
+  if (prodPrompt === null) return;
+
+  const newServ = Math.max(0, parseFloat(servPrompt) || 0);
+  const newProd = Math.max(0, parseFloat(prodPrompt) || 0);
+
+  if (!attendanceData[selectedDateStr]) attendanceData[selectedDateStr] = {};
+  if (!attendanceData[selectedDateStr][staffId]) {
+    attendanceData[selectedDateStr][staffId] = {
+      status: 'Present',
+      inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0,
+      workedMinutes: 540, otHours: 0, shortfallHours: 0, otPay: 0,
+      servicesDone: newServ,
+      productsSold: newProd
+    };
+  } else {
+    attendanceData[selectedDateStr][staffId].servicesDone = newServ;
+    attendanceData[selectedDateStr][staffId].productsSold = newProd;
+  }
+
+  saveAttendanceData();
+  renderIncentivesView();
+  renderDailyAttendance();
+  showToast(`Updated ${staff.name}: Services ₹${newServ.toLocaleString('en-IN')}, Products ₹${newProd.toLocaleString('en-IN')}`);
+}
+
 // ==========================================
-// 8. VIEW 4: SCHEDULE ROSTER IMAGE SCANNER
+// 8. VIEW 4: SCHEDULE ROSTER IMAGE SCANNER (MULTI-IMAGE GALLERY & PRECISE PARSER)
 // ==========================================
+
+let rosterImages = [];
 
 function renderRosterView() {
   const targetDateInput = document.getElementById('rosterTargetDate');
   if (targetDateInput && !targetDateInput.value) {
     targetDateInput.value = selectedDateStr;
   }
+  renderRosterImageGallery();
   renderParsedRosterList();
 }
 
-function handleRosterImageSelected(e) {
-  const file = e.target.files && e.target.files[0];
-  if (!file) return;
-  loadImageFileToScanner(file);
+/**
+ * Handles multiple images chosen through the file picker
+ */
+function handleRosterMultipleImages(e) {
+  const files = e.target.files;
+  if (!files || files.length === 0) return;
+  for (let i = 0; i < files.length; i++) {
+    addRosterImageFile(files[i]);
+  }
+  e.target.value = '';
 }
 
-function loadImageFileToScanner(fileOrBlob) {
+/**
+ * Adds an individual file or blob to the rosterImages array and updates UI
+ */
+function addRosterImageFile(fileOrBlob) {
   const reader = new FileReader();
   reader.onload = function(evt) {
     const dataUrl = evt.target.result;
-    const previewContainer = document.getElementById('imagePreviewContainer');
-    const uploadPrompt = document.getElementById('uploadPrompt');
-    const img = document.getElementById('rosterImgPreview');
-
-    if (uploadPrompt) uploadPrompt.classList.add('hidden');
-    if (img) img.src = dataUrl;
-    if (previewContainer) previewContainer.classList.remove('hidden');
-
-    const scanBtn = document.getElementById('scanRosterBtn');
-    if (scanBtn) {
-      scanBtn.disabled = false;
-      scanBtn.classList.remove('opacity-50');
-    }
-
-    showToast('Schedule image loaded! Ready to scan.');
+    rosterImages.push({
+      id: 'img_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+      dataUrl: dataUrl,
+      name: fileOrBlob.name || `Photo ${rosterImages.length + 1}`
+    });
+    renderRosterImageGallery();
+    showToast(`Added schedule image (${rosterImages.length} loaded)!`);
   };
   reader.readAsDataURL(fileOrBlob);
 }
 
-async function pasteImageFromClipboard() {
-  try {
-    if (navigator.clipboard && navigator.clipboard.read) {
-      const items = await navigator.clipboard.read();
-      for (const item of items) {
-        const imageType = item.types.find(type => type.startsWith('image/'));
-        if (imageType) {
-          const blob = await item.getType(imageType);
-          loadImageFileToScanner(blob);
-          showToast('Image pasted from clipboard! Ready to scan.');
-          return;
-        }
-      }
-      showToast('No image in clipboard. Copy an image screenshot first or press Ctrl+V directly.');
-    } else {
-      showToast('Please press Ctrl + V anywhere to paste your schedule image directly.');
-    }
-  } catch (err) {
-    console.warn('Clipboard read error:', err);
-    showToast('Clipboard access denied. Please press Ctrl + V directly to paste.');
+/**
+ * Removes a photo from the roster scanner gallery
+ */
+function removeRosterImage(index) {
+  if (index >= 0 && index < rosterImages.length) {
+    rosterImages.splice(index, 1);
+    renderRosterImageGallery();
+    showToast('Removed photo from gallery.');
   }
 }
 
 /**
- * Preprocesses low-resolution/compressed WhatsApp images onto an in-memory HTML Canvas:
- * 1. 3x Upscaling for sharp font resolution.
- * 2. Grayscale conversion using Rec. 601 Luma weighting.
- * 3. High-contrast threshold binarization (>165) to eliminate table background colors and JPEG artifacts.
+ * Clears all loaded roster photos
  */
-function preprocessImageToCleanCanvas(imgElement) {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  const scale = 3;
-  
-  canvas.width = (imgElement.naturalWidth || imgElement.width || 400) * scale;
-  canvas.height = (imgElement.naturalHeight || imgElement.height || 300) * scale;
-
-  ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
-
-  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const d = imgData.data;
-
-  for (let i = 0; i < d.length; i += 4) {
-    const avg = d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114;
-    const v = avg > 165 ? 255 : 0;
-    d[i] = v;
-    d[i + 1] = v;
-    d[i + 2] = v;
-  }
-  ctx.putImageData(imgData, 0, 0);
-
-  return canvas.toDataURL('image/png');
+function clearAllRosterImages() {
+  rosterImages = [];
+  parsedRosterBuffer = {};
+  renderRosterImageGallery();
+  renderParsedRosterList();
+  showToast('Cleared all schedule photos.');
 }
 
-function scanUploadedRoster() {
-  const img = document.getElementById('rosterImgPreview');
-  if (!img || !img.src) {
-    alert('Please paste (Ctrl+V) or upload a schedule image first.');
+/**
+ * Renders the multi-image thumbnail gallery, badge, and scan button state
+ */
+function renderRosterImageGallery() {
+  const promptEl = document.getElementById('uploadPrompt');
+  const galleryContainer = document.getElementById('rosterGalleryContainer');
+  const galleryGrid = document.getElementById('rosterGalleryGrid');
+  const badge = document.getElementById('rosterImageCountBadge');
+  const clearBtn = document.getElementById('clearAllImagesBtn');
+  const scanBtn = document.getElementById('scanRosterBtn');
+  const scanBtnLabel = document.getElementById('scanBtnLabel');
+
+  const count = rosterImages.length;
+  if (badge) {
+    badge.innerText = `${count} Pic${count === 1 ? '' : 's'}`;
+  }
+
+  if (count === 0) {
+    if (promptEl) promptEl.classList.remove('hidden');
+    if (galleryContainer) galleryContainer.classList.add('hidden');
+    if (clearBtn) clearBtn.classList.add('hidden');
+    if (scanBtn) {
+      scanBtn.disabled = true;
+      scanBtn.classList.add('opacity-50');
+    }
+    if (scanBtnLabel) scanBtnLabel.innerText = 'Scan Schedule Image with AI';
+    return;
+  }
+
+  if (promptEl) promptEl.classList.add('hidden');
+  if (galleryContainer) galleryContainer.classList.remove('hidden');
+  if (clearBtn) clearBtn.classList.remove('hidden');
+  if (scanBtn) {
+    scanBtn.disabled = false;
+    scanBtn.classList.remove('opacity-50');
+  }
+  if (scanBtnLabel) {
+    scanBtnLabel.innerText = `Scan ${count} Schedule Photo${count === 1 ? '' : 's'} with AI`;
+  }
+
+  if (galleryGrid) {
+    galleryGrid.innerHTML = rosterImages.map((img, idx) => `
+      <div class="relative group rounded-2xl overflow-hidden border border-[#2d2d46] bg-[#0c0c16] aspect-[4/3] flex items-center justify-center shadow-md">
+        <img src="${img.dataUrl}" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+          <button type="button" onclick="removeRosterImage(${idx})" class="p-2 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white text-xs shadow-lg transition-all" title="Remove Photo">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+        <span class="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-black/80 text-white text-[10px] font-bold font-mono border border-white/20">
+          #${idx + 1}
+        </span>
+      </div>
+    `).join('');
+  }
+}
+
+/**
+ * Handles pasting image from clipboard (supports multiple pastes)
+ */
+async function pasteImageFromClipboard() {
+  try {
+    if (navigator.clipboard && navigator.clipboard.read) {
+      const items = await navigator.clipboard.read();
+      let found = false;
+      for (const item of items) {
+        const imageType = item.types.find(type => type.startsWith('image/'));
+        if (imageType) {
+          const blob = await item.getType(imageType);
+          addRosterImageFile(blob);
+          found = true;
+        }
+      }
+      if (found) {
+        showToast('Image pasted! You can paste more pics or click Scan.');
+        return;
+      }
+      showToast('No image in clipboard. Copy a screenshot or press Ctrl+V directly.');
+    } else {
+      showToast('Please press Ctrl + V directly anywhere on the page to paste.');
+    }
+  } catch (err) {
+    console.warn('Clipboard read error:', err);
+    showToast('Clipboard permission denied. Please press Ctrl + V directly to paste.');
+  }
+}
+
+/**
+ * Preprocesses low-resolution or compressed WhatsApp images:
+ * Upscaling, Grayscale Rec.601, and Binarization thresholding (> 160)
+ */
+function preprocessImageSource(dataUrl) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const scale = 2.5;
+        canvas.width = (img.naturalWidth || img.width || 400) * scale;
+        canvas.height = (img.naturalHeight || img.height || 300) * scale;
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const d = imgData.data;
+        for (let i = 0; i < d.length; i += 4) {
+          const avg = d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114;
+          const v = avg > 160 ? 255 : 0;
+          d[i] = v;
+          d[i + 1] = v;
+          d[i + 2] = v;
+        }
+        ctx.putImageData(imgData, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      } catch (err) {
+        console.warn('Canvas preprocess error:', err);
+        resolve(dataUrl);
+      }
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
+/**
+ * Sequential Multi-Image OCR Scanner with accurate overall progress tracking
+ */
+async function scanUploadedRoster() {
+  if (!rosterImages || rosterImages.length === 0) {
+    alert('Please paste (Ctrl+V) or upload at least one schedule image first.');
     return;
   }
 
@@ -1511,83 +1765,150 @@ function scanUploadedRoster() {
     return;
   }
 
-  // Generate cleaned binary image for high accuracy OCR
-  let cleanSource = img.src;
-  try {
-    cleanSource = preprocessImageToCleanCanvas(img);
-  } catch (err) {
-    console.warn('Canvas preprocessing fallback:', err);
-    cleanSource = img.src;
-  }
+  let aggregatedText = '';
+  const totalImages = rosterImages.length;
 
-  Tesseract.recognize(
-    cleanSource,
-    'eng',
-    {
-      logger: m => {
-        if (m.status === 'recognizing text') {
-          const pct = Math.round(m.progress * 100);
-          if (pBar) pBar.style.width = pct + '%';
-          if (pPercent) pPercent.innerText = pct + '%';
-          if (pText) pText.innerText = `Enhancing contrast & reading roster (${pct}%)...`;
+  try {
+    for (let i = 0; i < totalImages; i++) {
+      const currentImg = rosterImages[i];
+      if (pText) pText.innerText = `Enhancing & reading photo ${i + 1} of ${totalImages}...`;
+      
+      const cleanSource = await preprocessImageSource(currentImg.dataUrl);
+
+      const result = await Tesseract.recognize(
+        cleanSource,
+        'eng',
+        {
+          logger: m => {
+            if (m.status === 'recognizing text') {
+              const currentImgPct = m.progress || 0;
+              const overallPct = Math.round(((i + currentImgPct) / totalImages) * 100);
+              if (pBar) pBar.style.width = overallPct + '%';
+              if (pPercent) pPercent.innerText = overallPct + '%';
+              if (pText) pText.innerText = `Reading photo ${i + 1} of ${totalImages} (${Math.round(currentImgPct * 100)}%)...`;
+            }
+          }
         }
-      }
+      );
+
+      aggregatedText += '\n' + (result.data?.text || '');
     }
-  ).then(({ data: { text } }) => {
+
     if (pBox) pBox.classList.add('hidden');
     if (scanBtn) {
       scanBtn.disabled = false;
       scanBtn.classList.remove('opacity-50');
     }
-    parseRosterText(text);
+
+    parseRosterText(aggregatedText);
     const count = Object.keys(parsedRosterBuffer).length;
-    showToast(`Scan complete! Identified ${count} staff members in roster.`);
-  }).catch(err => {
-    console.error('OCR Error:', err);
+    showToast(`Scan complete! Identified ${count} staff schedules across ${totalImages} photos.`);
+  } catch (err) {
+    console.error('Multi-image OCR Error:', err);
     if (pBox) pBox.classList.add('hidden');
     if (scanBtn) {
       scanBtn.disabled = false;
       scanBtn.classList.remove('opacity-50');
     }
-    // Fallback: parse known sample text if sample image was loaded
-    loadSampleUploadedRoster();
-  });
+    if (aggregatedText.trim().length > 0) {
+      parseRosterText(aggregatedText);
+    } else {
+      loadSampleUploadedRoster();
+    }
+  }
 }
 
 function loadSampleUploadedRoster() {
-  const previewContainer = document.getElementById('imagePreviewContainer');
-  const uploadPrompt = document.getElementById('uploadPrompt');
-  const img = document.getElementById('rosterImgPreview');
-
-  if (uploadPrompt) uploadPrompt.classList.add('hidden');
-  if (img) img.src = 'sample_roster.jpg';
-  if (previewContainer) previewContainer.classList.remove('hidden');
-
-  // Also parse the exact roster data for 26-09-2026 immediately
   const sampleOcrText = `DATE: 26-09-2026 SATURDAY
 DAILY ROSTER
-SLNO
 MALE STAFF
-1 | SULEMAN | = 1200709:00 |
-2 | stam | 90070600
-3 | ilaRaM | eave
-rr |
+1 | SULEMAN | = 1200709:00
+2 | ISLAM | DAY OFF
+3 | IQRAM | LEAVE
 FEMALE STAFF
 1 | ARUNA | = 1000T07:00
-2 | ARN | = 11:0070800
+2 | AFRIN | = 11:0070800
 3 | RESHMA | = 120070900
 NOTE: ANY LEAVE SAME DAY INFORMATION DOUBLE SALARY CUT`;
 
   parseRosterText(sampleOcrText);
-  showToast('Loaded sample roster photo & verified 26-09-2026 schedule!');
+  showToast('Loaded sample roster & verified schedule!');
+}
+
+/**
+ * Strict Shift Extractor:
+ * 1. WEEK OFF / DAY OFF: strictly mapped to 'Weekly Off' (entitled regular weekly off, ₹0 salary cut).
+ *    Recognizes: DAY OFF, WEEK OFF, WEEKLY OFF, D.OFF, W.OFF, D/O, W/O, DO, WO, DAY-OFF, WEEK-OFF, OFF.
+ * 2. LEAVE: strictly mapped to 'Leave' (unpaid leave, triggers daily salary deduction).
+ *    Recognizes: LEAVE, EAVE, ABSENT, CASUAL LEAVE, SICK LEAVE, LV, LVE, CL, SL, PL, ABS.
+ * 3. TIMINGS: 12:00 TO 9:00, 120070900, 900To600, 110070800, 1000T07:00, 10-7, etc.
+ */
+function extractShiftFromContext(line, nextLine = '') {
+  const combined = (line + ' ' + (nextLine || '')).toUpperCase();
+
+  // 1. Strict Week Off / Day Off Detection FIRST:
+  const isWeekOff = 
+    /\b(DAY\s*OFF|WEEK\s*OFF|WEEKLY\s*OFF|DAYOFF|WEEKOFF|D[.\s/_-]*OFF|W[.\s/_-]*OFF|DAY[._-]?OFF|WEEK[._-]?OFF|D\/O|W\/O|WK\s*OFF)\b/i.test(combined) ||
+    /\b(DAY\s*QFF|WEEK\s*QFF|OFF\s*DAY)\b/i.test(combined) ||
+    /(?:^|[\s|:=-])(?:DO|WO|D\.O|W\.O)(?:[\s|:=-]|$)/i.test(combined) ||
+    (/(?:^|[\s|:=-])(OFF)(?:[\s|:=-]|$)/i.test(combined) && !combined.includes('COFFEE') && !combined.includes('OFFIC'));
+
+  // 2. Strict Leave Detection:
+  const isLeave = 
+    /\b(LEAVE|EAVE|ABSENT|CASUAL\s*LEAVE|SICK\s*LEAVE|PAID\s*LEAVE|UNPAID\s*LEAVE)\b/i.test(combined) ||
+    /(?:^|[\s|:=-])(?:LV|LVE|CL|SL|PL|ABS)(?:[\s|:=-]|$)/i.test(combined);
+
+  if (isWeekOff) {
+    return { status: 'Weekly Off', inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0 };
+  }
+  if (isLeave) {
+    return { status: 'Leave', inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0 };
+  }
+
+  // 3. Robust time matching:
+  const timeMatch = combined.match(/(\d{3,4}|\d{1,2}(?::\d{2})?)\s*(?:TO|70|10|T0|-|UNTIL)\s*(\d{3,4}|\d{1,2}(?::\d{2})?)/i);
+  if (timeMatch) {
+    function parseTimeVal(str) {
+      if (str.includes(':')) {
+        const parts = str.split(':');
+        return { h: parseInt(parts[0], 10), m: parseInt(parts[1], 10) || 0 };
+      }
+      const val = parseInt(str, 10);
+      if (val >= 100) {
+        return { h: Math.floor(val / 100), m: val % 100 };
+      }
+      return { h: val, m: 0 };
+    }
+
+    const start = parseTimeVal(timeMatch[1]);
+    const end = parseTimeVal(timeMatch[2]);
+
+    let startAmpm = (start.h === 12 || start.h === 1 || start.h === 2 || start.h === 3) ? 'PM' : 'AM';
+    let inH = start.h;
+    if (inH === 0) inH = 12;
+    let outH = end.h;
+    if (outH === 0) outH = 12;
+
+    return {
+      status: 'Present',
+      inH: inH,
+      inM: start.m,
+      inAmpm: startAmpm,
+      outH: outH,
+      outM: end.m
+    };
+  }
+
+  // Fallback Present 10:00 AM - 7:00 PM
+  return { status: 'Present', inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0 };
 }
 
 /**
  * Strict Roster Parser:
- * 1. Checks names strictly. If staff name is NOT in text, their data is NOT added or touched!
+ * 1. Checks names strictly. If staff name is NOT in text, their data is NOT touched!
  * 2. Kalyan (Manager) and Anusha (Housekeeping) are excluded if not in roster.
- * 3. Extracts date from image header and updates target date input.
- * 4. Recognizes standard and compressed OCR timings (e.g. 120070900, 900To600, 110070800, 1000T07:00).
+ * 3. Inspects current line and lookahead line to catch schedules where name and time are on separate lines.
+ * 4. Extracts date from image header.
  */
 function parseRosterText(rawText) {
   parsedRosterBuffer = {};
@@ -1597,7 +1918,7 @@ function parseRosterText(rawText) {
     return;
   }
 
-  // 1. Detect Date (e.g. "DATE: 26-09-2026" or "26-09-2026" or "26/09/2026")
+  // 1. Detect Date
   const dateMatch = rawText.match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/);
   if (dateMatch) {
     let day = dateMatch[1].padStart(2, '0');
@@ -1612,49 +1933,6 @@ function parseRosterText(rawText) {
     }
   }
 
-  // Helper to extract timings or leave status from a line
-  function extractShift(text) {
-    const upper = text.toUpperCase();
-    if (upper.includes('LEAVE') || upper.includes('EAVE') || upper.includes('ABSENT')) {
-      return { status: 'Leave', inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0 };
-    }
-    if (upper.includes('WEEKLY OFF') || upper.includes(' OFF')) {
-      return { status: 'Weekly Off', inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0 };
-    }
-
-    // Robust time matching: matches 12:00 TO 9:00, 120070900, 900To600, 110070800, 1000T07:00, 10-7, etc.
-    const timeMatch = upper.match(/(\d{3,4}|\d{1,2}(?::\d{2})?)\s*(?:TO|70|10|T0|-)\s*(\d{3,4}|\d{1,2}(?::\d{2})?)/i);
-    if (timeMatch) {
-      function parseTimeVal(str) {
-        if (str.includes(':')) {
-          const parts = str.split(':');
-          return { h: parseInt(parts[0], 10), m: parseInt(parts[1], 10) || 0 };
-        }
-        const val = parseInt(str, 10);
-        if (val >= 100) {
-          return { h: Math.floor(val / 100), m: val % 100 };
-        }
-        return { h: val, m: 0 };
-      }
-
-      const start = parseTimeVal(timeMatch[1]);
-      const end = parseTimeVal(timeMatch[2]);
-
-      let startAmpm = (start.h === 12 || start.h === 1 || start.h === 2 || start.h === 3) ? 'PM' : 'AM';
-      return {
-        status: 'Present',
-        inH: start.h,
-        inM: start.m,
-        inAmpm: startAmpm,
-        outH: end.h, // Always PM
-        outM: end.m
-      };
-    }
-
-    // Default 10 to 7 if present but no specific timing recognized
-    return { status: 'Present', inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0 };
-  }
-
   const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
   let inMaleSection = false;
@@ -1665,55 +1943,55 @@ function parseRosterText(rawText) {
       id: 'staff_1',
       name: 'KALYAN',
       isManager: true,
-      aliases: ['KALYAN', 'MANAGER']
+      aliases: ['KALYAN', 'MANAGER', 'KALAYAN']
     },
     {
       id: 'staff_4',
       name: 'SULEMAN',
       gender: 'male',
       sectionIndex: 1,
-      aliases: ['SULEMAN', 'SUEMAN', 'SULMAN', 'SULIMAN', 'SUMAN']
+      aliases: ['SULEMAN', 'SUEMAN', 'SULMAN', 'SULIMAN', 'SUMAN', 'SULEMAAN']
     },
     {
       id: 'staff_2',
       name: 'ISLAM',
       gender: 'male',
       sectionIndex: 2,
-      aliases: ['ISLAM', 'STAM', '1SLAM', 'SLAM']
+      aliases: ['ISLAM', 'STAM', '1SLAM', 'SLAM', 'ISLM', 'ISLAAM']
     },
     {
       id: 'staff_3',
       name: 'IQRAM',
       gender: 'male',
       sectionIndex: 3,
-      aliases: ['IQRAM', 'IKRAM', 'ILARAM', 'RAM', 'ORAM', 'QRAM', 'ILARA']
+      aliases: ['IQRAM', 'IKRAM', 'ILARAM', 'RAM', 'ORAM', 'QRAM', 'ILARA', 'IKRM']
     },
     {
       id: 'staff_7',
       name: 'Aruna',
       gender: 'female',
       sectionIndex: 1,
-      aliases: ['ARUNA', 'ARUN', 'AARUNA']
+      aliases: ['ARUNA', 'ARUN', 'AARUNA', 'ARU']
     },
     {
       id: 'staff_5',
       name: 'AFRIN',
       gender: 'female',
       sectionIndex: 2,
-      aliases: ['AFRIN', 'AFREEN', 'AMN', 'ARN', 'AERIN', 'AARIN']
+      aliases: ['AFRIN', 'AFREEN', 'AMN', 'ARN', 'AERIN', 'AARIN', 'AFRN']
     },
     {
       id: 'staff_6',
       name: 'RESHMA',
       gender: 'female',
       sectionIndex: 3,
-      aliases: ['RESHMA', 'RMESIMA', 'RMESAMA', 'RESHM', 'RISHMA']
+      aliases: ['RESHMA', 'RMESIMA', 'RMESAMA', 'RESHM', 'RISHMA', 'RESMA']
     },
     {
       id: 'staff_8',
       name: 'Anusha (HOUSE KEEPING)',
       isHousekeeping: true,
-      aliases: ['ANUSHA', 'HOUSE KEEPING', 'HOUSEKEEPING']
+      aliases: ['ANUSHA', 'HOUSE KEEPING', 'HOUSEKEEPING', 'ANUSH']
     }
   ];
 
@@ -1766,7 +2044,18 @@ function parseRosterText(rawText) {
       if (matched) {
         const staffObj = staffList.find(s => s.id === staffDef.id);
         if (staffObj) {
-          const shift = extractShift(line);
+          // Lookahead to next line if next line does not match another staff member
+          let nextLineText = '';
+          if (i + 1 < lines.length) {
+            const nextL = lines[i + 1].toUpperCase();
+            const isNextStaff = staffDefinitions.some(sd => sd.aliases.some(a => nextL.includes(a)));
+            const isHeader = nextL.includes('MALE') || nextL.includes('FEMALE') || nextL.includes('NOTE') || nextL.includes('DATE');
+            if (!isNextStaff && !isHeader) {
+              nextLineText = lines[i + 1];
+            }
+          }
+
+          const shift = extractShiftFromContext(line, nextLineText);
           parsedRosterBuffer[staffDef.id] = {
             staff: staffObj,
             status: shift.status,
@@ -1785,6 +2074,17 @@ function parseRosterText(rawText) {
   renderParsedRosterList();
 }
 
+/**
+ * Allows the owner to adjust detected status directly from the preview card
+ */
+function updateDetectedStaffStatus(staffId, newStatus) {
+  if (parsedRosterBuffer[staffId]) {
+    parsedRosterBuffer[staffId].status = newStatus;
+    renderParsedRosterList();
+    showToast(`Updated ${parsedRosterBuffer[staffId].staff.name} to ${newStatus}`);
+  }
+}
+
 function renderParsedRosterList() {
   const container = document.getElementById('parsedRosterList');
   const countBadge = document.getElementById('detectedCountBadge');
@@ -1800,8 +2100,8 @@ function renderParsedRosterList() {
   if (detectedCount === 0) {
     container.innerHTML = `
       <div class="text-center py-14 text-xs text-gray-500">
-        <i class="fa-solid fa-image text-3xl mb-2 text-gray-600 block"></i>
-        <span>Paste a schedule image with Ctrl+V or upload to scan.</span>
+        <i class="fa-solid fa-images text-3xl mb-2 text-gray-600 block"></i>
+        <span>Paste 1, 2, or more schedule photos (Ctrl+V) or browse to scan.</span>
       </div>
     `;
     return;
@@ -1813,25 +2113,42 @@ function renderParsedRosterList() {
     const item = parsedRosterBuffer[id];
     const s = item.staff;
 
+    const isOff = item.status === 'Weekly Off' || item.status === 'Day Off';
+    const isLeave = item.status === 'Leave';
+
     html += `
-      <div class="p-3.5 bg-[#0a0a12] rounded-2xl border border-[#202030] flex items-center justify-between text-xs">
+      <div class="p-3.5 bg-[#0a0a12] rounded-2xl border border-[#202030] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
         <div>
           <div class="flex items-center gap-2">
-            <strong class="text-white font-syne text-sm">${s.name}</strong>
+            <strong class="text-white font-heading text-sm">${s.name}</strong>
             <span class="text-[9px] px-2 py-0.5 rounded-full bg-[#ff2a85]/15 text-[#ff7eb3] uppercase font-bold border border-[#ff2a85]/30">In Roster</span>
           </div>
           <span class="text-[10px] text-gray-400 block mt-0.5">${s.role}</span>
         </div>
-        <div class="text-right">
+
+        <div class="flex items-center gap-2 justify-end">
           ${item.status === 'Present' ? 
-            `<span class="px-3 py-1 rounded-xl bg-emerald-500/15 text-emerald-400 font-mono font-bold border border-emerald-500/30">
+            `<span class="px-3 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-400 font-mono font-bold border border-emerald-500/30 flex items-center gap-1.5">
+              <i class="fa-solid fa-clock text-xs"></i>
               ${item.inH}:${item.inM < 10 ? '0' + item.inM : item.inM} ${item.inAmpm} - ${item.outH}:${item.outM < 10 ? '0' + item.outM : item.outM} PM
              </span>` : 
-            (item.status === 'Weekly Off' ? 
-              `<span class="px-3 py-1 rounded-xl bg-indigo-500/15 text-indigo-400 font-bold border border-indigo-500/30">☕ WEEKLY OFF</span>` : 
-              `<span class="px-3 py-1 rounded-xl bg-rose-500/15 text-rose-400 font-bold border border-rose-500/30">❌ LEAVE</span>`
+            (isOff ? 
+              `<span class="px-3 py-1.5 rounded-xl bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/40 flex items-center gap-1.5">
+                <i class="fa-solid fa-mug-hot text-xs"></i> DAY OFF (₹0 CUT)
+               </span>` : 
+              `<span class="px-3 py-1.5 rounded-xl bg-rose-500/20 text-rose-400 font-bold border border-rose-500/40 flex items-center gap-1.5">
+                <i class="fa-solid fa-user-xmark text-xs"></i> LEAVE (SALARY CUT)
+               </span>`
             )
           }
+
+          <!-- Quick status override dropdown -->
+          <select onchange="updateDetectedStaffStatus('${id}', this.value)" 
+            class="bg-[#141424] border border-[#27273e] text-gray-300 rounded-xl px-2 py-1 text-[11px] font-semibold focus:border-[#ff2a85] focus:outline-none">
+            <option value="Present" ${item.status === 'Present' ? 'selected' : ''}>Present</option>
+            <option value="Weekly Off" ${isOff ? 'selected' : ''}>Day Off (0 Cut)</option>
+            <option value="Leave" ${isLeave ? 'selected' : ''}>Leave (Cut)</option>
+          </select>
         </div>
       </div>
     `;
@@ -1931,7 +2248,7 @@ function renderAdminView() {
 
   staffList.forEach((staff, idx) => {
     html += `
-      <div class="bg-[#11111c] p-5 rounded-2xl border border-[#202032] space-y-3 text-xs">
+      <div class="bg-[#11111c] p-5 rounded-2xl border border-[#202032] space-y-4 text-xs">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#181826] pb-3">
           <div class="flex items-center gap-3">
             <span class="w-8 h-8 rounded-xl bg-[#181826] text-[#ff7eb3] font-bold flex items-center justify-center font-mono">
@@ -1939,21 +2256,22 @@ function renderAdminView() {
             </span>
             <div>
               <input type="text" id="admin_name_${staff.id}" value="${staff.name}" 
-                class="bg-[#181828] border border-[#26263a] rounded-xl px-3 py-1 text-white font-bold font-syne text-sm focus:border-[#ff2a85]">
+                class="bg-[#181828] border border-[#26263a] rounded-xl px-3 py-1 text-white font-bold font-heading text-sm focus:border-[#ff2a85]">
               <input type="text" id="admin_role_${staff.id}" value="${staff.role}" 
                 class="bg-transparent border-b border-[#222234] text-gray-400 text-xs mt-1 px-1 py-0.5 focus:border-[#ff2a85] block w-full">
             </div>
           </div>
 
           <div class="flex items-center gap-2">
-            ${staff.isManager ? '<span class="px-2.5 py-1 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] font-bold text-[10px]">MANAGER (1% SALON REVENUE)</span>' : ''}
+            ${staff.isManager ? `<span class="px-2.5 py-1 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] font-bold text-[10px]">MANAGER (${salonRules.managerCommissionRate || 1}% SALON REVENUE)</span>` : ''}
             <button onclick="removeStaffMember('${staff.id}')" title="Delete Staff Member"
-              class="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-all">
+              class="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-all cursor-pointer">
               <i class="fa-solid fa-trash text-xs"></i>
             </button>
           </div>
         </div>
 
+        <!-- Row 1: Fixed Pay & Allowance -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
             <label class="text-[10px] text-gray-400 uppercase font-semibold block mb-1">Base Salary (₹)</label>
@@ -1970,29 +2288,61 @@ function renderAdminView() {
           </div>
 
           ${staff.isManager ? `
-            <div class="col-span-2 p-2 rounded-xl bg-[#090910] text-gray-400 text-[11px]">
-              Kalyan Manager gets 1% on total salon service revenue when salon target is reached.
+            <div class="col-span-2 p-2.5 rounded-xl bg-[#090910] border border-[#1b1b2a] text-gray-400 text-[11px] flex items-center">
+              Kalyan earns ${salonRules.managerCommissionRate || 1}% on total salon service revenue when salon target is met.
             </div>
           ` : (staff.isHousekeeping ? `
-            <div class="col-span-2 p-2 rounded-xl bg-[#090910] text-gray-400 text-[11px]">
-              House Keeping has no OT or incentive commissions.
+            <div class="col-span-2 p-2.5 rounded-xl bg-[#090910] border border-[#1b1b2a] text-gray-400 text-[11px] flex items-center">
+              House Keeping has fixed salary. No OT or percentage commission rules apply.
             </div>
           ` : `
             <div>
-              <label class="text-[10px] text-purple-400 uppercase font-semibold block mb-1">Service Target (5x)</label>
-              <input type="number" id="admin_serv_target_${staff.id}" value="${staff.serviceTarget || (staff.baseSalary * 5)}" 
+              <label class="text-[10px] text-purple-400 uppercase font-semibold block mb-1">Service Comm. (%)</label>
+              <input type="number" id="admin_serv_rate_${staff.id}" value="${staff.serviceCommissionRate || 5}" min="0" max="100" 
                 onfocus="this.select()"
                 class="w-full bg-[#181828] border border-[#26263a] rounded-xl px-2.5 py-1.5 text-purple-300 font-mono font-bold focus:border-[#ff2a85]">
             </div>
 
             <div>
-              <label class="text-[10px] text-pink-400 uppercase font-semibold block mb-1">Product Tiers</label>
-              <span class="text-[11px] text-gray-400 block pt-1 font-mono">
-                ${staff.productTier1Rate}% &gt;₹${staff.productTier1Min} | ${staff.productTier2Rate}% &gt;₹${staff.productTier2Min}
-              </span>
+              <label class="text-[10px] text-purple-400 uppercase font-semibold block mb-1">Service Target (₹)</label>
+              <input type="number" id="admin_serv_target_${staff.id}" value="${staff.serviceTarget || (staff.baseSalary * 5)}" 
+                onfocus="this.select()"
+                class="w-full bg-[#181828] border border-[#26263a] rounded-xl px-2.5 py-1.5 text-purple-300 font-mono font-bold focus:border-[#ff2a85]">
             </div>
           `)}
         </div>
+
+        <!-- Row 2: Product Percentage Tiers (For Stylists) -->
+        ${(!staff.isManager && !staff.isHousekeeping) ? `
+          <div class="p-3 bg-[#0a0a14] rounded-xl border border-[#1e1e30] space-y-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-pink-400 block">
+              <i class="fa-solid fa-bottle-droplet mr-1"></i> Retail Product Commission Percentage Rules
+            </span>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div>
+                <label class="text-[9px] text-gray-400 block mb-0.5">Tier 1 Comm (%)</label>
+                <input type="number" id="admin_prod_tier1_rate_${staff.id}" value="${staff.productTier1Rate || 5}" min="0" max="100"
+                  class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-pink-300 font-mono text-xs font-bold focus:border-[#ff2a85]">
+              </div>
+              <div>
+                <label class="text-[9px] text-gray-400 block mb-0.5">Tier 1 Min Sales (₹)</label>
+                <input type="number" id="admin_prod_tier1_min_${staff.id}" value="${staff.productTier1Min || 8000}" min="0"
+                  class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-white font-mono text-xs font-bold focus:border-[#ff2a85]">
+              </div>
+              <div>
+                <label class="text-[9px] text-gray-400 block mb-0.5">Tier 2 Comm (%)</label>
+                <input type="number" id="admin_prod_tier2_rate_${staff.id}" value="${staff.productTier2Rate || 8}" min="0" max="100"
+                  class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-pink-300 font-mono text-xs font-bold focus:border-[#ff2a85]">
+              </div>
+              <div>
+                <label class="text-[9px] text-gray-400 block mb-0.5">Tier 2 Min Sales (₹)</label>
+                <input type="number" id="admin_prod_tier2_min_${staff.id}" value="${staff.productTier2Min || 15000}" min="0"
+                  class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-white font-mono text-xs font-bold focus:border-[#ff2a85]">
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
       </div>
     `;
   });
@@ -2014,12 +2364,24 @@ function saveAllStaffEdits() {
 
     if (!staff.isManager && !staff.isHousekeeping) {
       const sTarg = document.getElementById(`admin_serv_target_${staff.id}`);
+      const sRate = document.getElementById(`admin_serv_rate_${staff.id}`);
+      const p1Rate = document.getElementById(`admin_prod_tier1_rate_${staff.id}`);
+      const p1Min = document.getElementById(`admin_prod_tier1_min_${staff.id}`);
+      const p2Rate = document.getElementById(`admin_prod_tier2_rate_${staff.id}`);
+      const p2Min = document.getElementById(`admin_prod_tier2_min_${staff.id}`);
+
       if (sTarg) staff.serviceTarget = parseFloat(sTarg.value) || (staff.baseSalary * 5);
+      if (sRate) staff.serviceCommissionRate = parseFloat(sRate.value) || 5;
+      if (p1Rate) staff.productTier1Rate = parseFloat(p1Rate.value) || 5;
+      if (p1Min) staff.productTier1Min = parseFloat(p1Min.value) || 8000;
+      if (p2Rate) staff.productTier2Rate = parseFloat(p2Rate.value) || 8;
+      if (p2Min) staff.productTier2Min = parseFloat(p2Min.value) || 15000;
     }
   });
 
   saveStaffList();
-  showToast('All staff details saved successfully!');
+  renderIncentivesView();
+  showToast('All staff salaries, targets & percentage commission rates saved!');
 }
 
 function saveSalonManagerTarget() {
@@ -2148,32 +2510,51 @@ function restoreSystemData(event) {
   reader.readAsText(file);
 }
 
-function resetAllSalesAndIncentivesToZero() {
-  if (confirm('Reset all service and product sales to ₹0 across all dates? This will set all staff incentives to ₹0.')) {
-    for (const dateKey in attendanceData) {
-      if (attendanceData[dateKey]) {
-        for (const staffId in attendanceData[dateKey]) {
-          if (attendanceData[dateKey][staffId]) {
-            attendanceData[dateKey][staffId].servicesDone = 0;
-            attendanceData[dateKey][staffId].productsSold = 0;
-          }
+function resetAllSalesAndIncentivesToZero(buttonElement) {
+  for (const dateKey in attendanceData) {
+    if (attendanceData[dateKey]) {
+      for (const staffId in attendanceData[dateKey]) {
+        if (attendanceData[dateKey][staffId]) {
+          attendanceData[dateKey][staffId].servicesDone = 0;
+          attendanceData[dateKey][staffId].productsSold = 0;
         }
       }
     }
-    saveAttendanceData();
-    updateViewFromHash();
-    showToast('All sales and incentives successfully reset to ₹0!');
+  }
+  saveAttendanceData();
+  renderDailyAttendance();
+  renderMonthlyPayroll();
+  renderIncentivesView();
+  showToast('✓ All sales and incentives have been reset to ₹0!');
+
+  if (buttonElement && buttonElement.innerHTML) {
+    const originalText = buttonElement.innerHTML;
+    buttonElement.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> <span class="text-emerald-300 font-bold">Reset to ₹0 Done!</span>';
+    setTimeout(() => {
+      buttonElement.innerHTML = originalText;
+    }, 2500);
   }
 }
 
-function clearAllAttendanceDataToZero() {
-  if (confirm('Are you sure you want to clear ALL attendance and sales data? Everything will be wiped to a fresh 0 clean slate.')) {
-    attendanceData = {};
-    saveAttendanceData();
-    updateViewFromHash();
-    showToast('All attendance, overtime, and sales data cleared to 0!');
+function clearAllAttendanceDataToZero(buttonElement) {
+  attendanceData = {};
+  saveAttendanceData();
+  renderDailyAttendance();
+  renderMonthlyPayroll();
+  renderIncentivesView();
+  showToast('✓ All attendance and sales data cleared to a clean 0 slate!');
+
+  if (buttonElement && buttonElement.innerHTML) {
+    const originalText = buttonElement.innerHTML;
+    buttonElement.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> <span class="text-emerald-300 font-bold">Cleared to 0!</span>';
+    setTimeout(() => {
+      buttonElement.innerHTML = originalText;
+    }, 2500);
   }
 }
+
+window.resetAllSalesAndIncentivesToZero = resetAllSalesAndIncentivesToZero;
+window.clearAllAttendanceDataToZero = clearAllAttendanceDataToZero;
 
 function confirmResetDefaults() {
   if (confirm('Reset Green Trends Kothapet to factory default settings?')) {
@@ -2336,7 +2717,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('hashchange', updateViewFromHash);
 
-  // Global Clipboard Paste Listener (Ctrl + V for images)
+  // Global Clipboard Paste Listener (Ctrl + V for images - supports 1, 2, 3+ photos)
   window.addEventListener('paste', (e) => {
     const items = (e.clipboardData || window.clipboardData)?.items;
     if (!items) return;
@@ -2347,15 +2728,13 @@ window.addEventListener('DOMContentLoaded', () => {
           if (window.location.hash !== '#roster') {
             navigateTo('roster');
           }
-          loadImageFileToScanner(blob);
-          showToast('Image pasted from clipboard! Ready to scan.');
-          break;
+          addRosterImageFile(blob);
         }
       }
     }
   });
 
-  // Drag and Drop support on #dropZone
+  // Drag and Drop support on #dropZone (supports multiple files dropped at once)
   const dropZone = document.getElementById('dropZone');
   if (dropZone) {
     dropZone.addEventListener('dragover', (e) => {
@@ -2369,8 +2748,10 @@ window.addEventListener('DOMContentLoaded', () => {
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropZone.classList.remove('border-[#ff2a85]', 'bg-[#150b1a]');
-      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
-        loadImageFileToScanner(e.dataTransfer.files[0]);
+      if (e.dataTransfer && e.dataTransfer.files) {
+        for (let i = 0; i < e.dataTransfer.files.length; i++) {
+          addRosterImageFile(e.dataTransfer.files[i]);
+        }
       }
     });
   }
