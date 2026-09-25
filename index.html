@@ -148,24 +148,14 @@
   <header class="sticky top-0 z-40 bg-[#07070d]/95 backdrop-blur-xl border-b border-[#1c1c2e] shadow-2xl shadow-black/80">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
       
-      <!-- Brand Logo: Green Trends Kothapet -->
-      <div class="flex items-center gap-3.5 cursor-pointer select-none" onclick="navigateTo('attendance')">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#ff2a85] via-[#ff5c99] to-[#ff7eb3] p-0.5 shadow-xl shadow-[#ff2a85]/30 flex items-center justify-center">
-          <div class="w-full h-full bg-[#07070d] rounded-[14px] flex items-center justify-center">
-            <i class="fa-solid fa-scissors text-[#ff2a85] text-xl transform -rotate-45"></i>
-          </div>
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="font-heading font-black text-xl tracking-wider text-white">
-              GREEN TRENDS
-            </span>
-            <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] border border-[#ff2a85]/40 tracking-widest uppercase">
-              KOTHAPET
-            </span>
-          </div>
-          <p class="text-xs text-gray-400 font-medium">Salon Attendance, Roster Scanner & Payroll Portal</p>
-        </div>
+      <!-- Brand: strictly GREEN TRENDS KOTHAPET -->
+      <div class="flex items-center cursor-pointer select-none" onclick="navigateTo('attendance')">
+        <h1 class="font-heading font-black text-xl sm:text-2xl tracking-wider text-white flex items-center gap-2.5">
+          <span>GREEN TRENDS</span>
+          <span class="text-xs sm:text-sm font-extrabold px-2.5 py-1 rounded-xl bg-gradient-to-r from-[#ff2a85]/20 to-purple-500/20 text-[#ff7eb3] border border-[#ff2a85]/40 tracking-widest uppercase">
+            KOTHAPET
+          </span>
+        </h1>
       </div>
 
       <!-- Navigation Tabs (5 Tabs - Now includes Admin Settings with small icon) -->
@@ -201,30 +191,33 @@
         </button>
       </nav>
 
-      <!-- Right Header: User Badge, Logout & Live Clock -->
+      <!-- Right Header: Live Digital Clock & User Badge (Settings removed) -->
       <div class="flex items-center gap-3">
-        <div class="hidden sm:flex flex-col text-right bg-[#0d0d18] border border-[#222238] px-3.5 py-2 rounded-2xl shadow-inner">
-          <div class="flex items-center justify-end gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span id="liveTime" class="text-xs font-mono font-extrabold text-[#ff7eb3] tracking-widest">--:--:--</span>
+        <!-- Sleek Live Date & Time Display -->
+        <div class="hidden sm:flex items-center gap-3 bg-[#0d0d18] border border-[#242438] px-4 py-2 rounded-2xl shadow-xl shadow-black/40">
+          <div class="flex items-center gap-2 border-r border-[#1f1f32] pr-3.5">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+            </span>
+            <span id="liveTime" class="text-xs sm:text-sm font-mono font-black text-white tracking-widest tabular-nums">--:--:--</span>
           </div>
-          <span id="liveDate" class="text-[10px] text-gray-400 font-medium">Loading date...</span>
+          <div class="flex items-center gap-1.5 text-xs text-gray-300 font-semibold font-mono">
+            <i class="fa-regular fa-calendar text-[#ff2a85] text-xs"></i>
+            <span id="liveDate">Loading date...</span>
+          </div>
         </div>
 
-        <div id="userHeaderBadge" class="hidden flex items-center gap-2 bg-[#0d0d18] border border-[#222238] pl-3 pr-1.5 py-1.5 rounded-2xl shadow-lg">
-          <div class="flex items-center gap-1.5 text-xs font-bold text-gray-300">
+        <!-- User Badge: Username & Logout only -->
+        <div id="userHeaderBadge" class="hidden flex items-center gap-2.5 bg-[#0d0d18] border border-[#222238] pl-3.5 pr-1.5 py-1.5 rounded-2xl shadow-lg">
+          <div class="flex items-center gap-2 text-xs font-bold text-gray-300">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             <span id="headerUserName">Admin</span>
           </div>
-          <button type="button" onclick="navigateTo('admin')" 
-            class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-[#141424] hover:bg-[#1e1e36] text-gray-300 hover:text-white border border-[#25253e] transition-all flex items-center gap-1.5 cursor-pointer" title="Admin Settings">
-            <i class="fa-solid fa-gear text-[11px] text-[#ff7eb3]"></i>
-            <span class="hidden lg:inline">Settings</span>
-          </button>
           <button type="button" onclick="logoutUser()" 
-            class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-[#1a0c16] hover:bg-rose-950/60 text-rose-400 border border-rose-500/30 hover:border-rose-500/60 transition-all flex items-center gap-1.5 cursor-pointer" title="Sign Out">
-            <i class="fa-solid fa-power-off text-[10px]"></i>
-            <span class="hidden lg:inline">Logout</span>
+            class="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#1a0c16] hover:bg-rose-950/60 text-rose-400 border border-rose-500/30 hover:border-rose-500/60 transition-all flex items-center gap-1.5 cursor-pointer" title="Sign Out">
+            <i class="fa-solid fa-power-off text-[11px]"></i>
+            <span class="hidden sm:inline">Logout</span>
           </button>
         </div>
       </div>
@@ -697,12 +690,19 @@
           <div>
             <div class="flex items-center justify-between border-b border-[#1b1b2a] pb-3">
               <div>
-                <h3 class="font-syne font-bold text-base text-white">Detected Roster Staff</h3>
+                <h3 class="font-heading font-bold text-base text-white">Detected Roster Staff</h3>
                 <p class="text-xs text-gray-400">Staff not in this roster will remain completely untouched</p>
               </div>
-              <span id="detectedCountBadge" class="px-3 py-1 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] font-bold font-mono text-xs">
-                0 Staff Found
-              </span>
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="openQuickAddStaffToRoster()" 
+                  class="px-2.5 py-1 rounded-xl bg-[#171728] hover:bg-[#222238] text-gray-300 hover:text-white border border-[#2b2b40] text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer" title="Manually add any staff to this roster">
+                  <i class="fa-solid fa-plus text-[#ff2a85] text-[10px]"></i>
+                  <span>Add Staff</span>
+                </button>
+                <span id="detectedCountBadge" class="px-3 py-1 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] font-bold font-mono text-xs">
+                  0 Staff Found
+                </span>
+              </div>
             </div>
 
             <!-- Parsed Staff List (Only staff present in roster!) -->
@@ -872,6 +872,12 @@
                 <span>Restore from Backup</span>
               </button>
               <input type="file" id="restoreFileInput" onchange="restoreSystemData(event)" accept=".json" class="hidden">
+
+              <button onclick="syncRealSeptemberAttendanceData()" 
+                class="w-full py-2.5 rounded-xl text-xs font-bold bg-[#141424] hover:bg-[#202038] text-purple-300 border border-purple-800/40 transition-all flex items-center justify-center gap-2 cursor-pointer" title="Load accurate WhatsApp login/logout attendance records for Sep 1-26">
+                <i class="fa-solid fa-rotate text-[#ff7eb3]"></i>
+                <span>Re-Sync WhatsApp Chat Check-in Data (Sep 1–26)</span>
+              </button>
 
               <button onclick="resetAllSalesAndIncentivesToZero(this)" 
                 class="w-full py-2.5 rounded-xl text-xs font-bold bg-purple-950/30 hover:bg-purple-900/50 text-purple-200 border border-purple-800/40 transition-all flex items-center justify-center gap-2 cursor-pointer">
@@ -1128,7 +1134,34 @@
     </div>
   </div>
 
+  <!-- ========================================== -->
+  <!-- MODAL: QUICK ADD STAFF TO ROSTER           -->
+  <!-- ========================================== -->
+  <div id="quickAddRosterModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="relative w-full max-w-md bg-[#0c0c14] border border-[#222236] rounded-3xl p-6 shadow-2xl text-white">
+      <div class="flex items-center justify-between pb-3 border-b border-[#1f1f30] mb-4">
+        <div>
+          <h3 class="font-syne font-bold text-lg text-white">Add Staff to Roster</h3>
+          <p class="text-xs text-gray-400">Select any stylist to manually add or override in scanned roster</p>
+        </div>
+        <button type="button" onclick="closeQuickAddStaffModal()" class="w-8 h-8 rounded-full bg-[#171726] text-gray-400 hover:text-white flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="quickAddStaffList" class="space-y-2.5 max-h-[350px] overflow-y-auto pr-1">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-[#1f1f30] mt-4">
+        <button type="button" onclick="closeQuickAddStaffModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-[#141420] text-gray-400 hover:text-white">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Application Logic Scripts -->
-  <script src="app.js?v=20260926_v6"></script>
+  <script src="app.js?v=20260926_v7"></script>
 </body>
 </html>

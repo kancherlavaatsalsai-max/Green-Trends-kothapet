@@ -174,6 +174,14 @@ let selectedMonthStr = formatMonthKey(currentDate);
 // Parsed Roster Buffer (Only contains staff found in the roster!)
 let parsedRosterBuffer = {};
 
+// ==========================================
+// REAL SEPTEMBER 2026 WHATSAPP ATTENDANCE DATASET
+// (Extracted accurately from September 1-26 salon check-in/out records)
+// ==========================================
+const SEPTEMBER_2026_REAL_ATTENDANCE = {"2026-09-01":{"staff_1":{"status":"Present","inH":12,"inM":5,"inAmpm":"PM","outH":8,"outM":42,"workedMinutes":517,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":12,"inM":7,"inAmpm":"PM","outH":8,"outM":32,"workedMinutes":505,"otHours":0,"shortfallHours":1,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Present","inH":8,"inM":58,"inAmpm":"AM","outH":5,"outM":57,"workedMinutes":539,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":10,"inM":20,"inAmpm":"AM","outH":7,"outM":21,"workedMinutes":541,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":12,"inM":5,"inAmpm":"PM","outH":8,"outM":36,"workedMinutes":511,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-02":{"staff_1":{"status":"Present","inH":12,"inM":7,"inAmpm":"PM","outH":9,"outM":4,"workedMinutes":537,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Present","inH":9,"inM":5,"inAmpm":"AM","outH":6,"outM":0,"workedMinutes":535,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":12,"inM":11,"inAmpm":"PM","outH":9,"outM":0,"workedMinutes":529,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":54,"inAmpm":"AM","outH":8,"outM":0,"workedMinutes":546,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":9,"inM":56,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":544,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":11,"inM":35,"inAmpm":"AM","outH":9,"outM":1,"workedMinutes":566,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-03":{"staff_1":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":11,"inM":6,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":594,"otHours":1,"shortfallHours":0,"otPay":50,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Present","inH":9,"inM":35,"inAmpm":"AM","outH":6,"outM":1,"workedMinutes":506,"otHours":0,"shortfallHours":1,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":12,"inM":37,"inAmpm":"PM","outH":8,"outM":59,"workedMinutes":502,"otHours":0,"shortfallHours":1,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":55,"inAmpm":"AM","outH":8,"outM":2,"workedMinutes":547,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":9,"inM":51,"inAmpm":"AM","outH":8,"outM":59,"workedMinutes":668,"otHours":2,"shortfallHours":0,"otPay":100,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-04":{"staff_1":{"status":"Present","inH":11,"inM":25,"inAmpm":"AM","outH":9,"outM":13,"workedMinutes":588,"otHours":1,"shortfallHours":0,"otPay":50,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":12,"inM":8,"inAmpm":"PM","outH":9,"outM":5,"workedMinutes":537,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Present","inH":8,"inM":50,"inAmpm":"AM","outH":6,"outM":0,"workedMinutes":550,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":11,"inM":11,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":589,"otHours":1,"shortfallHours":0,"otPay":50,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":9,"inM":54,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":546,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":11,"inM":59,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":541,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-05":{"staff_1":{"status":"Present","inH":12,"inM":6,"inAmpm":"PM","outH":9,"outM":23,"workedMinutes":557,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":11,"inM":59,"inAmpm":"AM","outH":9,"outM":19,"workedMinutes":560,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Present","inH":9,"inM":15,"inAmpm":"AM","outH":6,"outM":13,"workedMinutes":538,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":12,"inM":5,"inAmpm":"PM","outH":9,"outM":12,"workedMinutes":547,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":46,"inAmpm":"AM","outH":8,"outM":0,"workedMinutes":554,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":10,"inM":14,"inAmpm":"AM","outH":7,"outM":6,"workedMinutes":532,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":12,"inM":14,"inAmpm":"PM","outH":9,"outM":3,"workedMinutes":529,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-06":{"staff_1":{"status":"Present","inH":12,"inM":25,"inAmpm":"PM","outH":9,"outM":10,"workedMinutes":525,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":10,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":660,"otHours":2,"shortfallHours":0,"otPay":100,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Present","inH":9,"inM":5,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":715,"otHours":3,"shortfallHours":0,"otPay":150,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":12,"inM":26,"inAmpm":"PM","outH":9,"outM":0,"workedMinutes":514,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":45,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":615,"otHours":1,"shortfallHours":0,"otPay":50,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":9,"inM":58,"inAmpm":"AM","outH":7,"outM":2,"workedMinutes":544,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":12,"inM":10,"inAmpm":"PM","outH":9,"outM":0,"workedMinutes":530,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Weekly Off","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-07":{"staff_1":{"status":"Present","inH":12,"inM":1,"inAmpm":"PM","outH":9,"outM":6,"workedMinutes":545,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":9,"inM":6,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":714,"otHours":3,"shortfallHours":0,"otPay":150,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":12,"inM":4,"inAmpm":"PM","outH":9,"outM":3,"workedMinutes":539,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":5,"inAmpm":"AM","outH":7,"outM":3,"workedMinutes":538,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Leave","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":11,"inM":57,"inAmpm":"AM","outH":9,"outM":2,"workedMinutes":545,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-08":{"staff_1":{"status":"Present","inH":12,"inM":9,"inAmpm":"PM","outH":9,"outM":14,"workedMinutes":545,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":9,"inM":8,"inAmpm":"AM","outH":6,"outM":35,"workedMinutes":567,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Present","inH":12,"inM":8,"inAmpm":"PM","outH":9,"outM":14,"workedMinutes":546,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":1,"inAmpm":"AM","outH":7,"outM":5,"workedMinutes":544,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Leave","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":12,"inM":2,"inAmpm":"PM","outH":9,"outM":14,"workedMinutes":552,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-09":{"staff_1":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Present","inH":9,"inM":19,"inAmpm":"AM","outH":6,"outM":30,"workedMinutes":551,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":12,"inM":17,"inAmpm":"PM","outH":9,"outM":0,"workedMinutes":523,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":15,"inAmpm":"AM","outH":7,"outM":4,"workedMinutes":529,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":12,"inM":10,"inAmpm":"PM","outH":9,"outM":0,"workedMinutes":530,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-10":{"staff_1":{"status":"Present","inH":12,"inM":6,"inAmpm":"PM","outH":9,"outM":8,"workedMinutes":542,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":12,"inM":9,"inAmpm":"PM","outH":9,"outM":0,"workedMinutes":531,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Present","inH":9,"inM":3,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":717,"otHours":3,"shortfallHours":0,"otPay":150,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":12,"inM":20,"inAmpm":"PM","outH":9,"outM":0,"workedMinutes":520,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":9,"inM":48,"inAmpm":"AM","outH":7,"outM":4,"workedMinutes":556,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":12,"inM":14,"inAmpm":"PM","outH":9,"outM":1,"workedMinutes":527,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-11":{"staff_1":{"status":"Present","inH":12,"inM":18,"inAmpm":"PM","outH":9,"outM":3,"workedMinutes":525,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":3,"shortfallHours":0,"otPay":150,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":46,"inAmpm":"AM","outH":8,"outM":2,"workedMinutes":556,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":11,"inM":55,"inAmpm":"AM","outH":9,"outM":3,"workedMinutes":548,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":10,"inM":25,"inAmpm":"AM","outH":7,"outM":1,"workedMinutes":516,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-12":{"staff_1":{"status":"Present","inH":11,"inM":56,"inAmpm":"AM","outH":9,"outM":2,"workedMinutes":546,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":11,"inM":1,"inAmpm":"AM","outH":8,"outM":0,"workedMinutes":539,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":11,"inM":43,"inAmpm":"AM","outH":9,"outM":2,"workedMinutes":559,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":9,"inM":46,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":554,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-13":{"staff_1":{"status":"Present","inH":12,"inM":10,"inAmpm":"PM","outH":9,"outM":4,"workedMinutes":534,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":9,"inM":8,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":712,"otHours":3,"shortfallHours":0,"otPay":150,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":56,"inAmpm":"AM","outH":8,"outM":2,"workedMinutes":546,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":10,"inM":9,"inAmpm":"AM","outH":7,"outM":13,"workedMinutes":544,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":12,"inM":1,"inAmpm":"PM","outH":9,"outM":1,"workedMinutes":540,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Weekly Off","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-14":{"staff_1":{"status":"Present","inH":12,"inM":25,"inAmpm":"PM","outH":10,"outM":56,"workedMinutes":631,"otHours":1,"shortfallHours":0,"otPay":50,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":8,"inM":51,"inAmpm":"AM","outH":8,"outM":55,"workedMinutes":724,"otHours":3,"shortfallHours":0,"otPay":150,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":9,"inM":54,"inAmpm":"AM","outH":7,"outM":1,"workedMinutes":547,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":12,"inM":4,"inAmpm":"PM","outH":9,"outM":0,"workedMinutes":536,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-15":{"staff_1":{"status":"Present","inH":11,"inM":59,"inAmpm":"AM","outH":9,"outM":27,"workedMinutes":568,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":8,"inM":56,"inAmpm":"AM","outH":9,"outM":25,"workedMinutes":749,"otHours":3,"shortfallHours":0,"otPay":150,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":9,"inM":52,"inAmpm":"AM","outH":6,"outM":59,"workedMinutes":547,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":11,"inM":59,"inAmpm":"AM","outH":8,"outM":59,"workedMinutes":540,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-16":{"staff_1":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":2,"inM":14,"inAmpm":"PM","outH":9,"outM":0,"workedMinutes":406,"otHours":0,"shortfallHours":2,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":8,"inM":55,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":725,"otHours":3,"shortfallHours":0,"otPay":150,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":12,"inM":18,"inAmpm":"PM","outH":9,"outM":1,"workedMinutes":523,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":10,"inM":4,"inAmpm":"AM","outH":7,"outM":1,"workedMinutes":537,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-17":{"staff_1":{"status":"Present","inH":12,"inM":8,"inAmpm":"PM","outH":9,"outM":3,"workedMinutes":535,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":12,"inM":8,"inAmpm":"PM","outH":9,"outM":8,"workedMinutes":540,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":9,"inM":1,"inAmpm":"AM","outH":6,"outM":6,"workedMinutes":545,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":53,"inAmpm":"AM","outH":8,"outM":0,"workedMinutes":547,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":12,"inM":17,"inAmpm":"PM","outH":9,"outM":3,"workedMinutes":526,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":9,"inM":48,"inAmpm":"AM","outH":7,"outM":1,"workedMinutes":553,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-18":{"staff_1":{"status":"Present","inH":12,"inM":5,"inAmpm":"PM","outH":10,"outM":39,"workedMinutes":634,"otHours":1,"shortfallHours":0,"otPay":50,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":12,"inM":10,"inAmpm":"PM","outH":9,"outM":0,"workedMinutes":530,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":9,"inM":48,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":552,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":56,"inAmpm":"AM","outH":8,"outM":0,"workedMinutes":544,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":11,"inM":27,"inAmpm":"AM","outH":10,"outM":42,"workedMinutes":675,"otHours":2,"shortfallHours":0,"otPay":100,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":10,"inM":6,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":534,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-19":{"staff_1":{"status":"Present","inH":11,"inM":48,"inAmpm":"AM","outH":9,"outM":6,"workedMinutes":558,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":12,"inM":12,"inAmpm":"PM","outH":9,"outM":7,"workedMinutes":535,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":8,"inM":51,"inAmpm":"AM","outH":6,"outM":6,"workedMinutes":555,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":45,"inAmpm":"AM","outH":8,"outM":1,"workedMinutes":556,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":12,"inM":45,"inAmpm":"PM","outH":9,"outM":6,"workedMinutes":501,"otHours":0,"shortfallHours":1,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":10,"inM":11,"inAmpm":"AM","outH":7,"outM":4,"workedMinutes":533,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-20":{"staff_1":{"status":"Present","inH":12,"inM":6,"inAmpm":"PM","outH":9,"outM":49,"workedMinutes":583,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":11,"inM":51,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":549,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":9,"inM":11,"inAmpm":"AM","outH":6,"outM":12,"workedMinutes":541,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":43,"inAmpm":"AM","outH":8,"outM":10,"workedMinutes":567,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":10,"inM":24,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":636,"otHours":1,"shortfallHours":0,"otPay":50,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Weekly Off","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-21":{"staff_1":{"status":"Present","inH":12,"inM":6,"inAmpm":"PM","outH":9,"outM":5,"workedMinutes":539,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":12,"inM":11,"inAmpm":"PM","outH":9,"outM":3,"workedMinutes":532,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":9,"inM":6,"inAmpm":"AM","outH":6,"outM":8,"workedMinutes":542,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":9,"inM":52,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":548,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":12,"inM":5,"inAmpm":"PM","outH":9,"outM":1,"workedMinutes":536,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-22":{"staff_1":{"status":"Present","inH":12,"inM":2,"inAmpm":"PM","outH":9,"outM":29,"workedMinutes":567,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":9,"workedMinutes":729,"otHours":3,"shortfallHours":0,"otPay":150,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":1,"inAmpm":"AM","outH":7,"outM":2,"workedMinutes":541,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":11,"inM":50,"inAmpm":"AM","outH":9,"outM":1,"workedMinutes":551,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-23":{"staff_1":{"status":"Present","inH":10,"inM":13,"inAmpm":"AM","outH":6,"outM":15,"workedMinutes":482,"otHours":0,"shortfallHours":1,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":8,"inM":55,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":725,"otHours":3,"shortfallHours":0,"otPay":150,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":6,"inAmpm":"AM","outH":7,"outM":4,"workedMinutes":538,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":11,"inM":53,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":547,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-24":{"staff_1":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":9,"inM":5,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":715,"otHours":3,"shortfallHours":0,"otPay":150,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":12,"inM":12,"inAmpm":"PM","outH":9,"outM":3,"workedMinutes":531,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":10,"inM":12,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":648,"otHours":2,"shortfallHours":0,"otPay":100,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-25":{"staff_1":{"status":"Present","inH":4,"inM":55,"inAmpm":"PM","outH":9,"outM":4,"workedMinutes":249,"otHours":0,"shortfallHours":5,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":6,"outM":39,"workedMinutes":579,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":12,"inM":6,"inAmpm":"PM","outH":8,"outM":56,"workedMinutes":530,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":10,"inM":39,"inAmpm":"AM","outH":8,"outM":10,"workedMinutes":571,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":11,"inM":54,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":546,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}},"2026-09-26":{"staff_1":{"status":"Present","inH":12,"inM":0,"inAmpm":"PM","outH":9,"outM":0,"workedMinutes":540,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_2":{"status":"Weekly Off","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_3":{"status":"Leave","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":0,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_4":{"status":"Present","inH":12,"inM":0,"inAmpm":"PM","outH":9,"outM":0,"workedMinutes":540,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_5":{"status":"Present","inH":11,"inM":0,"inAmpm":"AM","outH":8,"outM":0,"workedMinutes":540,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_6":{"status":"Present","inH":12,"inM":0,"inAmpm":"PM","outH":9,"outM":0,"workedMinutes":540,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_7":{"status":"Present","inH":10,"inM":0,"inAmpm":"AM","outH":7,"outM":0,"workedMinutes":540,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0},"staff_8":{"status":"Present","inH":9,"inM":0,"inAmpm":"AM","outH":9,"outM":0,"workedMinutes":720,"otHours":0,"shortfallHours":0,"otPay":0,"servicesDone":0,"productsSold":0}}};
+
+const DATA_VERSION = '20260926_chat_v2';
+
 function initStorage() {
   const savedStaff = localStorage.getItem(STORAGE_KEYS.STAFF);
   if (savedStaff) {
@@ -191,89 +199,30 @@ function initStorage() {
     localStorage.setItem(STORAGE_KEYS.RULES, JSON.stringify(salonRules));
   }
 
-  const savedAttendance = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
-  if (savedAttendance) {
-    try { attendanceData = JSON.parse(savedAttendance); } catch(e) { attendanceData = {}; }
+  // Automatic sync with accurate September 2026 chat records
+  const currentVersion = localStorage.getItem('GT_DATA_VERSION');
+  if (currentVersion !== DATA_VERSION) {
+    attendanceData = JSON.parse(JSON.stringify(SEPTEMBER_2026_REAL_ATTENDANCE));
+    saveAttendanceData();
+    localStorage.setItem('GT_DATA_VERSION', DATA_VERSION);
   } else {
-    attendanceData = {};
-    generateDefaultSeedAttendance();
+    const savedAttendance = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
+    if (savedAttendance) {
+      try { attendanceData = JSON.parse(savedAttendance); } catch(e) { attendanceData = JSON.parse(JSON.stringify(SEPTEMBER_2026_REAL_ATTENDANCE)); }
+    } else {
+      attendanceData = JSON.parse(JSON.stringify(SEPTEMBER_2026_REAL_ATTENDANCE));
+      saveAttendanceData();
+    }
   }
 }
 
-function generateDefaultSeedAttendance() {
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  const todayDay = currentDate.getDate();
-
-  for (let d = 1; d <= todayDay; d++) {
-    const loopDate = new Date(year, month, d);
-    const dateKey = formatDateKey(loopDate);
-    const dayOfWeek = loopDate.getDay();
-
-    attendanceData[dateKey] = {};
-
-    staffList.forEach((staff, index) => {
-      const staffOffDay = (index + 1) % 7; 
-      const isWeeklyOff = (dayOfWeek === staffOffDay);
-
-      if (isWeeklyOff) {
-        attendanceData[dateKey][staff.id] = {
-          status: 'Weekly Off',
-          inH: 10, inM: 0, inAmpm: 'AM',
-          outH: 7, outM: 0,
-          servicesDone: 0,
-          productsSold: 0,
-          workedMinutes: 0,
-          otHours: 0,
-          shortfallHours: 0,
-          otPay: 0
-        };
-      } else {
-        const isAbsent = (d === 15 && (index === 0 || index === 2));
-        if (isAbsent) {
-          attendanceData[dateKey][staff.id] = {
-            status: 'Leave',
-            inH: 10, inM: 0, inAmpm: 'AM',
-            outH: 7, outM: 0,
-            servicesDone: 0,
-            productsSold: 0,
-            workedMinutes: 0,
-            otHours: 0,
-            shortfallHours: 0,
-            otPay: 0
-          };
-        } else {
-          let inH = 10, inM = 0, inAmpm = 'AM';
-          let outH = 7, outM = 0; // PM
-
-          if (d % 4 === 0 && index < 4) {
-            outH = 8; outM = 30; // 8:30 PM (1h 30m extra -> 1 hr OT)
-          } else if (d % 7 === 0 && index === 1) {
-            outH = 5; outM = 0; // 5:00 PM (2 hrs early shortfall)
-          }
-
-          const calc = calculateShiftHoursParsed(inH, inM, inAmpm, outH, outM, staff.isHousekeeping);
-          
-          let serv = 0;
-          let prod = 0;
-
-          attendanceData[dateKey][staff.id] = {
-            status: 'Present',
-            inH, inM, inAmpm,
-            outH, outM,
-            servicesDone: serv,
-            productsSold: prod,
-            workedMinutes: calc.workedMinutes,
-            otHours: calc.otHours,
-            shortfallHours: calc.shortfallHours,
-            otPay: calc.otPay
-          };
-        }
-      }
-    });
+function syncRealSeptemberAttendanceData() {
+  if (confirm("Re-sync all attendance with accurate WhatsApp check-in / check-out data for Sep 1–26?")) {
+    attendanceData = JSON.parse(JSON.stringify(SEPTEMBER_2026_REAL_ATTENDANCE));
+    saveAttendanceData();
+    updateViewFromHash();
+    showToast("Successfully synchronized all September 1–26 attendance records from chat!");
   }
-
-  saveAttendanceData();
 }
 
 function saveStaffList() {
@@ -763,11 +712,15 @@ function renderDailyAttendance() {
 
   staffList.forEach((staff) => {
     if (!attendanceData[dateKey][staff.id]) {
+      const isHk = !!staff.isHousekeeping;
       attendanceData[dateKey][staff.id] = {
         status: 'Present',
-        inH: 10, inM: 0, inAmpm: 'AM',
-        outH: 7, outM: 0,
-        workedMinutes: 540,
+        inH: isHk ? 9 : 10,
+        inM: 0,
+        inAmpm: 'AM',
+        outH: isHk ? 9 : 7,
+        outM: 0,
+        workedMinutes: isHk ? 720 : 540,
         otHours: 0,
         shortfallHours: 0,
         otPay: 0,
@@ -777,10 +730,10 @@ function renderDailyAttendance() {
     }
 
     const record = attendanceData[dateKey][staff.id];
-    record.inH = record.inH || 10;
+    record.inH = record.inH || (staff.isHousekeeping ? 9 : 10);
     record.inM = record.inM !== undefined ? record.inM : 0;
     record.inAmpm = record.inAmpm || 'AM';
-    record.outH = record.outH || 7;
+    record.outH = record.outH || (staff.isHousekeeping ? 9 : 7);
     record.outM = record.outM !== undefined ? record.outM : 0;
     record.outAmpm = record.outAmpm || 'PM';
 
@@ -851,6 +804,23 @@ function renderDailyAttendance() {
         </div>
 
         <!-- TIER 2: Time Pickers, OT / Shortfall Feedback, and Sales Inputs (Never overflows) -->
+        ${staff.isHousekeeping ? `
+        <div class="flex flex-wrap items-center justify-between gap-4 pt-1 bg-[#090912] p-3.5 rounded-2xl border border-[#1b1b2a]">
+          <div class="flex items-center gap-3">
+            <span class="px-3.5 py-1.5 rounded-xl bg-purple-500/15 text-purple-300 font-bold border border-purple-500/30 flex items-center gap-2 text-xs font-mono">
+              <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+              Fixed Daily Schedule: 9:00 AM – 9:00 PM (12 Hours)
+            </span>
+            <span class="text-xs text-gray-300 font-medium">
+              ${isPresent ? '🟢 Working Standard 12h' : (isOff ? '☕ Weekly Off (Sundays)' : '❌ Full Day Leave (Salary Cut)')}
+            </span>
+          </div>
+          <div class="flex items-center gap-2 text-[11px] text-gray-400">
+            <i class="fa-solid fa-broom text-[#ff7eb3]"></i>
+            <span>House Keeping Staff • ₹${staff.baseSalary.toLocaleString('en-IN')}/mo • Excluded from Roster Scanner</span>
+          </div>
+        </div>
+        ` : `
         <div class="flex flex-wrap items-center justify-between gap-4 pt-1">
           
           <!-- Left: Check In & Check Out Controls -->
@@ -908,7 +878,7 @@ function renderDailyAttendance() {
               </div>
               <div class="border-l border-[#202032] pl-4">
                 <span class="text-gray-400 text-[10px] block uppercase font-bold">Overtime / Shortfall</span>
-                ${isPresent && !staff.isHousekeeping ? 
+                ${isPresent ? 
                   (shiftCalc.otPay > 0 ? 
                     `<span class="font-mono font-extrabold text-[#ff7eb3] bg-[#ff2a85]/15 px-2 py-0.5 rounded-lg text-xs">+${shiftCalc.otHours}h (+₹${shiftCalc.otPay})</span>` : 
                     (shiftCalc.shortfallHours > 0 ? 
@@ -916,7 +886,7 @@ function renderDailyAttendance() {
                       `<span class="text-xs text-gray-500 font-mono">9h Shift OK</span>`
                     )
                   ) : 
-                  (staff.isHousekeeping ? `<span class="text-xs text-gray-600 font-mono">No OT</span>` : `<span class="text-xs text-gray-600 font-mono">--</span>`)
+                  `<span class="text-xs text-gray-600 font-mono">--</span>`
                 }
               </div>
             </div>
@@ -941,6 +911,7 @@ function renderDailyAttendance() {
           </div>
 
         </div>
+        `}
 
       </div>
     `;
@@ -1943,61 +1914,57 @@ function parseRosterText(rawText) {
       id: 'staff_1',
       name: 'KALYAN',
       isManager: true,
-      aliases: ['KALYAN', 'MANAGER', 'KALAYAN']
+      aliases: ['KALYAN', 'MANAGER', 'KALAYAN', 'KALYANI', 'KALY', 'KALYN', 'KLYAN', 'CALYAN']
     },
     {
       id: 'staff_4',
       name: 'SULEMAN',
       gender: 'male',
       sectionIndex: 1,
-      aliases: ['SULEMAN', 'SUEMAN', 'SULMAN', 'SULIMAN', 'SUMAN', 'SULEMAAN']
+      aliases: ['SULEMAN', 'SUEMAN', 'SULMAN', 'SULIMAN', 'SUMAN', 'SULEMAAN', 'SOLEMAN', 'SULAIMAN', 'SLMN', 'SULEM', 'SULI', 'SUL']
     },
     {
       id: 'staff_2',
       name: 'ISLAM',
       gender: 'male',
       sectionIndex: 2,
-      aliases: ['ISLAM', 'STAM', '1SLAM', 'SLAM', 'ISLM', 'ISLAAM']
+      aliases: ['ISLAM', 'STAM', '1SLAM', 'SLAM', 'ISLM', 'ISLAAM', 'ASLAM', 'ISLLAM', 'ISLAMM', 'I-SLAM', 'SLM']
     },
     {
       id: 'staff_3',
       name: 'IQRAM',
       gender: 'male',
       sectionIndex: 3,
-      aliases: ['IQRAM', 'IKRAM', 'ILARAM', 'RAM', 'ORAM', 'QRAM', 'ILARA', 'IKRM']
+      aliases: ['IQRAM', 'IKRAM', 'ILARAM', 'RAM', 'ORAM', 'QRAM', 'ILARA', 'IKRM', 'IQRAAM', 'IKRAAM', 'ICRAM', 'IQRM', '1QRAM', 'GRAM']
     },
     {
       id: 'staff_7',
       name: 'Aruna',
       gender: 'female',
       sectionIndex: 1,
-      aliases: ['ARUNA', 'ARUN', 'AARUNA', 'ARU']
+      aliases: ['ARUNA', 'ARUN', 'AARUNA', 'ARU', 'ARUNAA', 'AURNA', 'ARONA']
     },
     {
       id: 'staff_5',
       name: 'AFRIN',
       gender: 'female',
       sectionIndex: 2,
-      aliases: ['AFRIN', 'AFREEN', 'AMN', 'ARN', 'AERIN', 'AARIN', 'AFRN']
+      aliases: ['AFRIN', 'AFREEN', 'AMN', 'ARN', 'AERIN', 'AARIN', 'AFRN', 'AFFRIN', 'APHRIN', 'AFRI']
     },
     {
       id: 'staff_6',
       name: 'RESHMA',
       gender: 'female',
       sectionIndex: 3,
-      aliases: ['RESHMA', 'RMESIMA', 'RMESAMA', 'RESHM', 'RISHMA', 'RESMA']
-    },
-    {
-      id: 'staff_8',
-      name: 'Anusha (HOUSE KEEPING)',
-      isHousekeeping: true,
-      aliases: ['ANUSHA', 'HOUSE KEEPING', 'HOUSEKEEPING', 'ANUSH']
+      aliases: ['RESHMA', 'RMESIMA', 'RMESAMA', 'RESHM', 'RISHMA', 'RESMA', 'RESHMAA', 'RESH', 'RSHMA', 'RESHMI']
     }
   ];
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const upper = line.toUpperCase();
+    const cleanLine = line.replace(/[^A-Za-z0-9:\s]/g, ' ').replace(/\s+/g, ' ').trim();
+    const cleanUpper = cleanLine.toUpperCase();
 
     if (upper.includes('MALE STAFF') || upper.includes('MALE')) {
       inMaleSection = true;
@@ -2015,16 +1982,16 @@ function parseRosterText(rawText) {
 
       let matched = false;
 
-      // 1. Alias matching
+      // 1. Alias matching (raw line and cleaned line)
       for (const alias of staffDef.aliases) {
         if (alias.length <= 4) {
           const regex = new RegExp('(?:^|[\\s|0-9_.-])' + alias + '(?:[\\s|0-9_.-]|$)', 'i');
-          if (regex.test(line)) {
+          if (regex.test(line) || regex.test(cleanLine)) {
             matched = true;
             break;
           }
         } else {
-          if (upper.includes(alias)) {
+          if (upper.includes(alias) || cleanUpper.includes(alias)) {
             matched = true;
             break;
           }
@@ -2035,7 +2002,7 @@ function parseRosterText(rawText) {
       if (!matched && staffDef.sectionIndex) {
         if ((inMaleSection && staffDef.gender === 'male') || (inFemaleSection && staffDef.gender === 'female')) {
           const indexRegex = new RegExp('^[\\s|]*' + staffDef.sectionIndex + '[\\s|._-]+', 'i');
-          if (indexRegex.test(line)) {
+          if (indexRegex.test(line) || indexRegex.test(cleanLine)) {
             matched = true;
           }
         }
@@ -2154,12 +2121,12 @@ function renderParsedRosterList() {
     `;
   });
 
-  const unmentionedStaff = staffList.filter(s => !parsedRosterBuffer[s.id]);
+  const unmentionedStaff = staffList.filter(s => !s.isHousekeeping && !parsedRosterBuffer[s.id]);
   if (unmentionedStaff.length > 0) {
     html += `
       <div class="p-3 rounded-2xl bg-[#0e0e18] border border-[#1d1d2b] text-[11px] text-gray-400 mt-3">
         <span class="text-gray-300 font-bold block mb-1">
-          <i class="fa-solid fa-shield-halved text-[#ff7eb3] mr-1"></i> Not in this roster (${unmentionedStaff.length} staff):
+          <i class="fa-solid fa-shield-halved text-[#ff7eb3] mr-1"></i> Not in this roster (${unmentionedStaff.length} stylists):
         </span>
         <span class="text-gray-400">
           <strong class="text-gray-300">${unmentionedStaff.map(x => x.name).join(', ')}</strong> — their attendance will remain completely untouched.
@@ -2170,6 +2137,77 @@ function renderParsedRosterList() {
 
   html += '</div>';
   container.innerHTML = html;
+}
+
+/**
+ * Opens quick modal allowing owner to manually add any stylist to the scanned roster
+ */
+function openQuickAddStaffToRoster() {
+  const modal = document.getElementById('quickAddRosterModal');
+  const container = document.getElementById('quickAddStaffList');
+  if (!modal || !container) return;
+
+  // Filter stylists (excluding housekeeping as Anusha has fixed schedule)
+  const rosterStaffList = staffList.filter(s => !s.isHousekeeping);
+
+  let html = '';
+  rosterStaffList.forEach(s => {
+    const isAlreadyIn = !!parsedRosterBuffer[s.id];
+    const currentStatus = isAlreadyIn ? parsedRosterBuffer[s.id].status : 'Not Added';
+
+    html += `
+      <div class="p-3 bg-[#11111e] rounded-2xl border border-[#212135] flex items-center justify-between gap-2 text-xs">
+        <div>
+          <strong class="text-white font-bold block">${s.name}</strong>
+          <span class="text-[10px] text-gray-400">${s.role}</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          ${isAlreadyIn ? 
+            `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Added (${currentStatus})</span>` :
+            `<button type="button" onclick="quickAddStaffWithShift('${s.id}', 'Present', 10, 0, 'AM', 7, 0)" 
+               class="px-2.5 py-1 rounded-xl bg-[#ff2a85] hover:bg-[#ff4d9a] text-white font-bold text-[11px] shadow-sm cursor-pointer">
+               + 10-7 Shift
+             </button>
+             <button type="button" onclick="quickAddStaffWithShift('${s.id}', 'Weekly Off', 10, 0, 'AM', 7, 0)" 
+               class="px-2 py-1 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 font-bold text-[10px] border border-indigo-500/40 cursor-pointer">
+               Day Off
+             </button>
+             <button type="button" onclick="quickAddStaffWithShift('${s.id}', 'Leave', 10, 0, 'AM', 7, 0)" 
+               class="px-2 py-1 rounded-xl bg-rose-600/30 hover:bg-rose-600/50 text-rose-300 font-bold text-[10px] border border-rose-500/40 cursor-pointer">
+               Leave
+             </button>`
+          }
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+  modal.classList.remove('hidden');
+}
+
+function quickAddStaffWithShift(staffId, status, inH, inM, inAmpm, outH, outM) {
+  const staffObj = staffList.find(s => s.id === staffId);
+  if (!staffObj) return;
+
+  parsedRosterBuffer[staffId] = {
+    staff: staffObj,
+    status: status,
+    inH: inH,
+    inM: inM,
+    inAmpm: inAmpm,
+    outH: outH,
+    outM: outM
+  };
+
+  renderParsedRosterList();
+  openQuickAddStaffToRoster(); // refresh modal state
+  showToast(`Added ${staffObj.name} (${status}) to roster`);
+}
+
+function closeQuickAddStaffModal() {
+  const modal = document.getElementById('quickAddRosterModal');
+  if (modal) modal.classList.add('hidden');
 }
 
 /**
