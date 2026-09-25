@@ -254,8 +254,8 @@ function generateDefaultSeedAttendance() {
 
           const calc = calculateShiftHoursParsed(inH, inM, inAmpm, outH, outM, staff.isHousekeeping);
           
-          let serv = (staff.isManager || staff.isHousekeeping) ? 0 : Math.floor(Math.random() * 1500 + 3800);
-          let prod = (staff.isManager || staff.isHousekeeping) ? 0 : (Math.random() > 0.5 ? Math.floor(Math.random() * 900 + 500) : 0);
+          let serv = 0;
+          let prod = 0;
 
           attendanceData[dateKey][staff.id] = {
             status: 'Present',
@@ -2148,6 +2148,33 @@ function restoreSystemData(event) {
   reader.readAsText(file);
 }
 
+function resetAllSalesAndIncentivesToZero() {
+  if (confirm('Reset all service and product sales to ₹0 across all dates? This will set all staff incentives to ₹0.')) {
+    for (const dateKey in attendanceData) {
+      if (attendanceData[dateKey]) {
+        for (const staffId in attendanceData[dateKey]) {
+          if (attendanceData[dateKey][staffId]) {
+            attendanceData[dateKey][staffId].servicesDone = 0;
+            attendanceData[dateKey][staffId].productsSold = 0;
+          }
+        }
+      }
+    }
+    saveAttendanceData();
+    updateViewFromHash();
+    showToast('All sales and incentives successfully reset to ₹0!');
+  }
+}
+
+function clearAllAttendanceDataToZero() {
+  if (confirm('Are you sure you want to clear ALL attendance and sales data? Everything will be wiped to a fresh 0 clean slate.')) {
+    attendanceData = {};
+    saveAttendanceData();
+    updateViewFromHash();
+    showToast('All attendance, overtime, and sales data cleared to 0!');
+  }
+}
+
 function confirmResetDefaults() {
   if (confirm('Reset Green Trends Kothapet to factory default settings?')) {
     staffList = [...DEFAULT_STAFF];
@@ -2156,8 +2183,8 @@ function confirmResetDefaults() {
     saveStaffList();
     saveSalonRules();
     saveAttendanceData();
-    generateDefaultSeedAttendance();
     renderAdminView();
+    updateViewFromHash();
     showToast('Reset system to factory default configurations!');
   }
 }

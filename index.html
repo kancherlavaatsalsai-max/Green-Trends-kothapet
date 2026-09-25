@@ -508,6 +508,13 @@
             Kalyan Manager gets <strong class="text-white">1% on total salon service revenue</strong>. Stylists get <strong class="text-white">5% on services</strong> (5x salary target) and <strong class="text-white">5% / 8% tiered on products</strong>.
           </p>
         </div>
+        <div>
+          <button onclick="resetAllSalesAndIncentivesToZero()"
+            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-purple-950/50 hover:bg-purple-900/70 text-purple-200 border border-purple-700/60 transition-all flex items-center gap-2 shadow-lg shadow-purple-950/40">
+            <i class="fa-solid fa-coins text-[#ff7eb3]"></i>
+            <span>Reset All Sales & Incentives to ₹0</span>
+          </button>
+        </div>
       </div>
 
       <!-- Staff Progress Grid -->
@@ -797,6 +804,18 @@
                 <span>Restore from Backup</span>
               </button>
               <input type="file" id="restoreFileInput" onchange="restoreSystemData(event)" accept=".json" class="hidden">
+
+              <button onclick="resetAllSalesAndIncentivesToZero()" 
+                class="w-full py-2.5 rounded-xl text-xs font-bold bg-purple-950/30 hover:bg-purple-900/50 text-purple-200 border border-purple-800/40 transition-all flex items-center justify-center gap-2">
+                <i class="fa-solid fa-coins text-[#ff7eb3]"></i>
+                <span>Reset All Sales & Incentives to ₹0</span>
+              </button>
+
+              <button onclick="clearAllAttendanceDataToZero()" 
+                class="w-full py-2.5 rounded-xl text-xs font-bold bg-amber-950/30 hover:bg-amber-900/50 text-amber-200 border border-amber-800/40 transition-all flex items-center justify-center gap-2">
+                <i class="fa-solid fa-calendar-xmark text-amber-400"></i>
+                <span>Clear All Attendance Records (Clean Slate)</span>
+              </button>
 
               <button onclick="confirmResetDefaults()" 
                 class="w-full py-2.5 rounded-xl text-xs font-bold bg-rose-950/30 hover:bg-rose-900/40 text-rose-300 border border-rose-800/40 transition-all flex items-center justify-center gap-2">
