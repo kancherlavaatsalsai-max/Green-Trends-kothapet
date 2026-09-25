@@ -199,20 +199,32 @@ function initStorage() {
     localStorage.setItem(STORAGE_KEYS.RULES, JSON.stringify(salonRules));
   }
 
-  // Automatic sync with accurate September 2026 chat records
-  const currentVersion = localStorage.getItem('GT_DATA_VERSION');
-  if (currentVersion !== DATA_VERSION) {
+  // PRESERVE user's existing saved attendance data at all costs!
+  let savedAttendance = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
+  if (!savedAttendance) {
+    // Check older keys so user's previously added 15 days are NEVER lost
+    const olderKeys = ['gt_kothapet_attendance_v3', 'gt_kothapet_attendance_v2', 'gt_kothapet_attendance_v1', 'gt_kothapet_attendance', 'gt_attendance_data'];
+    for (const ok of olderKeys) {
+      const val = localStorage.getItem(ok);
+      if (val) {
+        savedAttendance = val;
+        break;
+      }
+    }
+  }
+
+  if (savedAttendance) {
+    try {
+      attendanceData = JSON.parse(savedAttendance);
+      // Ensure saved under current key as well
+      localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceData));
+    } catch(e) {
+      attendanceData = JSON.parse(JSON.stringify(SEPTEMBER_2026_REAL_ATTENDANCE));
+    }
+  } else {
+    // Only if brand new without existing data, load the September seed
     attendanceData = JSON.parse(JSON.stringify(SEPTEMBER_2026_REAL_ATTENDANCE));
     saveAttendanceData();
-    localStorage.setItem('GT_DATA_VERSION', DATA_VERSION);
-  } else {
-    const savedAttendance = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
-    if (savedAttendance) {
-      try { attendanceData = JSON.parse(savedAttendance); } catch(e) { attendanceData = JSON.parse(JSON.stringify(SEPTEMBER_2026_REAL_ATTENDANCE)); }
-    } else {
-      attendanceData = JSON.parse(JSON.stringify(SEPTEMBER_2026_REAL_ATTENDANCE));
-      saveAttendanceData();
-    }
   }
 }
 
@@ -741,12 +753,17 @@ function renderDailyAttendance() {
 
     if (record.status === 'Present') {
       record.workedMinutes = shiftCalc.workedMinutes;
-      record.otHours = shiftCalc.otHours;
+      // If user hasn't explicitly customized otHours manually, use auto shiftCalc; otherwise keep manual otHours
+      if (record.isOtManual !== true) {
+        record.otHours = shiftCalc.otHours;
+        record.otPay = shiftCalc.otPay;
+      } else {
+        record.otPay = Math.round((record.otHours || 0) * (salonRules.otHourlyRate || 50));
+      }
       record.shortfallHours = shiftCalc.shortfallHours;
-      record.otPay = shiftCalc.otPay;
       presentCount++;
-      dailyOtHoursTotal += record.otHours;
-      dailyOtPayTotal += record.otPay;
+      dailyOtHoursTotal += Number(record.otHours || 0);
+      dailyOtPayTotal += Number(record.otPay || 0);
       dailyServicesTotal += Number(record.servicesDone || 0);
       dailyProductsTotal += Number(record.productsSold || 0);
     } else if (record.status === 'Weekly Off') {
@@ -832,6 +849,7 @@ function renderDailyAttendance() {
               <div class="flex items-center bg-[#08080f] border border-[#202032] rounded-2xl p-1.5 gap-1 focus-within:border-[#ff2a85]">
                 <input type="number" min="1" max="12" value="${record.inH}" 
                   onfocus="this.select()" onclick="this.select()"
+                  oninput="if(parseInt(this.value, 10) === 12) updateTimeDigit('${staff.id}', 'inH', 12)"
                   onchange="updateTimeDigit('${staff.id}', 'inH', this.value)"
                   class="w-9 text-center bg-[#131320] rounded-xl text-white font-mono font-bold text-xs py-1.5 focus:outline-none" title="Hour (1-12)">
                 <span class="text-gray-500 font-bold">:</span>
@@ -869,25 +887,38 @@ function renderDailyAttendance() {
 
           </div>
 
-          <!-- Middle: Shift Duration & Overtime / Shortfall Badge -->
-          <div class="bg-[#08080f] px-4 py-2.5 rounded-2xl border border-[#1e1e2e] text-xs">
-            <div class="flex items-center gap-4">
+          <!-- Middle: Shift Duration & Overtime / Shortfall Controls (Directly Editable OT Hours!) -->
+          <div class="bg-[#08080f] px-3.5 py-2.5 rounded-2xl border border-[#1e1e2e] text-xs">
+            <div class="flex items-center gap-3">
               <div>
                 <span class="text-gray-400 text-[10px] block uppercase font-bold">Worked Time</span>
                 <span class="font-mono font-bold text-white text-sm">${isPresent ? shiftCalc.formattedDuration : '--'}</span>
               </div>
-              <div class="border-l border-[#202032] pl-4">
-                <span class="text-gray-400 text-[10px] block uppercase font-bold">Overtime / Shortfall</span>
-                ${isPresent ? 
-                  (shiftCalc.otPay > 0 ? 
-                    `<span class="font-mono font-extrabold text-[#ff7eb3] bg-[#ff2a85]/15 px-2 py-0.5 rounded-lg text-xs">+${shiftCalc.otHours}h (+₹${shiftCalc.otPay})</span>` : 
-                    (shiftCalc.shortfallHours > 0 ? 
-                      `<span class="font-mono font-extrabold text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded-lg text-xs">-${shiftCalc.shortfallHours}h Early Exit (Cut OT)</span>` : 
-                      `<span class="text-xs text-gray-500 font-mono">9h Shift OK</span>`
-                    )
-                  ) : 
-                  `<span class="text-xs text-gray-600 font-mono">--</span>`
-                }
+              <div class="border-l border-[#202032] pl-3">
+                <span class="text-gray-400 text-[10px] block uppercase font-bold mb-1">
+                  Overtime (Editable)
+                </span>
+                ${isPresent ? `
+                  <div class="flex items-center gap-1.5">
+                    <div class="flex items-center bg-[#131320] border border-[#282840] rounded-xl px-2 py-0.5 focus-within:border-[#ff2a85]">
+                      <input type="number" min="0" max="15" step="0.5" 
+                        value="${record.otHours || 0}" 
+                        onfocus="this.select()" onclick="this.select()"
+                        onchange="updateStaffOtHours('${staff.id}', this.value)"
+                        class="w-10 text-center bg-transparent text-[#ff7eb3] font-mono font-extrabold text-xs py-0.5 focus:outline-none" title="Edit Overtime Hours">
+                      <span class="text-[10px] font-bold text-gray-400 select-none">hrs</span>
+                    </div>
+                    ${(record.otHours || 0) > 0 ? 
+                      `<span class="font-mono font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-lg text-xs">+₹${record.otPay || 0}</span>` : 
+                      (shiftCalc.shortfallHours > 0 ? 
+                        `<span class="font-mono font-bold text-amber-400 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 rounded-lg text-[11px]">-${shiftCalc.shortfallHours}h Early Exit</span>` : 
+                        `<span class="text-[11px] text-gray-500 font-mono">0 OT</span>`
+                      )
+                    }
+                  </div>
+                ` : `
+                  <span class="text-xs text-gray-600 font-mono">--</span>
+                `}
               </div>
             </div>
           </div>
@@ -948,9 +979,42 @@ function updateTimeDigit(staffId, field, val) {
     attendanceData[dateKey][staffId] = { status: 'Present', inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0 };
   }
 
-  attendanceData[dateKey][staffId][field] = parseInt(val, 10) || 0;
+  const intVal = parseInt(val, 10) || 0;
+  attendanceData[dateKey][staffId][field] = intVal;
+
+  // Whenever user enters 12 in the check-in slot, automatically set to PM!
+  if (field === 'inH') {
+    if (intVal === 12 || intVal === 1 || intVal === 2 || intVal === 3) {
+      attendanceData[dateKey][staffId].inAmpm = 'PM';
+    } else if (intVal >= 7 && intVal <= 11) {
+      attendanceData[dateKey][staffId].inAmpm = 'AM';
+    }
+    attendanceData[dateKey][staffId].isOtManual = false;
+  }
+  if (field === 'outH' || field === 'inM' || field === 'outM') {
+    attendanceData[dateKey][staffId].isOtManual = false;
+  }
+
   saveAttendanceData();
   renderDailyAttendance();
+}
+
+function updateStaffOtHours(staffId, val) {
+  const dateKey = selectedDateStr;
+  if (!attendanceData[dateKey]) attendanceData[dateKey] = {};
+  if (!attendanceData[dateKey][staffId]) {
+    attendanceData[dateKey][staffId] = { status: 'Present', inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0 };
+  }
+
+  const otVal = Math.max(0, parseFloat(val) || 0);
+  const otRate = salonRules.otHourlyRate || 50;
+  attendanceData[dateKey][staffId].otHours = otVal;
+  attendanceData[dateKey][staffId].otPay = Math.round(otVal * otRate);
+  attendanceData[dateKey][staffId].isOtManual = true;
+
+  saveAttendanceData();
+  renderDailyAttendance();
+  showToast(`${getStaffName(staffId)} OT set to ${otVal} hrs (+₹${attendanceData[dateKey][staffId].otPay})`);
 }
 
 function toggleAmPm(staffId) {
@@ -1814,7 +1878,7 @@ NOTE: ANY LEAVE SAME DAY INFORMATION DOUBLE SALARY CUT`;
  *    Recognizes: LEAVE, EAVE, WEAVE, WEAV, LEAV, ABSENT, CASUAL LEAVE, SICK LEAVE, LV, LVE, CL, SL, PL, ABS.
  * 3. TIMINGS: 12:00 TO 9:00, 120070900, 900To600, 110070800, 1000T07:00, 10-7, etc.
  */
-function extractShiftFromContext(line, nextLine = '') {
+function extractShiftFromContext(line, nextLine = '', isManager = false) {
   const combined = (line + ' ' + (nextLine || '')).toUpperCase();
 
   // 1. Strict Week Off / Day Off Detection FIRST:
@@ -1837,9 +1901,50 @@ function extractShiftFromContext(line, nextLine = '') {
     return { status: 'Leave', inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0 };
   }
 
-  // 3. Robust time matching:
-  const timeMatch = combined.match(/(\d{3,4}|\d{1,2}(?::\d{2})?)\s*(?:TO|70|10|T0|-|UNTIL)\s*(\d{3,4}|\d{1,2}(?::\d{2})?)/i);
-  if (timeMatch) {
+  // 3. High-precision Shift / Time Pattern Matching:
+  // Handles:
+  // - "12:00 TO 9:00", "10:00 TO 7:00", "9:00 TO 6:00", "11:00 TO 8:00"
+  // - "1100710800" (OCR reads 11:00 TO 8:00 with TO as 710)
+  // - "120010900" (OCR reads 12:00 TO 9:00 with TO as 10)
+  // - "90070600" (OCR reads 9:00 TO 6:00 with TO as 70)
+  // - "120070500" (OCR reads 12:00 TO 9:00 with 9 read as 5)
+  // - "1000T07:00" (OCR reads 10:00 TO 7:00 with TO as T0)
+  // - "10-7", "11-8", "12-9", "9-6"
+  const shiftRegex = /(?:^|[^\d])(9|10|11|12)(?::|\.|00)?(\d{2})?\s*(?:TO|710|70|10|T0|T|UNTIL|-|[=\s])\s*([0-9]|1[0-2])(?::|\.|00)?(\d{2})?(?:[^\d]|$)/i;
+  const match = combined.match(shiftRegex);
+  if (match) {
+    let inH = parseInt(match[1], 10);
+    let inM = (match[2] && match[2].length === 2 && parseInt(match[2], 10) < 60 && parseInt(match[2], 10) !== 0) ? parseInt(match[2], 10) : 0;
+    let outH = parseInt(match[3], 10);
+    let outM = (match[4] && match[4].length === 2 && parseInt(match[4], 10) < 60 && parseInt(match[4], 10) !== 0) ? parseInt(match[4], 10) : 0;
+
+    // Automatic OCR misread correction for standard salon shifts:
+    // (e.g. 9 misread as 3, 5, or 0; 8 as 3 or 0; 7 as 1 or 0; 6 as 0 or 5)
+    if (inH === 12 && (outH === 3 || outH === 5 || outH === 0)) {
+      outH = 9; // 12:00 to 9:00 PM closing shift
+    } else if (inH === 11 && (outH === 3 || outH === 0)) {
+      outH = 8; // 11:00 to 8:00 PM shift
+    } else if (inH === 10 && (outH === 1 || outH === 0)) {
+      outH = 7; // 10:00 to 7:00 PM shift
+    } else if (inH === 9 && (outH === 0 || outH === 5)) {
+      outH = 6; // 9:00 to 6:00 PM shift
+    }
+
+    let startAmpm = (inH === 12 || inH === 1 || inH === 2 || inH === 3) ? 'PM' : 'AM';
+
+    return {
+      status: 'Present',
+      inH: inH,
+      inM: inM,
+      inAmpm: startAmpm,
+      outH: outH,
+      outM: outM
+    };
+  }
+
+  // 4. Secondary fallback time regex for general time patterns like "10:30-19:30":
+  const fallbackMatch = combined.match(/(\d{3,4}|\d{1,2}(?::\d{2})?)\s*(?:TO|70|10|T0|-|UNTIL)\s*(\d{3,4}|\d{1,2}(?::\d{2})?)/i);
+  if (fallbackMatch) {
     function parseTimeVal(str) {
       if (str.includes(':')) {
         const parts = str.split(':');
@@ -1852,39 +1957,36 @@ function extractShiftFromContext(line, nextLine = '') {
       return { h: val, m: 0 };
     }
 
-    const start = parseTimeVal(timeMatch[1]);
-    const end = parseTimeVal(timeMatch[2]);
-
-    let inH = start.h;
+    const start = parseTimeVal(fallbackMatch[1]);
+    const end = parseTimeVal(fallbackMatch[2]);
+    let inH = start.h || 10;
+    let outH = end.h || 7;
     if (inH === 0) inH = 12;
-    let outH = end.h;
     if (outH === 0) outH = 12;
 
-    // Automatic OCR misread correction for standard salon shifts:
-    // (e.g. 9 misread as 3, 8 as 3, 7 as 1, 6 as 0)
-    if (inH === 12 && outH === 3) {
-      outH = 9; // 12:00 to 9:00 PM closing shift
-    } else if (inH === 11 && outH === 3) {
-      outH = 8; // 11:00 to 8:00 PM shift
-    } else if (inH === 10 && outH === 1) {
-      outH = 7; // 10:00 to 7:00 PM shift
-    } else if (inH === 9 && outH === 0) {
-      outH = 6; // 9:00 to 6:00 PM shift
-    }
+    if (inH === 12 && (outH === 3 || outH === 5 || outH === 0)) outH = 9;
+    else if (inH === 11 && (outH === 3 || outH === 0)) outH = 8;
+    else if (inH === 10 && (outH === 1 || outH === 0)) outH = 7;
+    else if (inH === 9 && (outH === 0 || outH === 5)) outH = 6;
 
     let startAmpm = (inH === 12 || inH === 1 || inH === 2 || inH === 3) ? 'PM' : 'AM';
 
     return {
       status: 'Present',
       inH: inH,
-      inM: start.m,
+      inM: start.m || 0,
       inAmpm: startAmpm,
       outH: outH,
-      outM: end.m
+      outM: end.m || 0
     };
   }
 
-  // Fallback Present 10:00 AM - 7:00 PM
+  // Kalyan (Manager) standard scheduled shift: 12:00 PM – 9:00 PM
+  if (isManager) {
+    return { status: 'Present', inH: 12, inM: 0, inAmpm: 'PM', outH: 9, outM: 0 };
+  }
+
+  // General Stylist fallback: 10:00 AM - 7:00 PM
   return { status: 'Present', inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0 };
 }
 
@@ -2037,7 +2139,7 @@ function parseRosterText(rawText) {
             }
           }
 
-          const shift = extractShiftFromContext(line, nextLineText);
+          const shift = extractShiftFromContext(line, nextLineText, staffDef.isManager);
           parsedRosterBuffer[staffDef.id] = {
             staff: staffObj,
             status: shift.status,
