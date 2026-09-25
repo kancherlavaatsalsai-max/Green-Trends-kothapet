@@ -1793,13 +1793,13 @@ function loadSampleUploadedRoster() {
   const sampleOcrText = `DATE: 26-09-2026 SATURDAY
 DAILY ROSTER
 MALE STAFF
-1 | SULEMAN | = 1200709:00
-2 | ISLAM | DAY OFF
+1 | SULEMAN | = 12:00 TO 9:00
+2 | ISLAM | 9:00 TO 6:00
 3 | IQRAM | LEAVE
 FEMALE STAFF
-1 | ARUNA | = 1000T07:00
-2 | AFRIN | = 11:0070800
-3 | RESHMA | = 120070900
+1 | ARUNA | = 10:00 TO 7:00
+2 | AFRIN | = 11:00 TO 8:00
+3 | RESHMA | = 12:00 TO 9:00
 NOTE: ANY LEAVE SAME DAY INFORMATION DOUBLE SALARY CUT`;
 
   parseRosterText(sampleOcrText);
@@ -1811,7 +1811,7 @@ NOTE: ANY LEAVE SAME DAY INFORMATION DOUBLE SALARY CUT`;
  * 1. WEEK OFF / DAY OFF: strictly mapped to 'Weekly Off' (entitled regular weekly off, ₹0 salary cut).
  *    Recognizes: DAY OFF, WEEK OFF, WEEKLY OFF, D.OFF, W.OFF, D/O, W/O, DO, WO, DAY-OFF, WEEK-OFF, OFF.
  * 2. LEAVE: strictly mapped to 'Leave' (unpaid leave, triggers daily salary deduction).
- *    Recognizes: LEAVE, EAVE, ABSENT, CASUAL LEAVE, SICK LEAVE, LV, LVE, CL, SL, PL, ABS.
+ *    Recognizes: LEAVE, EAVE, WEAVE, WEAV, LEAV, ABSENT, CASUAL LEAVE, SICK LEAVE, LV, LVE, CL, SL, PL, ABS.
  * 3. TIMINGS: 12:00 TO 9:00, 120070900, 900To600, 110070800, 1000T07:00, 10-7, etc.
  */
 function extractShiftFromContext(line, nextLine = '') {
@@ -1820,14 +1820,15 @@ function extractShiftFromContext(line, nextLine = '') {
   // 1. Strict Week Off / Day Off Detection FIRST:
   const isWeekOff = 
     /\b(DAY\s*OFF|WEEK\s*OFF|WEEKLY\s*OFF|DAYOFF|WEEKOFF|D[.\s/_-]*OFF|W[.\s/_-]*OFF|DAY[._-]?OFF|WEEK[._-]?OFF|D\/O|W\/O|WK\s*OFF)\b/i.test(combined) ||
+    /\b(DAY|WEEK|WEEKLY)[.\s/_-]*(?:OFF|QFF|CFF|UFF|0FF|EFF)\b/i.test(combined) ||
     /\b(DAY\s*QFF|WEEK\s*QFF|OFF\s*DAY)\b/i.test(combined) ||
     /(?:^|[\s|:=-])(?:DO|WO|D\.O|W\.O)(?:[\s|:=-]|$)/i.test(combined) ||
     (/(?:^|[\s|:=-])(OFF)(?:[\s|:=-]|$)/i.test(combined) && !combined.includes('COFFEE') && !combined.includes('OFFIC'));
 
-  // 2. Strict Leave Detection:
+  // 2. Strict Leave Detection (includes common OCR visual blur 'weave' / 'weav' for 'leave'):
   const isLeave = 
-    /\b(LEAVE|EAVE|ABSENT|CASUAL\s*LEAVE|SICK\s*LEAVE|PAID\s*LEAVE|UNPAID\s*LEAVE)\b/i.test(combined) ||
-    /(?:^|[\s|:=-])(?:LV|LVE|CL|SL|PL|ABS)(?:[\s|:=-]|$)/i.test(combined);
+    /\b(LEAVE|EAVE|WEAVE|WEAV|LEAV|ABSENT|CASUAL\s*LEAVE|SICK\s*LEAVE|PAID\s*LEAVE|UNPAID\s*LEAVE)\b/i.test(combined) ||
+    /(?:^|[\s|:=-])(?:WEAVE|WEAV|LEAVE|LEAV|EAVE|LV|LVE|CL|SL|PL|ABS)(?:[\s|:=-]|$)/i.test(combined);
 
   if (isWeekOff) {
     return { status: 'Weekly Off', inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0 };
@@ -1854,11 +1855,24 @@ function extractShiftFromContext(line, nextLine = '') {
     const start = parseTimeVal(timeMatch[1]);
     const end = parseTimeVal(timeMatch[2]);
 
-    let startAmpm = (start.h === 12 || start.h === 1 || start.h === 2 || start.h === 3) ? 'PM' : 'AM';
     let inH = start.h;
     if (inH === 0) inH = 12;
     let outH = end.h;
     if (outH === 0) outH = 12;
+
+    // Automatic OCR misread correction for standard salon shifts:
+    // (e.g. 9 misread as 3, 8 as 3, 7 as 1, 6 as 0)
+    if (inH === 12 && outH === 3) {
+      outH = 9; // 12:00 to 9:00 PM closing shift
+    } else if (inH === 11 && outH === 3) {
+      outH = 8; // 11:00 to 8:00 PM shift
+    } else if (inH === 10 && outH === 1) {
+      outH = 7; // 10:00 to 7:00 PM shift
+    } else if (inH === 9 && outH === 0) {
+      outH = 6; // 9:00 to 6:00 PM shift
+    }
+
+    let startAmpm = (inH === 12 || inH === 1 || inH === 2 || inH === 3) ? 'PM' : 'AM';
 
     return {
       status: 'Present',
@@ -1882,6 +1896,7 @@ function extractShiftFromContext(line, nextLine = '') {
  * 4. Extracts date from image header.
  */
 function parseRosterText(rawText) {
+  window._lastParsedRawText = rawText;
   parsedRosterBuffer = {};
 
   if (!rawText) {
@@ -1914,49 +1929,49 @@ function parseRosterText(rawText) {
       id: 'staff_1',
       name: 'KALYAN',
       isManager: true,
-      aliases: ['KALYAN', 'MANAGER', 'KALAYAN', 'KALYANI', 'KALY', 'KALYN', 'KLYAN', 'CALYAN']
+      aliases: ['KALYAN', 'MANAGER', 'KALAYAN', 'KALYANI', 'KALY', 'KALYN', 'KLYAN', 'CALYAN', 'KALIYAN', 'KLYN']
     },
     {
       id: 'staff_4',
       name: 'SULEMAN',
       gender: 'male',
       sectionIndex: 1,
-      aliases: ['SULEMAN', 'SUEMAN', 'SULMAN', 'SULIMAN', 'SUMAN', 'SULEMAAN', 'SOLEMAN', 'SULAIMAN', 'SLMN', 'SULEM', 'SULI', 'SUL']
+      aliases: ['SULEMAN', 'SUEMAN', 'SULMAN', 'SULIMAN', 'SUMAN', 'SULEMAAN', 'SOLEMAN', 'SULAIMAN', 'SLMN', 'SULEM', 'SULI', 'SUL', 'SUEM']
     },
     {
       id: 'staff_2',
       name: 'ISLAM',
       gender: 'male',
       sectionIndex: 2,
-      aliases: ['ISLAM', 'STAM', '1SLAM', 'SLAM', 'ISLM', 'ISLAAM', 'ASLAM', 'ISLLAM', 'ISLAMM', 'I-SLAM', 'SLM']
+      aliases: ['ISLAM', 'STAM', '1SLAM', 'SLAM', 'ISLM', 'ISLAAM', 'ASLAM', 'ISLLAM', 'ISLAMM', 'I-SLAM', 'SLM', '1SLM', 'TSLAM']
     },
     {
       id: 'staff_3',
       name: 'IQRAM',
       gender: 'male',
       sectionIndex: 3,
-      aliases: ['IQRAM', 'IKRAM', 'ILARAM', 'RAM', 'ORAM', 'QRAM', 'ILARA', 'IKRM', 'IQRAAM', 'IKRAAM', 'ICRAM', 'IQRM', '1QRAM', 'GRAM']
+      aliases: ['IQRAM', 'IKRAM', 'ILARAM', 'RAM', 'ORAM', 'QRAM', 'ILARA', 'IKRM', 'IQRAAM', 'IKRAAM', 'ICRAM', 'IQRM', '1QRAM', 'GRAM', 'IORAM']
     },
     {
       id: 'staff_7',
       name: 'Aruna',
       gender: 'female',
       sectionIndex: 1,
-      aliases: ['ARUNA', 'ARUN', 'AARUNA', 'ARU', 'ARUNAA', 'AURNA', 'ARONA']
+      aliases: ['ARUNA', 'ARUN', 'AARUNA', 'ARU', 'ARUNAA', 'AURNA', 'ARONA', 'ARNA']
     },
     {
       id: 'staff_5',
       name: 'AFRIN',
       gender: 'female',
       sectionIndex: 2,
-      aliases: ['AFRIN', 'AFREEN', 'AMN', 'ARN', 'AERIN', 'AARIN', 'AFRN', 'AFFRIN', 'APHRIN', 'AFRI']
+      aliases: ['AFRIN', 'AFREEN', 'AMN', 'ARN', 'AERIN', 'AARIN', 'AFRN', 'AFFRIN', 'APHRIN', 'AFRI', 'ARIN', 'APRN', 'AFFIN', 'RIN']
     },
     {
       id: 'staff_6',
       name: 'RESHMA',
       gender: 'female',
       sectionIndex: 3,
-      aliases: ['RESHMA', 'RMESIMA', 'RMESAMA', 'RESHM', 'RISHMA', 'RESMA', 'RESHMAA', 'RESH', 'RSHMA', 'RESHMI']
+      aliases: ['RESHMA', 'RMESIMA', 'RMESAMA', 'RESHM', 'RISHMA', 'RESMA', 'RESHMAA', 'RESH', 'RSHMA', 'RESHMI', 'RESMHA', 'RSHM']
     }
   ];
 
@@ -1966,14 +1981,14 @@ function parseRosterText(rawText) {
     const cleanLine = line.replace(/[^A-Za-z0-9:\s]/g, ' ').replace(/\s+/g, ' ').trim();
     const cleanUpper = cleanLine.toUpperCase();
 
-    if (upper.includes('MALE STAFF') || upper.includes('MALE')) {
-      inMaleSection = true;
-      inFemaleSection = false;
-      continue;
-    }
-    if (upper.includes('FEMALE STAFF') || upper.includes('FEMALE')) {
+    // Check FEMALE FIRST because 'FEMALE' contains substring 'MALE'!
+    if (upper.includes('FEMALE')) {
       inFemaleSection = true;
       inMaleSection = false;
+      continue;
+    } else if (upper.includes('MALE')) {
+      inMaleSection = true;
+      inFemaleSection = false;
       continue;
     }
 
@@ -2001,7 +2016,7 @@ function parseRosterText(rawText) {
       // 2. Section + index matching
       if (!matched && staffDef.sectionIndex) {
         if ((inMaleSection && staffDef.gender === 'male') || (inFemaleSection && staffDef.gender === 'female')) {
-          const indexRegex = new RegExp('^[\\s|]*' + staffDef.sectionIndex + '[\\s|._-]+', 'i');
+          const indexRegex = new RegExp('(?:^|[\\s|(\\[])' + staffDef.sectionIndex + '[\\s|._)-]+', 'i');
           if (indexRegex.test(line) || indexRegex.test(cleanLine)) {
             matched = true;
           }
