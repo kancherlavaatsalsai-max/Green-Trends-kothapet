@@ -1,0 +1,169 @@
+/* Luxe Salon & Spa - Ultra-Premium Theme & Micro-Interactions */
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #08080d;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f1f30;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff2a85;
+}
+
+body {
+  background-color: #050508;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Nav Tab Active State */
+.nav-tab.active {
+  background: linear-gradient(135deg, rgba(255, 42, 133, 0.25) 0%, rgba(255, 126, 179, 0.12) 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 42, 133, 0.45);
+  box-shadow: 0 0 16px rgba(255, 42, 133, 0.22);
+}
+
+/* Pink Neon Hover and Focus Glows */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #ff2a85 !important;
+  box-shadow: 0 0 0 2px rgba(255, 42, 133, 0.3) !important;
+}
+
+/* Staff Card Hover */
+.staff-card {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+.staff-card:hover {
+  border-color: rgba(255, 42, 133, 0.4);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 42, 133, 0.1);
+}
+
+/* Remove default number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Segmented Attendance Status Buttons */
+.status-pill {
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  user-select: none;
+}
+.status-pill.active-present {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+.status-pill.active-off {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+}
+.status-pill.active-leave {
+  background: rgba(244, 63, 94, 0.2);
+  color: #fb7185;
+  border-color: rgba(244, 63, 94, 0.5);
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.3);
+}
+.status-pill.active-half {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+
+/* Custom AM / PM Toggler */
+.ampm-toggle {
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.ampm-toggle.is-am {
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+.ampm-toggle.is-pm {
+  background: rgba(255, 42, 133, 0.25);
+  color: #ff7eb3;
+  border: 1px solid rgba(255, 42, 133, 0.5);
+}
+
+/* Print Styles for Official Pay Slip & Reports */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  header, nav, #mainNav, #toastContainer, 
+  .view-panel, button, input[type="button"], .no-print {
+    display: none !important;
+  }
+
+  #paySlipModal {
+    position: static !important;
+    display: block !important;
+    background: transparent !important;
+    padding: 0 !important;
+  }
+
+  #paySlipModal > div {
+    max-width: 100% !important;
+    background: #ffffff !important;
+    color: #111118 !important;
+    border: 2px solid #000000 !important;
+    box-shadow: none !important;
+    padding: 20px !important;
+  }
+
+  #paySlipPrintArea {
+    color: #111118 !important;
+  }
+
+  #paySlipPrintArea * {
+    color: #111118 !important;
+    border-color: #d1d5db !important;
+  }
+
+  #paySlipPrintArea .bg-\[\#11111c\],
+  #paySlipPrintArea .bg-\[\#12121e\],
+  #paySlipPrintArea .bg-\[\#0d1614\],
+  #paySlipPrintArea .bg-\[\#111222\],
+  #paySlipPrintArea .bg-\[\#1c0d12\] {
+    background-color: #f3f4f6 !important;
+    border: 1px solid #d1d5db !important;
+  }
+
+  #psNetPayable {
+    color: #ff2a85 !important;
+    font-weight: 900 !important;
+  }
+}
+
+/* Login Shake Animation for Invalid Auth */
+@keyframes loginShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+.shake-anim {
+  animation: loginShake 0.45s ease-in-out;
+}
+
