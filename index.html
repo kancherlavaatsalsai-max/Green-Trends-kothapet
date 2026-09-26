@@ -62,7 +62,7 @@
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-[#050508] text-white min-h-screen font-sans antialiased selection:bg-[#ff2a85] selection:text-white">
+<body class="bg-[#050508] text-white min-h-screen font-sans antialiased selection:bg-[#ff2a85] selection:text-white overflow-x-hidden">
 
   <!-- Ambient Glow Backgrounds -->
   <div class="fixed top-0 left-1/3 w-[32rem] h-[32rem] bg-[#ff2a85]/10 rounded-full blur-[160px] pointer-events-none -z-10"></div>
@@ -71,7 +71,7 @@
   <!-- ========================================== -->
   <!-- AUTHENTICATION / LOGIN OVERLAY SCREEN     -->
   <!-- ========================================== -->
-  <div id="loginOverlay" class="fixed inset-0 z-50 bg-[#040407]/95 backdrop-blur-2xl flex items-center justify-center p-4 min-h-screen">
+  <div id="loginOverlay" class="fixed inset-0 z-50 bg-[#040407]/95 backdrop-blur-2xl flex items-center justify-center p-4 min-h-screen overflow-hidden">
     <div id="loginCard" class="w-full max-w-md bg-[#0b0b14] border border-[#ff2a85]/35 rounded-[32px] p-7 sm:p-9 shadow-2xl shadow-[#ff2a85]/15 relative overflow-hidden">
       <!-- Glow background inside modal -->
       <div class="absolute -top-24 -left-24 w-48 h-48 bg-[#ff2a85]/20 rounded-full blur-3xl pointer-events-none"></div>
@@ -159,59 +159,64 @@
 
   <!-- Top Navigation Header - Ultra-Luxury Design -->
   <header class="sticky top-0 z-40 bg-[#07070d]/95 backdrop-blur-xl border-b border-[#1c1c2e] shadow-2xl shadow-black/80">
-    <div class="w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-6 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
+    <div class="w-full max-w-[1720px] mx-auto px-2 sm:px-4 lg:px-6 h-16 flex items-center justify-between gap-2 lg:gap-3">
       
       <!-- Brand: strictly GREEN TRENDS KOTHAPET -->
-      <div class="flex items-center cursor-pointer select-none shrink-0" onclick="navigateTo('attendance')">
-        <h1 class="font-heading font-black text-base sm:text-lg tracking-wider text-white flex items-center gap-1.5 sm:gap-2">
-          <span>GREEN TRENDS</span>
-          <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-xl bg-gradient-to-r from-[#ff2a85]/20 to-purple-500/20 text-[#ff7eb3] border border-[#ff2a85]/40 tracking-widest uppercase">
+      <div class="flex items-center gap-2 sm:gap-2.5 cursor-pointer select-none shrink-0" onclick="navigateTo('attendance')">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#ff2a85] to-purple-600 p-0.5 shadow-md shadow-[#ff2a85]/20 flex items-center justify-center">
+          <div class="w-full h-full bg-[#080811] rounded-[10px] flex items-center justify-center">
+            <i class="fa-solid fa-scissors text-[#ff2a85] text-xs"></i>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="font-heading font-black text-sm sm:text-base tracking-wider text-white">GREEN TRENDS</span>
+          <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#ff2a85]/20 text-[#ff7eb3] border border-[#ff2a85]/35 tracking-widest uppercase">
             KOTHAPET
           </span>
-        </h1>
+        </div>
       </div>
 
-      <!-- Navigation Tabs (7 Sleek Luxury Tabs) -->
-      <nav id="mainNav" class="hidden lg:flex items-center gap-0.5 xl:gap-1 bg-[#0c0c16]/95 p-1 rounded-2xl border border-[#222238] shadow-2xl shrink-0">
+      <!-- Navigation Tabs (Sleek Luxury Tabs, Overflow-Protected) -->
+      <nav id="mainNav" class="hidden lg:flex items-center gap-0.5 xl:gap-1 bg-[#0c0c16]/95 p-1 rounded-2xl border border-[#222238] shadow-2xl shrink-0 overflow-x-auto no-scrollbar">
         <button id="navBtn-attendance" onclick="navigateTo('attendance')" 
-          class="nav-tab active px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
+          class="nav-tab active px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
           <i class="fa-solid fa-calendar-check text-[#ff2a85]"></i>
           <span>Attendance</span>
         </button>
 
         <button id="navBtn-kiosk" onclick="navigateTo('kiosk')" 
-          class="nav-tab px-2.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer" title="Front Desk Stylist 1-Tap Self Check-In">
+          class="nav-tab px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Front Desk Stylist 1-Tap Self Check-In">
           <i class="fa-solid fa-stopwatch text-emerald-400"></i>
           <span>Kiosk</span>
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
         </button>
 
         <button id="navBtn-payroll" onclick="navigateTo('payroll')" 
-          class="nav-tab px-2.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
+          class="nav-tab px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
           <i class="fa-solid fa-file-invoice-dollar text-[#ff2a85]"></i>
           <span>Payroll</span>
         </button>
 
         <button id="navBtn-incentives" onclick="navigateTo('incentives')" 
-          class="nav-tab px-2.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
+          class="nav-tab px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
           <i class="fa-solid fa-trophy text-[#ff2a85]"></i>
           <span>Incentives</span>
         </button>
 
         <button id="navBtn-expenses" onclick="navigateTo('expenses')" 
-          class="nav-tab px-2.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer" title="Salon Petty Cash & Daily Expenses">
+          class="nav-tab px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Salon Petty Cash & Daily Expenses">
           <i class="fa-solid fa-receipt text-amber-400"></i>
           <span>Petty Cash</span>
         </button>
 
         <button id="navBtn-roster" onclick="navigateTo('roster')" 
-          class="nav-tab px-2.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
+          class="nav-tab px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
           <i class="fa-solid fa-camera text-[#ff2a85]"></i>
           <span>Roster</span>
         </button>
 
         <button id="navBtn-admin" onclick="navigateTo('admin')" 
-          class="nav-tab px-2.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer" title="Salon Settings, Percentages & Credentials">
+          class="nav-tab px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Salon Settings, Percentages & Credentials">
           <i class="fa-solid fa-sliders text-[#ff2a85]"></i>
           <span>Admin</span>
         </button>
@@ -228,15 +233,15 @@
 
         <!-- Sleek Live Clock (Desktop screens >= 1440px) -->
         <div class="hidden 2xl:flex items-center gap-1.5 bg-[#0d0d18] border border-[#242438] px-2.5 py-1.5 rounded-2xl shadow-xl shadow-black/40">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
           <span id="liveTime" class="text-xs font-mono font-bold text-white tracking-wider tabular-nums">--:--</span>
         </div>
 
-        <!-- Compact Cloud Sync Status Badge -->
+        <!-- Compact Cloud Sync Status Badge (Quiet Indicator) -->
         <button type="button" id="cloudSyncHeaderBadge" onclick="navigateTo('admin')" 
-          class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#0d0d18] border border-[#222238] text-[11px] font-mono font-bold transition-all hover:border-[#ff2a85]/50 cursor-pointer shrink-0" title="Cloud Sync Status (Click to manage in Admin)">
-          <span id="cloudSyncHeaderDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
-          <span id="cloudSyncHeaderText" class="text-gray-300">Live</span>
+          class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#0d0d18] border border-[#222238] text-[11px] font-mono font-bold transition-all hover:border-[#ff2a85]/50 cursor-pointer shrink-0" title="Cloud Sync Status">
+          <span id="cloudSyncHeaderDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="cloudSyncHeaderText" class="text-emerald-400 font-bold"><i class="fa-solid fa-cloud text-emerald-400 mr-1"></i>Live</span>
         </button>
 
         <!-- Quick Install App / Mobile Mode -->
@@ -244,19 +249,19 @@
           class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#ff2a85]/20 to-purple-500/20 hover:from-[#ff2a85]/35 hover:to-purple-500/35 border border-[#ff2a85]/40 text-[#ff7eb3] hover:text-white text-xs font-bold transition-all shadow-sm cursor-pointer shrink-0" 
           title="Install App / Add to Home Screen">
           <i class="fa-solid fa-mobile-screen-button text-xs text-[#ff2a85]"></i>
-          <span class="hidden xs:inline sm:inline">Install</span>
+          <span class="hidden md:inline">Install</span>
         </button>
 
-        <!-- Combined Luxury User Badge & Quick Logout in One Pill -->
+        <!-- Combined Luxury User Badge & Quick Logout in One Pill (Never Clipped) -->
         <div id="userHeaderBadge" class="hidden flex items-center bg-[#0d0d18] border border-[#222238] p-0.5 rounded-2xl shadow-lg shrink-0">
-          <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-gray-300">
+          <div class="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 text-xs font-bold text-gray-200">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span id="headerUserName">Owner</span>
+            <span id="headerUserName">Manager</span>
           </div>
           <button type="button" onclick="logoutUser()" 
             class="px-2 py-1 rounded-xl text-xs font-bold text-rose-400 hover:text-white hover:bg-rose-500/20 transition-all flex items-center gap-1 cursor-pointer" title="Sign Out">
             <i class="fa-solid fa-power-off text-[10px]"></i>
-            <span class="hidden xl:inline text-xs">Logout</span>
+            <span class="hidden sm:inline text-xs font-semibold">Logout</span>
           </button>
         </div>
       </div>
@@ -1647,7 +1652,7 @@ const firebaseConfig = {
 
   <!-- Modern Native Mobile Bottom Navigation Bar (7 Tabs) -->
   <nav id="mobileBottomNav" class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#080812]/95 backdrop-blur-xl border-t border-[#1c1c2e] px-1 py-1 safe-bottom shadow-2xl">
-    <div class="grid grid-cols-7 gap-0.5 text-center w-full max-w-lg mx-auto">
+    <div id="mobileNavGrid" class="grid grid-cols-7 gap-0.5 text-center w-full max-w-lg mx-auto">
       <button onclick="navigateTo('attendance')" id="mobileNav-attendance" class="py-1 px-0.5 text-[10px] font-bold rounded-xl text-[#ff2a85] bg-[#ff2a85]/15 transition-all cursor-pointer">
         <i class="fa-solid fa-calendar-check block text-sm mb-0.5"></i>
         <span>Attd</span>

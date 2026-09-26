@@ -553,7 +553,7 @@ function initFirebaseSync() {
 
             if (changed) {
               updateViewFromHash();
-              showToast("Cloud update received! Synced with remote device.");
+              // Seamless silent cloud sync: no intrusive popups on auto-sync
             }
             updateCloudSyncUI('connected', config.projectId);
           }
@@ -618,21 +618,21 @@ function updateCloudSyncUI(status, projectId = '') {
 
   if (headerDot && headerText) {
     if (status === 'connected') {
-      headerDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
-      headerText.className = 'text-emerald-400 font-bold';
-      headerText.innerHTML = '<i class="fa-solid fa-cloud text-emerald-400 mr-1"></i><span class="hidden md:inline">Cloud </span>Live';
+      headerDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse';
+      headerText.className = 'text-emerald-400 font-bold text-xs';
+      headerText.innerHTML = '<i class="fa-solid fa-cloud text-emerald-400 mr-1"></i><span class="hidden 2xl:inline">Cloud </span>Live';
     } else if (status === 'syncing') {
-      headerDot.className = 'w-2 h-2 rounded-full bg-[#ff2a85] animate-ping';
-      headerText.className = 'text-[#ff7eb3] font-bold';
-      headerText.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin text-[#ff2a85] mr-1"></i>Syncing...';
+      headerDot.className = 'w-1.5 h-1.5 rounded-full bg-[#ff2a85] animate-ping';
+      headerText.className = 'text-[#ff7eb3] font-bold text-xs';
+      headerText.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin text-[#ff2a85] mr-1"></i><span class="hidden 2xl:inline">Syncing...</span>';
     } else if (status === 'error') {
-      headerDot.className = 'w-2 h-2 rounded-full bg-rose-500';
-      headerText.className = 'text-rose-400 font-bold';
+      headerDot.className = 'w-1.5 h-1.5 rounded-full bg-rose-500';
+      headerText.className = 'text-rose-400 font-bold text-xs';
       headerText.innerHTML = '<i class="fa-solid fa-circle-exclamation text-rose-400 mr-1"></i>Error';
     } else {
-      headerDot.className = 'w-2 h-2 rounded-full bg-amber-400';
-      headerText.className = 'text-gray-400 font-semibold';
-      headerText.innerHTML = '<i class="fa-solid fa-hard-drive text-amber-400 mr-1"></i><span class="hidden md:inline">Local </span>Storage';
+      headerDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400';
+      headerText.className = 'text-gray-400 font-semibold text-xs';
+      headerText.innerHTML = '<i class="fa-solid fa-hard-drive text-amber-400 mr-1"></i><span class="hidden 2xl:inline">Local </span>Storage';
     }
   }
 
@@ -749,17 +749,68 @@ function initAuth() {
   const overlay = document.getElementById('loginOverlay');
   const userBadge = document.getElementById('userHeaderBadge');
   const nameEl = document.getElementById('headerUserName');
+  const adminDesktopBtn = document.getElementById('navBtn-admin');
+  const adminMobileBtn = document.getElementById('mobileNav-admin');
+  const mobileNavGrid = document.getElementById('mobileNavGrid');
+  const cloudSyncBadge = document.getElementById('cloudSyncHeaderBadge');
 
   if (user && user.username) {
     if (overlay) overlay.classList.add('hidden');
     if (userBadge) userBadge.classList.remove('hidden');
+
+    const u = user.username.toLowerCase();
+    const isOwner = u.includes('kancherla') || (user.role && user.role.includes('Owner'));
+    const isManager = u.includes('greentrendskothapet') || (user.role && user.role.includes('Manager'));
+    const displayName = isOwner ? 'Owner' : (isManager ? 'Manager' : (u.includes('@') ? (u.split('@')[0]) : u));
+
     if (nameEl) {
-      const u = user.username.toLowerCase();
-      const isOwner = u.includes('kancherla') || (user.role && user.role.includes('Owner'));
-      const isManager = u.includes('greentrendskothapet') || (user.role && user.role.includes('Manager'));
-      const displayName = isOwner ? 'Owner' : (isManager ? 'Manager' : (u.includes('@') ? (u.split('@')[0]) : u));
       nameEl.innerText = displayName;
       nameEl.title = `${user.username} (${user.role || (isManager ? 'Salon Manager' : 'Administrator')})`;
+    }
+
+    // Role-based Admin Tab Removal:
+    // Manager has access to all salon operations (attendance, kiosk, payroll, incentives, petty cash, roster)
+    // but Admin tab (credentials, firebase keys, commission rules) is strictly REMOVED for Manager
+    if (isManager && !isOwner) {
+      if (adminDesktopBtn) {
+        adminDesktopBtn.classList.add('hidden');
+        adminDesktopBtn.style.display = 'none';
+      }
+      if (adminMobileBtn) {
+        adminMobileBtn.classList.add('hidden');
+        adminMobileBtn.style.display = 'none';
+      }
+      if (mobileNavGrid) {
+        mobileNavGrid.className = 'grid grid-cols-6 gap-0.5 text-center w-full max-w-lg mx-auto';
+      }
+      if (cloudSyncBadge) {
+        cloudSyncBadge.onclick = null;
+        cloudSyncBadge.style.cursor = 'default';
+        cloudSyncBadge.title = 'Firebase Cloud Live (Protected)';
+      }
+
+      // If user is currently attempting to view #admin, redirect immediately to #attendance
+      if (window.location.hash === '#admin') {
+        window.location.hash = 'attendance';
+      }
+    } else {
+      // Owner account: has full access to Admin tab
+      if (adminDesktopBtn) {
+        adminDesktopBtn.classList.remove('hidden');
+        adminDesktopBtn.style.display = '';
+      }
+      if (adminMobileBtn) {
+        adminMobileBtn.classList.remove('hidden');
+        adminMobileBtn.style.display = '';
+      }
+      if (mobileNavGrid) {
+        mobileNavGrid.className = 'grid grid-cols-7 gap-0.5 text-center w-full max-w-lg mx-auto';
+      }
+      if (cloudSyncBadge) {
+        cloudSyncBadge.onclick = () => navigateTo('admin');
+        cloudSyncBadge.style.cursor = 'pointer';
+        cloudSyncBadge.title = 'Cloud Sync Status (Click to manage in Admin)';
+      }
     }
   } else {
     if (overlay) overlay.classList.remove('hidden');
@@ -811,20 +862,8 @@ function handleLoginSubmit(e) {
     if (errorAlert) errorAlert.classList.add('hidden');
     saveSessionUser(matchedUser, remember);
 
-    const overlay = document.getElementById('loginOverlay');
-    if (overlay) overlay.classList.add('hidden');
-
-    const userBadge = document.getElementById('userHeaderBadge');
-    const nameEl = document.getElementById('headerUserName');
-    if (userBadge) userBadge.classList.remove('hidden');
-    if (nameEl) {
-      const u = matchedUser.username.toLowerCase();
-      const isOwner = u.includes('kancherla') || (matchedUser.role && matchedUser.role.includes('Owner'));
-      const isManager = u.includes('greentrendskothapet') || (matchedUser.role && matchedUser.role.includes('Manager'));
-      const displayName = isOwner ? 'Owner' : (isManager ? 'Manager' : (u.includes('@') ? (u.split('@')[0]) : u));
-      nameEl.innerText = displayName;
-      nameEl.title = `${matchedUser.username} (${matchedUser.role || 'Administrator'})`;
-    }
+    initAuth();
+    updateViewFromHash();
 
     showToast(`Welcome, ${matchedUser.username}!`);
   } else {
@@ -1119,16 +1158,33 @@ function calculateTotalSalonServiceRevenue(year, month) {
 // ==========================================
 
 function navigateTo(viewName) {
-  if (viewName === 'admin') {
-    window.location.hash = 'admin';
-  } else {
-    window.location.hash = viewName;
+  const user = getSessionUser();
+  const isManager = user && (user.username?.toLowerCase().includes('greentrendskothapet') || (user.role && user.role.includes('Manager')));
+  const isOwner = user && (user.username?.toLowerCase().includes('kancherla') || (user.role && user.role.includes('Owner')));
+
+  if (viewName === 'admin' && isManager && !isOwner) {
+    showToast('Admin settings are restricted to Owner only.');
+    window.location.hash = 'attendance';
+    updateViewFromHash();
+    return;
   }
+
+  window.location.hash = viewName;
   updateViewFromHash();
 }
 
 function updateViewFromHash() {
   const hash = window.location.hash.replace('#', '') || 'attendance';
+  const user = getSessionUser();
+  const isManager = user && (user.username?.toLowerCase().includes('greentrendskothapet') || (user.role && user.role.includes('Manager')));
+  const isOwner = user && (user.username?.toLowerCase().includes('kancherla') || (user.role && user.role.includes('Owner')));
+
+  if (hash === 'admin' && isManager && !isOwner) {
+    window.location.hash = 'attendance';
+    showToast('Admin settings are restricted to Owner only.');
+    return;
+  }
+
   const views = ['attendance', 'kiosk', 'payroll', 'incentives', 'expenses', 'roster', 'admin'];
 
   views.forEach(v => {
