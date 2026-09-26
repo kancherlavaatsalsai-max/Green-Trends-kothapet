@@ -1139,27 +1139,60 @@ const firebaseConfig = {
 
           <!-- Portal Security & Login Credentials -->
           <div class="bg-[#0d0d15] rounded-3xl border border-[#ff2a85]/30 p-6 shadow-2xl space-y-4">
-            <h2 class="font-syne font-bold text-base text-white flex items-center gap-2">
-              <i class="fa-solid fa-shield-halved text-[#ff2a85]"></i>
-              <span>Portal Login Credentials</span>
-            </h2>
+            <div class="flex items-center justify-between border-b border-[#1f1f32] pb-3">
+              <h2 class="font-syne font-bold text-base text-white flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-[#ff2a85]"></i>
+                <span>Portal Login Credentials</span>
+              </h2>
+              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">2 ACTIVE ACCOUNTS</span>
+            </div>
             
-            <div class="space-y-3 text-xs">
-              <div>
-                <label class="block text-gray-400 mb-1">Username</label>
-                <input type="text" id="adminAuthUsername" value="kancherlavatsalsai@gmial.com" 
-                  class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+            <div class="space-y-4 text-xs">
+              <!-- Account 1: Owner Account -->
+              <div class="p-3.5 bg-[#121220] rounded-2xl border border-[#222238] space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-crown text-amber-400"></i>
+                    <span>Owner & Master Administrator</span>
+                  </span>
+                  <span class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">OWNER</span>
+                </div>
+                <div>
+                  <label class="block text-gray-400 mb-1">Username / Email</label>
+                  <input type="text" id="adminAuthUsername" value="kancherlavatsalsai@gmial.com" 
+                    class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+                </div>
+                <div>
+                  <label class="block text-gray-400 mb-1">Change Owner Password</label>
+                  <input type="text" id="adminAuthPassword" placeholder="Enter new password to change"
+                    class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+                </div>
               </div>
 
-              <div>
-                <label class="block text-gray-400 mb-1">New Password</label>
-                <input type="text" id="adminAuthPassword" placeholder="Enter new password to change"
-                  class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
-                <span class="text-[10px] text-gray-500">Leave blank to keep existing password.</span>
+              <!-- Account 2: Manager Account -->
+              <div class="p-3.5 bg-[#121220] rounded-2xl border border-[#222238] space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-tie text-purple-400"></i>
+                    <span>Salon Manager Account</span>
+                  </span>
+                  <span class="text-[9px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">MANAGER</span>
+                </div>
+                <p class="text-[11px] text-gray-400">Authorized for Admin Controls, Timesheet, Kiosk, Petty Cash & Operations.</p>
+                <div>
+                  <label class="block text-gray-400 mb-1">Username / Email</label>
+                  <input type="text" id="adminManagerUsername" value="Greentrendskothapet@gmail.com" 
+                    class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+                </div>
+                <div>
+                  <label class="block text-gray-400 mb-1">Change Manager Password</label>
+                  <input type="text" id="adminManagerPassword" placeholder="Enter new password to change"
+                    class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+                </div>
               </div>
 
-              <button onclick="saveAdminCredentials()" 
-                class="w-full py-2.5 rounded-xl text-xs font-bold bg-[#ff2a85] hover:bg-[#ff4d9a] text-white shadow-lg shadow-[#ff2a85]/25 transition-all">
+              <button type="button" onclick="saveAdminCredentials()" 
+                class="w-full py-2.5 rounded-xl text-xs font-bold bg-[#ff2a85] hover:bg-[#ff4d9a] text-white shadow-lg shadow-[#ff2a85]/25 transition-all cursor-pointer">
                 Update Login Credentials
               </button>
             </div>
@@ -1449,8 +1482,10 @@ const firebaseConfig = {
         </div>
 
         <div>
-          <label class="block text-gray-300 font-bold mb-1">Description / Vendor Note</label>
-          <input type="text" id="expenseNoteInput" placeholder="e.g. 50 Towels washed by vendor Ramesh" required class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-amber-400">
+          <label class="block text-gray-300 font-bold mb-1">
+            Description / Note <span class="text-gray-500 font-normal text-[11px]">(Optional)</span>
+          </label>
+          <input type="text" id="expenseNoteInput" placeholder="e.g. Towel laundry, water refill (optional)" class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-amber-400">
         </div>
 
         <div>

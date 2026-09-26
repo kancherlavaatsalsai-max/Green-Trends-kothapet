@@ -147,8 +147,8 @@ const STORAGE_KEYS = {
   STAFF: 'gt_kothapet_staff_v4',
   RULES: 'gt_kothapet_rules_v4',
   ATTENDANCE: 'gt_kothapet_attendance_v4',
-  AUTH: 'gt_kothapet_auth_v5',
-  SESSION: 'gt_kothapet_session_v5',
+  AUTH: 'gt_kothapet_auth_v6',
+  SESSION: 'gt_kothapet_session_v6',
   FIREBASE: 'gt_kothapet_firebase_config_v1',
   ADVANCES: 'gt_kothapet_advances_v1',
   EXPENSES: 'gt_kothapet_petty_cash_v1'
@@ -158,7 +158,8 @@ const DEFAULT_AUTH = {
   username: 'kancherlavatsalsai@gmial.com',
   password: 'Vinayaka@9',
   accounts: [
-    { username: 'kancherlavatsalsai@gmial.com', password: 'Vinayaka@9', role: 'Owner & Administrator' }
+    { username: 'kancherlavatsalsai@gmial.com', password: 'Vinayaka@9', role: 'Owner & Administrator' },
+    { username: 'Greentrendskothapet@gmail.com', password: 'Kothapet@9', role: 'Salon Manager' }
   ]
 };
 
@@ -687,15 +688,32 @@ function closeFirebaseHelpModal() {
 
 function getAuthCredentials() {
   const saved = localStorage.getItem(STORAGE_KEYS.AUTH);
+  let creds;
   if (!saved) {
-    localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(DEFAULT_AUTH));
-    return { ...DEFAULT_AUTH };
+    creds = { ...DEFAULT_AUTH };
+    localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(creds));
+    return creds;
   }
   try {
-    return JSON.parse(saved);
+    creds = JSON.parse(saved);
   } catch (e) {
-    return { ...DEFAULT_AUTH };
+    creds = { ...DEFAULT_AUTH };
   }
+
+  // Ensure accounts array exists and contains both Owner and Manager accounts
+  if (!creds.accounts || !Array.isArray(creds.accounts)) {
+    creds.accounts = [...DEFAULT_AUTH.accounts];
+  }
+  const hasManager = creds.accounts.some(a => a.username.toLowerCase() === 'greentrendskothapet@gmail.com');
+  if (!hasManager) {
+    creds.accounts.push({
+      username: 'Greentrendskothapet@gmail.com',
+      password: 'Kothapet@9',
+      role: 'Salon Manager'
+    });
+    localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(creds));
+  }
+  return creds;
 }
 
 function getSessionUser() {
@@ -736,11 +754,12 @@ function initAuth() {
     if (overlay) overlay.classList.add('hidden');
     if (userBadge) userBadge.classList.remove('hidden');
     if (nameEl) {
-      const u = user.username;
-      const isOwner = u.toLowerCase().includes('kancherla') || (user.role && user.role.includes('Owner'));
-      const displayName = isOwner ? 'Owner' : (u.includes('@') ? (u.split('@')[0]) : u);
+      const u = user.username.toLowerCase();
+      const isOwner = u.includes('kancherla') || (user.role && user.role.includes('Owner'));
+      const isManager = u.includes('greentrendskothapet') || (user.role && user.role.includes('Manager'));
+      const displayName = isOwner ? 'Owner' : (isManager ? 'Manager' : (u.includes('@') ? (u.split('@')[0]) : u));
       nameEl.innerText = displayName;
-      nameEl.title = `${u} (${user.role || 'Administrator'})`;
+      nameEl.title = `${user.username} (${user.role || (isManager ? 'Salon Manager' : 'Administrator')})`;
     }
   } else {
     if (overlay) overlay.classList.remove('hidden');
@@ -764,31 +783,26 @@ function handleLoginSubmit(e) {
   const authCreds = getAuthCredentials();
   let matchedUser = null;
 
-  // Check accounts list
+  // 1. Check accounts list
   if (authCreds.accounts && Array.isArray(authCreds.accounts)) {
     matchedUser = authCreds.accounts.find(
       acc => {
         const accUser = acc.username.toLowerCase();
         const matchesUser = (accUser === username) || 
           (accUser === 'kancherlavatsalsai@gmial.com' && username === 'kancherlavatsalsai@gmail.com') ||
-          (accUser === 'kancherlavatsalsai@gmail.com' && username === 'kancherlavatsalsai@gmial.com');
+          (accUser === 'kancherlavatsalsai@gmail.com' && username === 'kancherlavatsalsai@gmial.com') ||
+          (accUser === 'greentrendskothapet@gmail.com' && username === 'greentrendskothapet@gmail.com');
         return matchesUser && acc.password === password;
       }
     );
   }
 
-  // Check top-level credentials
-  if (!matchedUser && authCreds.username) {
-    const rootUser = authCreds.username.toLowerCase();
-    const matchesUser = (rootUser === username) || 
-      (rootUser === 'kancherlavatsalsai@gmial.com' && username === 'kancherlavatsalsai@gmail.com') ||
-      (rootUser === 'kancherlavatsalsai@gmail.com' && username === 'kancherlavatsalsai@gmial.com');
-    if (matchesUser && authCreds.password === password) {
-      matchedUser = { username: authCreds.username, role: 'Owner & Administrator' };
-    }
+  // 2. Exact fallback for Manager account (Greentrendskothapet@gmail.com / Kothapet@9)
+  if (!matchedUser && username === 'greentrendskothapet@gmail.com' && password === 'Kothapet@9') {
+    matchedUser = { username: 'Greentrendskothapet@gmail.com', role: 'Salon Manager' };
   }
 
-  // Exact fallback for owner (Strictly NO admin / kalyan)
+  // 3. Exact fallback for Owner account (kancherlavatsalsai@gmial.com / Vinayaka@9)
   if (!matchedUser && (username === 'kancherlavatsalsai@gmial.com' || username === 'kancherlavatsalsai@gmail.com') && password === 'Vinayaka@9') {
     matchedUser = { username: 'kancherlavatsalsai@gmial.com', role: 'Owner & Administrator' };
   }
@@ -804,11 +818,12 @@ function handleLoginSubmit(e) {
     const nameEl = document.getElementById('headerUserName');
     if (userBadge) userBadge.classList.remove('hidden');
     if (nameEl) {
-      const u = matchedUser.username;
-      const isOwner = u.toLowerCase().includes('kancherla') || (matchedUser.role && matchedUser.role.includes('Owner'));
-      const displayName = isOwner ? 'Owner' : (u.includes('@') ? (u.split('@')[0]) : u);
+      const u = matchedUser.username.toLowerCase();
+      const isOwner = u.includes('kancherla') || (matchedUser.role && matchedUser.role.includes('Owner'));
+      const isManager = u.includes('greentrendskothapet') || (matchedUser.role && matchedUser.role.includes('Manager'));
+      const displayName = isOwner ? 'Owner' : (isManager ? 'Manager' : (u.includes('@') ? (u.split('@')[0]) : u));
       nameEl.innerText = displayName;
-      nameEl.title = `${u} (${matchedUser.role || 'Administrator'})`;
+      nameEl.title = `${matchedUser.username} (${matchedUser.role || 'Administrator'})`;
     }
 
     showToast(`Welcome, ${matchedUser.username}!`);
@@ -858,44 +873,59 @@ function togglePasswordVisibility() {
 }
 
 function saveAdminCredentials() {
-  const usernameInput = document.getElementById('adminAuthUsername');
-  const passwordInput = document.getElementById('adminAuthPassword');
-  
-  const newUsername = (usernameInput?.value || '').trim();
-  const newPassword = (passwordInput?.value || '').trim();
-
-  if (!newUsername) {
-    showToast('Username cannot be empty');
-    return;
-  }
+  const ownerUserInput = document.getElementById('adminAuthUsername');
+  const ownerPassInput = document.getElementById('adminAuthPassword');
+  const managerUserInput = document.getElementById('adminManagerUsername');
+  const managerPassInput = document.getElementById('adminManagerPassword');
 
   const authCreds = getAuthCredentials();
-  authCreds.username = newUsername;
-
-  if (authCreds.accounts && Array.isArray(authCreds.accounts)) {
-    const acc = authCreds.accounts.find(a => a.username.toLowerCase() === newUsername.toLowerCase());
-    if (acc) {
-      if (newPassword) acc.password = newPassword;
-    } else {
-      authCreds.accounts.push({ username: newUsername, password: newPassword || 'password123', role: 'Custom User' });
-    }
+  if (!authCreds.accounts || !Array.isArray(authCreds.accounts)) {
+    authCreds.accounts = [...DEFAULT_AUTH.accounts];
   }
-  if (newPassword) {
-    authCreds.password = newPassword;
+
+  // 1. Update Owner account
+  const newOwnerUser = (ownerUserInput?.value || 'kancherlavatsalsai@gmial.com').trim();
+  const newOwnerPass = (ownerPassInput?.value || '').trim();
+  let ownerAcc = authCreds.accounts.find(a => a.username.toLowerCase().includes('kancherla') || (a.role && a.role.includes('Owner')));
+  if (!ownerAcc) {
+    ownerAcc = { username: newOwnerUser, password: 'Vinayaka@9', role: 'Owner & Administrator' };
+    authCreds.accounts.unshift(ownerAcc);
+  }
+  ownerAcc.username = newOwnerUser;
+  if (newOwnerPass) {
+    ownerAcc.password = newOwnerPass;
+    authCreds.password = newOwnerPass;
+  }
+  authCreds.username = newOwnerUser;
+
+  // 2. Update Manager account
+  const newManagerUser = (managerUserInput?.value || 'Greentrendskothapet@gmail.com').trim();
+  const newManagerPass = (managerPassInput?.value || '').trim();
+  let managerAcc = authCreds.accounts.find(a => a.username.toLowerCase().includes('greentrendskothapet') || (a.role && a.role.includes('Manager')));
+  if (!managerAcc) {
+    managerAcc = { username: newManagerUser, password: 'Kothapet@9', role: 'Salon Manager' };
+    authCreds.accounts.push(managerAcc);
+  }
+  managerAcc.username = newManagerUser;
+  if (newManagerPass) {
+    managerAcc.password = newManagerPass;
   }
 
   localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(authCreds));
 
+  if (ownerPassInput) ownerPassInput.value = '';
+  if (managerPassInput) managerPassInput.value = '';
+
   const sessionUser = getSessionUser();
   if (sessionUser) {
-    sessionUser.username = newUsername;
+    const isOwner = sessionUser.username.toLowerCase().includes('kancherla');
+    sessionUser.username = isOwner ? newOwnerUser : newManagerUser;
     saveSessionUser(sessionUser, true);
     const nameEl = document.getElementById('headerUserName');
-    if (nameEl) nameEl.innerText = newUsername.toUpperCase();
+    if (nameEl) nameEl.innerText = isOwner ? 'Owner' : 'Manager';
   }
 
-  if (passwordInput) passwordInput.value = '';
-  showToast('Login credentials updated successfully!');
+  showToast('✓ Portal credentials updated successfully for Owner & Manager!');
 }
 
 // ==========================================
@@ -2804,13 +2834,26 @@ function parseRosterText(rawText) {
 
   let inMaleSection = false;
   let inFemaleSection = false;
+  let arunaLineIdx = -1;
+  let reshmaLineIdx = -1;
 
   const staffDefinitions = [
     {
       id: 'staff_1',
       name: 'KALYAN',
       isManager: true,
-      aliases: ['KALYAN', 'MANAGER', 'KALAYAN', 'KALYANI', 'KALY', 'KALYN', 'KLYAN', 'CALYAN', 'KALIYAN', 'KLYN']
+      aliases: ['KALYAN', 'MANAGER', 'KALAYAN', 'KALYANI', 'KALY', 'KALYN', 'KLYAN', 'CALYAN', 'KALIYAN', 'KLYN', 'KA1YAN', 'KAIYAN', 'KALVAN', 'KALYAM', 'KALLAN', 'KALLIAN', 'BM', 'MGR', 'MNGR', 'SALON MANAGER', 'STORE MANAGER', 'BRANCH MANAGER'],
+      customMatcher: (line, upper, cleanUpper) => {
+        // Kalyan fuzzy OCR pattern: handles Ka1yan, Kaiyan, Ka|yan, Kalvan, Kalyam, Kalyan
+        if (/(?:^|[^A-Z0-9])(?:K[A4@][L1|!I]{1,2}[YV]?[A4@][NM]I?|KALYAN|KA1YAN|KAIYAN|KALVAN|KALYN|KLYAN|KALYAM|KALYANI|CALYAN|KALIYAN|KLYN)(?:[^A-Z0-9]|$)/i.test(line)) {
+          return true;
+        }
+        // Manager / BM prefix or standalone
+        if (/\b(MANAGER|BM|MGR|MNGR|BRANCH\s*MANAGER|STORE\s*MANAGER|SALON\s*MANAGER)\b/i.test(upper)) {
+          return true;
+        }
+        return false;
+      }
     },
     {
       id: 'staff_4',
@@ -2838,21 +2881,49 @@ function parseRosterText(rawText) {
       name: 'Aruna',
       gender: 'female',
       sectionIndex: 1,
-      aliases: ['ARUNA', 'ARUN', 'AARUNA', 'ARU', 'ARUNAA', 'AURNA', 'ARONA', 'ARNA']
+      aliases: ['ARUNA', 'ARUN', 'AARUNA', 'ARU', 'ARUNAA', 'AURNA', 'ARONA', 'ARNA'],
+      customMatcher: (line, upper, cleanUpper, inMale, inFemale) => {
+        if (/\b(?:ARUNA|AARUNA|ARUN|ARUNAA|AURNA)\b/i.test(upper)) return true;
+        if (inFemale && /(?:^|[\s|(\[])1(?:[.\s|\-_)]|$)/.test(cleanUpper)) return true;
+        return false;
+      }
     },
     {
       id: 'staff_5',
       name: 'AFRIN',
       gender: 'female',
       sectionIndex: 2,
-      aliases: ['AFRIN', 'AFREEN', 'AMN', 'ARN', 'AERIN', 'AARIN', 'AFRN', 'AFFRIN', 'APHRIN', 'AFRI', 'ARIN', 'APRN', 'AFFIN', 'RIN']
+      aliases: ['AFRIN', 'AFREEN', 'AFREN', 'ATRIN', 'ATREEN', 'ATREN', 'APRIN', 'APREN', 'APHRIN', 'APHREN', 'AFRIM', 'AFREEM', 'AFFRIN', 'AFFREN', 'AFEEM', 'AFEEN', 'AERIN', 'AARIN', 'AFRN', 'APRN', 'ARFIN', 'AFRI', 'RIN', 'AFFIN', 'AHREEN', 'AHREN', 'ADRIN', 'ADREEN', 'AMN', 'ARN'],
+      customMatcher: (line, upper, cleanUpper, inMale, inFemale) => {
+        // Direct Afrin OCR fuzzy regex:
+        // A followed by f/t/p/ph/h/d, followed by optional r/1/l, followed by e/i/1, followed by n/m
+        if (/(?:^|[^A-Z0-9])(?:A[FPHTBD4@][R1|!IL]?[E3I1!]{1,2}[NM]A?|AFRIN|AFREEN|AFREN|ATRIN|ATREEN|ATREN|APRIN|APREN|APHRIN|APHREN|AFRIM|AFREEM|AFFRIN|AFFREN|AFEEM|AFEEN|AERIN|AARIN|AFRN|APRN|ARFIN|ARIN)(?:[^A-Z0-9]|$)/i.test(line)) {
+          return true;
+        }
+        // In female section, check if line index is 2 or (2) or 2. or 2-
+        if (inFemale) {
+          if (/(?:^|[\s|(\[])2(?:[.\s|\-_)]|$)/.test(cleanUpper)) {
+            return true;
+          }
+          // Also if line has 11 to 8 or 11-8 timing in female section
+          if (/\b11(?::00)?\s*(?:TO|-|710|70)\s*8(?::00)?\b/i.test(upper)) {
+            return true;
+          }
+        }
+        return false;
+      }
     },
     {
       id: 'staff_6',
       name: 'RESHMA',
       gender: 'female',
       sectionIndex: 3,
-      aliases: ['RESHMA', 'RMESIMA', 'RMESAMA', 'RESHM', 'RISHMA', 'RESMA', 'RESHMAA', 'RESH', 'RSHMA', 'RESHMI', 'RESMHA', 'RSHM']
+      aliases: ['RESHMA', 'RMESIMA', 'RMESAMA', 'RESHM', 'RISHMA', 'RESMA', 'RESHMAA', 'RESH', 'RSHMA', 'RESHMI', 'RESMHA', 'RSHM'],
+      customMatcher: (line, upper, cleanUpper, inMale, inFemale) => {
+        if (/\b(?:RESHMA|RMESIMA|RISHMA|RESMA|RESHM)\b/i.test(upper)) return true;
+        if (inFemale && /(?:^|[\s|(\[])3(?:[.\s|\-_)]|$)/.test(cleanUpper)) return true;
+        return false;
+      }
     }
   ];
 
@@ -2863,11 +2934,14 @@ function parseRosterText(rawText) {
     const cleanUpper = cleanLine.toUpperCase();
 
     // Check FEMALE FIRST because 'FEMALE' contains substring 'MALE'!
-    if (upper.includes('FEMALE')) {
+    const isFemaleHeader = /\b(FEMALE|PEMALE|FEMAL|FMALE|LADIES|WOMEN|GIRLS|BEAUTICIAN|BEAUTICIANS|BEAUTY|SKIN|F\s*STAFF|F\s*TEAM)\b/i.test(upper) || /^(?:F|FEM|FM)[\s:|-]/i.test(upper);
+    const isMaleHeader = !isFemaleHeader && (/\b(MALE|MEN|BOYS|HAIR\s*STYLIST|HAIR|BARBER|M\s*STAFF|M\s*TEAM)\b/i.test(upper) || /^(?:M|ML)[\s:|-]/i.test(upper));
+
+    if (isFemaleHeader) {
       inFemaleSection = true;
       inMaleSection = false;
       continue;
-    } else if (upper.includes('MALE')) {
+    } else if (isMaleHeader) {
       inMaleSection = true;
       inFemaleSection = false;
       continue;
@@ -2878,18 +2952,25 @@ function parseRosterText(rawText) {
 
       let matched = false;
 
+      // 0. Custom matcher (highest priority for fuzzy OCR like Ka1yan or Atreen)
+      if (staffDef.customMatcher && staffDef.customMatcher(line, upper, cleanUpper, inMaleSection, inFemaleSection)) {
+        matched = true;
+      }
+
       // 1. Alias matching (raw line and cleaned line)
-      for (const alias of staffDef.aliases) {
-        if (alias.length <= 4) {
-          const regex = new RegExp('(?:^|[\\s|0-9_.-])' + alias + '(?:[\\s|0-9_.-]|$)', 'i');
-          if (regex.test(line) || regex.test(cleanLine)) {
-            matched = true;
-            break;
-          }
-        } else {
-          if (upper.includes(alias) || cleanUpper.includes(alias)) {
-            matched = true;
-            break;
+      if (!matched) {
+        for (const alias of staffDef.aliases) {
+          if (alias.length <= 4) {
+            const regex = new RegExp('(?:^|[\\s|0-9_.-])' + alias + '(?:[\\s|0-9_.-]|$)', 'i');
+            if (regex.test(line) || regex.test(cleanLine)) {
+              matched = true;
+              break;
+            }
+          } else {
+            if (upper.includes(alias) || cleanUpper.includes(alias)) {
+              matched = true;
+              break;
+            }
           }
         }
       }
@@ -2905,6 +2986,9 @@ function parseRosterText(rawText) {
       }
 
       if (matched) {
+        if (staffDef.id === 'staff_7') arunaLineIdx = i;
+        if (staffDef.id === 'staff_6') reshmaLineIdx = i;
+
         const staffObj = staffList.find(s => s.id === staffDef.id);
         if (staffObj) {
           // Lookahead to next line if next line does not match another staff member
@@ -2930,6 +3014,82 @@ function parseRosterText(rawText) {
           };
         }
         break;
+      }
+    }
+  }
+
+  // ==========================================
+  // MULTI-PASS SAFETY FALLBACK FOR KALYAN & AFRIN
+  // ==========================================
+
+  // 1. Safety Fallback for KALYAN (Manager)
+  if (!parsedRosterBuffer['staff_1']) {
+    const kalyanRegex = /(?:^|[^A-Z0-9])(?:K[A4@][L1|!I]{1,2}[YV]?[A4@][NM]I?|KALYAN|KA1YAN|KAIYAN|KALVAN|KALYN|KLYAN|KALYAM|KALYANI|CALYAN|KALIYAN|KLYN|BM|MANAGER|MGR|MNGR)(?:[^A-Z0-9]|$)/i;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (kalyanRegex.test(line)) {
+        const nextLineText = (i + 1 < lines.length) ? lines[i + 1] : '';
+        const shift = extractShiftFromContext(line, nextLineText, true);
+        const staffObj = staffList.find(s => s.id === 'staff_1');
+        if (staffObj) {
+          parsedRosterBuffer['staff_1'] = {
+            staff: staffObj,
+            status: shift.status,
+            inH: shift.inH || 12,
+            inM: shift.inM || 0,
+            inAmpm: shift.inAmpm || 'PM',
+            outH: shift.outH || 9,
+            outM: shift.outM || 0
+          };
+          break;
+        }
+      }
+    }
+  }
+
+  // 2. Safety Fallback for AFRIN (Stylist #5)
+  if (!parsedRosterBuffer['staff_5']) {
+    const afrinRegex = /(?:^|[^A-Z0-9])(?:A[FPHTBD4@][R1|!IL]?[E3I1!]{1,2}[NM]A?|AFRIN|AFREEN|AFREN|ATRIN|ATREEN|ATREN|APRIN|APREN|APHRIN|APHREN|AFRIM|AFREEM|AFFRIN|AFFREN|AFEEM|AFEEN|AERIN|AARIN|AFRN|APRN|ARFIN|ARIN)(?:[^A-Z0-9]|$)/i;
+    
+    // Check line between Aruna and Reshma if available
+    let foundLineIdx = -1;
+    if (arunaLineIdx !== -1 && reshmaLineIdx !== -1 && reshmaLineIdx > arunaLineIdx + 1) {
+      foundLineIdx = arunaLineIdx + 1;
+    }
+
+    if (foundLineIdx === -1) {
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const cleanL = line.replace(/[^A-Za-z0-9:\s]/g, ' ').toUpperCase();
+        if (afrinRegex.test(line) || (/(?:^|[\s|(\[])2(?:[.\s|\-_)]|$)/.test(cleanL) && (line.includes('11') || line.includes('8') || line.toUpperCase().includes('OFF') || line.toUpperCase().includes('LEAVE')))) {
+          foundLineIdx = i;
+          break;
+        }
+      }
+    }
+
+    if (foundLineIdx !== -1) {
+      const line = lines[foundLineIdx];
+      const nextLineText = (foundLineIdx + 1 < lines.length) ? lines[foundLineIdx + 1] : '';
+      const shift = extractShiftFromContext(line, nextLineText, false);
+      const staffObj = staffList.find(s => s.id === 'staff_5');
+      if (staffObj) {
+        let finalInH = shift.inH;
+        let finalOutH = shift.outH;
+        // Afrin standard scheduled shift is 11:00 AM - 8:00 PM if default 10-7 was applied without explicit 10
+        if (shift.status === 'Present' && shift.inH === 10 && shift.outH === 7 && !line.includes('10')) {
+          finalInH = 11;
+          finalOutH = 8;
+        }
+        parsedRosterBuffer['staff_5'] = {
+          staff: staffObj,
+          status: shift.status,
+          inH: finalInH,
+          inM: shift.inM,
+          inAmpm: shift.inAmpm,
+          outH: finalOutH,
+          outM: shift.outM
+        };
       }
     }
   }
@@ -3020,13 +3180,57 @@ function renderParsedRosterList() {
   const unmentionedStaff = staffList.filter(s => !s.isHousekeeping && !parsedRosterBuffer[s.id]);
   if (unmentionedStaff.length > 0) {
     html += `
-      <div class="p-3 rounded-2xl bg-[#0e0e18] border border-[#1d1d2b] text-[11px] text-gray-400 mt-3">
-        <span class="text-gray-300 font-bold block mb-1">
-          <i class="fa-solid fa-shield-halved text-[#ff7eb3] mr-1"></i> Not in this roster (${unmentionedStaff.length} stylists):
-        </span>
-        <span class="text-gray-400">
-          <strong class="text-gray-300">${unmentionedStaff.map(x => x.name).join(', ')}</strong> — their attendance will remain completely untouched.
-        </span>
+      <div class="p-3.5 rounded-2xl bg-[#0e0e18] border border-[#1d1d2b] text-xs text-gray-400 mt-3">
+        <div class="flex items-center justify-between gap-2 flex-wrap mb-2">
+          <span class="text-gray-300 font-bold flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-halved text-[#ff7eb3]"></i> 
+            Not in this roster (${unmentionedStaff.length} stylists):
+          </span>
+          <button type="button" onclick="openQuickAddStaffToRoster()" 
+            class="text-[11px] font-bold text-[#ff7eb3] hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
+            <i class="fa-solid fa-user-plus"></i> Manual Modal
+          </button>
+        </div>
+        <p class="text-[11px] text-gray-500 mb-2.5">Untouched unless you 1-tap add below:</p>
+        
+        <div class="flex flex-wrap gap-2">
+    `;
+
+    unmentionedStaff.forEach(s => {
+      const isMgr = s.id === 'staff_1';
+      const isAfrin = s.id === 'staff_5';
+      const defInH = isMgr ? 12 : (isAfrin ? 11 : 10);
+      const defOutH = isMgr ? 9 : (isAfrin ? 8 : 7);
+      const defAmpm = isMgr ? 'PM' : 'AM';
+      const shiftLabel = `${defInH}-${defOutH}`;
+
+      html += `
+        <div class="inline-flex items-center gap-1 bg-[#141424] border border-[#27273e] rounded-xl p-1 pr-1.5 shadow-sm">
+          <span class="font-bold text-white text-[11px] px-1.5">${s.name}</span>
+          <button type="button" 
+            onclick="quickAddStaffWithShift('${s.id}', 'Present', ${defInH}, 0, '${defAmpm}', ${defOutH}, 0)" 
+            class="px-2 py-0.5 rounded-lg bg-[#ff2a85] hover:bg-[#ff4d9a] text-white font-bold text-[10px] cursor-pointer"
+            title="Add ${s.name} (${shiftLabel})">
+            + ${shiftLabel}
+          </button>
+          <button type="button" 
+            onclick="quickAddStaffWithShift('${s.id}', 'Weekly Off', ${defInH}, 0, '${defAmpm}', ${defOutH}, 0)" 
+            class="px-1.5 py-0.5 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-300 font-bold text-[10px] border border-indigo-500/30 cursor-pointer"
+            title="Mark ${s.name} Day Off">
+            Off
+          </button>
+          <button type="button" 
+            onclick="quickAddStaffWithShift('${s.id}', 'Leave', ${defInH}, 0, '${defAmpm}', ${defOutH}, 0)" 
+            class="px-1.5 py-0.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 font-bold text-[10px] border border-rose-500/30 cursor-pointer"
+            title="Mark ${s.name} Leave">
+            Leave
+          </button>
+        </div>
+      `;
+    });
+
+    html += `
+        </div>
       </div>
     `;
   }
@@ -3174,9 +3378,16 @@ function renderAdminView() {
 
   const authCreds = getAuthCredentials();
   const authUserInput = document.getElementById('adminAuthUsername');
-  if (authUserInput) authUserInput.value = authCreds.username || 'admin';
+  const ownerAcc = (authCreds.accounts || []).find(a => a.username.toLowerCase().includes('kancherla') || (a.role && a.role.includes('Owner')));
+  if (authUserInput) authUserInput.value = ownerAcc ? ownerAcc.username : (authCreds.username || 'kancherlavatsalsai@gmial.com');
   const authPassInput = document.getElementById('adminAuthPassword');
   if (authPassInput) authPassInput.value = '';
+
+  const managerUserInput = document.getElementById('adminManagerUsername');
+  const managerAcc = (authCreds.accounts || []).find(a => a.username.toLowerCase().includes('greentrendskothapet') || (a.role && a.role.includes('Manager')));
+  if (managerUserInput) managerUserInput.value = managerAcc ? managerAcc.username : 'Greentrendskothapet@gmail.com';
+  const managerPassInput = document.getElementById('adminManagerPassword');
+  if (managerPassInput) managerPassInput.value = '';
 
   // Refresh Cloud Sync UI State
   const savedFb = localStorage.getItem(STORAGE_KEYS.FIREBASE);
@@ -4166,12 +4377,14 @@ function renderKioskView() {
 
   let presentCount = 0;
   let offCount = 0;
+  let leaveCount = 0;
   let pendingCount = 0;
 
   staffList.forEach(s => {
     const rec = dayRecords[s.id];
     if (rec && rec.status === 'Present') presentCount++;
     else if (rec && rec.status === 'Weekly Off') offCount++;
+    else if (rec && (rec.status === 'Leave' || rec.status === 'Absent')) leaveCount++;
     else pendingCount++;
   });
 
@@ -4184,6 +4397,10 @@ function renderKioskView() {
       <span class="px-2.5 py-1 rounded-xl bg-indigo-500/15 text-indigo-300 text-xs font-bold border border-indigo-500/30 flex items-center gap-1.5">
         <i class="fa-solid fa-mug-hot text-xs"></i>
         <strong>${offCount}</strong> Weekly Off
+      </span>
+      <span class="px-2.5 py-1 rounded-xl bg-rose-500/15 text-rose-400 text-xs font-bold border border-rose-500/30 flex items-center gap-1.5">
+        <i class="fa-solid fa-user-xmark text-xs"></i>
+        <strong>${leaveCount}</strong> Leave
       </span>
       <span class="px-2.5 py-1 rounded-xl bg-amber-500/15 text-amber-300 text-xs font-bold border border-amber-500/30 flex items-center gap-1.5">
         <i class="fa-solid fa-user-clock text-xs"></i>
@@ -4277,7 +4494,7 @@ function renderKioskView() {
           <div class="pt-1 border-t border-[#1c1c30] flex items-center justify-between text-[11px]">
             <span class="text-gray-400 font-medium">Shift Duration:</span>
             <span class="font-bold ${isPresent ? 'text-purple-300 font-mono' : 'text-gray-500'}">
-              ${isPresent ? shiftCalc.formattedDuration : 'Not clocked in'}
+              ${isPresent ? shiftCalc.formattedDuration : (isLeave ? 'Full Day Leave' : (isOff ? 'Scheduled Off' : 'Not clocked in'))}
             </span>
           </div>
         </div>
@@ -4300,11 +4517,21 @@ function renderKioskView() {
             </button>
           </div>
 
-          <button type="button" onclick="kioskMarkOff('${staff.id}')" 
-            class="w-full py-1.5 rounded-xl text-[11px] font-bold bg-[#141424] hover:bg-[#1f1f34] text-indigo-300 border border-indigo-500/20 hover:border-indigo-500/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer">
-            <i class="fa-solid fa-mug-hot text-[11px]"></i>
-            <span>Set Weekly Off</span>
-          </button>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="kioskMarkOff('${staff.id}')" 
+              class="w-full py-2 rounded-xl text-[11px] font-bold bg-[#141424] hover:bg-[#1f1f34] text-indigo-300 border border-indigo-500/20 hover:border-indigo-500/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              title="Mark weekly scheduled off">
+              <i class="fa-solid fa-mug-hot text-[11px]"></i>
+              <span>Weekly Off</span>
+            </button>
+
+            <button type="button" onclick="kioskMarkLeave('${staff.id}')" 
+              class="w-full py-2 rounded-xl text-[11px] font-bold bg-[#1e1017] hover:bg-[#2c1420] text-rose-300 border border-rose-500/20 hover:border-rose-500/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              title="Mark unpaid leave (salary deduction)">
+              <i class="fa-solid fa-user-xmark text-[11px]"></i>
+              <span>Mark Leave</span>
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -4441,6 +4668,40 @@ function kioskMarkOff(staffId) {
   showToast(`${staff ? staff.name : 'Stylist'} marked on Weekly Off`);
 }
 
+function kioskMarkLeave(staffId) {
+  const dateKey = selectedDateStr || new Date().toISOString().split('T')[0];
+  const staff = staffList.find(s => s.id === staffId);
+  const staffName = staff ? staff.name : 'Stylist';
+
+  if (!attendanceData[dateKey]) attendanceData[dateKey] = {};
+  if (!attendanceData[dateKey][staffId]) {
+    attendanceData[dateKey][staffId] = {
+      status: 'Leave',
+      inH: 10,
+      inM: 0,
+      inAmpm: 'AM',
+      outH: 7,
+      outM: 0,
+      outAmpm: 'PM',
+      servicesDone: 0,
+      productsSold: 0
+    };
+  } else {
+    attendanceData[dateKey][staffId].status = 'Leave';
+  }
+
+  saveAttendanceData();
+  renderKioskView();
+
+  showKioskCelebration(
+    staffName,
+    'LEAVE RECORDED',
+    `Marked Leave for ${dateKey}`,
+    'Full day unpaid leave logged on the timesheet.',
+    'user-xmark'
+  );
+}
+
 function showKioskCelebration(name, badge, subtitle, message, iconType = 'check') {
   const modal = document.getElementById('kioskCelebrationModal');
   if (!modal) return;
@@ -4452,13 +4713,24 @@ function showKioskCelebration(name, badge, subtitle, message, iconType = 'check'
   const iconEl = document.getElementById('kioskModalIcon');
 
   if (titleEl) titleEl.innerText = name;
-  if (badgeEl) badgeEl.innerText = badge;
+  if (badgeEl) {
+    badgeEl.innerText = badge;
+    if (iconType === 'user-xmark') {
+      badgeEl.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-rose-500/20 text-rose-400 border border-rose-500/30';
+    } else {
+      badgeEl.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+    }
+  }
   if (subEl) subEl.innerText = subtitle;
   if (msgEl) msgEl.innerText = message;
   if (iconEl) {
-    iconEl.className = iconType === 'flag-checkered' 
-      ? 'fa-solid fa-flag-checkered text-2xl text-emerald-400'
-      : 'fa-solid fa-check text-2xl text-emerald-400';
+    if (iconType === 'flag-checkered') {
+      iconEl.className = 'fa-solid fa-flag-checkered text-2xl text-emerald-400';
+    } else if (iconType === 'user-xmark') {
+      iconEl.className = 'fa-solid fa-user-xmark text-2xl text-rose-400';
+    } else {
+      iconEl.className = 'fa-solid fa-check text-2xl text-emerald-400';
+    }
   }
 
   modal.classList.remove('hidden');
@@ -4519,8 +4791,19 @@ window.renderKioskView = renderKioskView;
 window.kioskClockIn = kioskClockIn;
 window.kioskClockOut = kioskClockOut;
 window.kioskMarkOff = kioskMarkOff;
+window.kioskMarkLeave = kioskMarkLeave;
 window.showKioskCelebration = showKioskCelebration;
 window.closeKioskCelebration = closeKioskCelebration;
 window.toggleKioskFullscreen = toggleKioskFullscreen;
+
+// Roster scanner & parser functions
+window.parseRosterText = parseRosterText;
+window.renderParsedRosterList = renderParsedRosterList;
+window.updateDetectedStaffStatus = updateDetectedStaffStatus;
+window.quickAddStaffWithShift = quickAddStaffWithShift;
+window.openQuickAddStaffToRoster = openQuickAddStaffToRoster;
+window.closeQuickAddStaffModal = closeQuickAddStaffModal;
+window.applyRosterToAttendance = applyRosterToAttendance;
+window.loadSampleUploadedRoster = loadSampleUploadedRoster;
 
 
