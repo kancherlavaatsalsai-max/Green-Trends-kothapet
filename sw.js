@@ -1,19 +1,25 @@
-// Green Trends Kothapet - PWA Service Worker (v3)
-const CACHE_NAME = 'gt-kothapet-cache-v3';
+// Green Trends Kothapet - PWA Service Worker (v4)
+const CACHE_NAME = 'gt-kothapet-cache-v4';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './styles.css',
   './app.js',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
+  './manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      // 1. Cache core assets
+      await cache.addAll(STATIC_ASSETS);
+      // 2. Opportunistically cache icon files if present (never fail SW if missing)
+      for (const icon of ['./icon-192.png', './icon-512.png']) {
+        try {
+          const resp = await fetch(icon);
+          if (resp && resp.ok) await cache.put(icon, resp);
+        } catch (e) {}
+      }
     }).then(() => self.skipWaiting())
   );
 });
