@@ -175,13 +175,13 @@ const DEFAULT_FIREBASE_CONFIG = {
 
 // Default Realistic Operational Petty Cash Expenses for Green Trends Kothapet
 const DEFAULT_SALON_EXPENSES = [
-  { id: 'exp_seed_1', date: '2026-09-02', category: 'Towel Laundry', amount: 350, note: '50 Salon towels washed and sanitized by Ramesh laundry vendor', paidBy: 'Cash Drawer', createdAt: '2026-09-02T11:30:00.000Z' },
-  { id: 'exp_seed_2', date: '2026-09-05', category: 'Drinking Water', amount: 180, note: '6 Bisleri 20L water cans for salon dispenser', paidBy: 'Cash Drawer', createdAt: '2026-09-05T10:15:00.000Z' },
-  { id: 'exp_seed_3', date: '2026-09-10', category: 'Client Refreshments', amount: 420, note: 'Tata Tea Gold, Nescafe Coffee, Milk & Marie Gold biscuits for clients', paidBy: 'Kalyan UPI', createdAt: '2026-09-10T14:20:00.000Z' },
-  { id: 'exp_seed_4', date: '2026-09-15', category: 'Cleaning & Housekeeping', amount: 650, note: 'Lizol disinfectant floor cleaner, Colin glass cleaner & Harpic', paidBy: 'Cash Drawer', createdAt: '2026-09-15T09:45:00.000Z' },
-  { id: 'exp_seed_5', date: '2026-09-18', category: 'Towel Laundry', amount: 400, note: '60 Salon towels washed, dried and folded', paidBy: 'Cash Drawer', createdAt: '2026-09-18T12:10:00.000Z' },
-  { id: 'exp_seed_6', date: '2026-09-22', category: 'Salon Maintenance', amount: 500, note: 'Stylist station blow dryer electrical plug replacement & spare LED tube', paidBy: 'Kalyan UPI', createdAt: '2026-09-22T16:00:00.000Z' },
-  { id: 'exp_seed_7', date: '2026-09-24', category: 'Drinking Water', amount: 150, note: '5 Bisleri 20L water cans', paidBy: 'Cash Drawer', createdAt: '2026-09-24T10:00:00.000Z' }
+  { id: 'exp_seed_1', date: '2026-09-02', category: 'Towel Laundry', amount: 350, note: '50 Salon towels washed and sanitized by Ramesh laundry vendor', paidBy: 'Salon Account', createdAt: '2026-09-02T11:30:00.000Z' },
+  { id: 'exp_seed_2', date: '2026-09-05', category: 'Drinking Water', amount: 180, note: '6 Bisleri 20L water cans for salon dispenser', paidBy: 'Salon Account', createdAt: '2026-09-05T10:15:00.000Z' },
+  { id: 'exp_seed_3', date: '2026-09-10', category: 'Client Refreshments', amount: 420, note: 'Tata Tea Gold, Nescafe Coffee, Milk & Marie Gold biscuits for clients', paidBy: 'Salon Account', createdAt: '2026-09-10T14:20:00.000Z' },
+  { id: 'exp_seed_4', date: '2026-09-15', category: 'Cleaning & Housekeeping', amount: 650, note: 'Lizol disinfectant floor cleaner, Colin glass cleaner & Harpic', paidBy: 'Salon Account', createdAt: '2026-09-15T09:45:00.000Z' },
+  { id: 'exp_seed_5', date: '2026-09-18', category: 'Towel Laundry', amount: 400, note: '60 Salon towels washed, dried and folded', paidBy: 'Salon Account', createdAt: '2026-09-18T12:10:00.000Z' },
+  { id: 'exp_seed_6', date: '2026-09-22', category: 'Salon Maintenance', amount: 500, note: 'Stylist station blow dryer electrical plug replacement & spare LED tube', paidBy: 'Owner Account', createdAt: '2026-09-22T16:00:00.000Z' },
+  { id: 'exp_seed_7', date: '2026-09-24', category: 'Drinking Water', amount: 150, note: '5 Bisleri 20L water cans', paidBy: 'Salon Account', createdAt: '2026-09-24T10:00:00.000Z' }
 ];
 
 // ==========================================
@@ -1099,7 +1099,7 @@ function navigateTo(viewName) {
 
 function updateViewFromHash() {
   const hash = window.location.hash.replace('#', '') || 'attendance';
-  const views = ['attendance', 'payroll', 'incentives', 'roster', 'admin'];
+  const views = ['attendance', 'kiosk', 'payroll', 'incentives', 'expenses', 'roster', 'admin'];
 
   views.forEach(v => {
     const el = document.getElementById(`view-${v}`);
@@ -1131,8 +1131,10 @@ function updateViewFromHash() {
   });
 
   if (hash === 'attendance') renderDailyAttendance();
+  if (hash === 'kiosk') renderKioskView();
   if (hash === 'payroll') renderMonthlyPayroll();
   if (hash === 'incentives') renderIncentivesView();
+  if (hash === 'expenses') renderPettyCashLedger();
   if (hash === 'roster') renderRosterView();
   if (hash === 'admin') renderAdminView();
 }
@@ -3658,6 +3660,16 @@ function startLiveClock() {
     const dateEl = document.getElementById('liveDate');
     if (timeEl) timeEl.innerText = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     if (dateEl) dateEl.innerText = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+    // Kiosk Front Desk Digital Clock & Live Date
+    const kioskTimeEl = document.getElementById('kioskDigitalClock');
+    const kioskDateEl = document.getElementById('kioskLiveDate');
+    if (kioskTimeEl) {
+      kioskTimeEl.innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    }
+    if (kioskDateEl) {
+      kioskDateEl.innerText = now.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+    }
   }
   tick();
   setInterval(tick, 1000);
@@ -3906,17 +3918,18 @@ function renderPettyCashLedger() {
   filtered.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id.localeCompare(a.id));
 
   let totalAmount = 0;
-  let cashDrawerTotal = 0;
-  let upiTotal = 0;
-  let ownerTotal = 0;
+  let salonAccountTotal = 0;
+  let ownerAccountTotal = 0;
   const catTotals = {};
 
   filtered.forEach(e => {
     const amt = Number(e.amount) || 0;
     totalAmount += amt;
-    if (e.paidBy === 'Cash Drawer') cashDrawerTotal += amt;
-    else if (e.paidBy === 'Kalyan UPI') upiTotal += amt;
-    else if (e.paidBy === 'Owner Direct') ownerTotal += amt;
+    if (e.paidBy === 'Owner Account' || e.paidBy === 'Owner Direct') {
+      ownerAccountTotal += amt;
+    } else {
+      salonAccountTotal += amt;
+    }
 
     catTotals[e.category] = (catTotals[e.category] || 0) + amt;
   });
@@ -3946,23 +3959,23 @@ function renderPettyCashLedger() {
 
       <div class="bg-[#10101c] p-4 rounded-2xl border border-emerald-500/25 shadow-lg relative overflow-hidden">
         <div class="flex items-center justify-between text-xs text-gray-400 font-semibold">
-          <span>Cash Drawer</span>
-          <i class="fa-solid fa-cash-register text-emerald-400"></i>
+          <span>Salon Account</span>
+          <i class="fa-solid fa-store text-emerald-400"></i>
         </div>
         <div class="mt-2">
-          <span class="text-xl font-black font-heading text-emerald-400">₹${cashDrawerTotal.toLocaleString('en-IN')}</span>
-          <span class="text-[10px] text-gray-400 block mt-0.5">Drawer Reconciliation</span>
+          <span class="text-xl font-black font-heading text-emerald-400">₹${salonAccountTotal.toLocaleString('en-IN')}</span>
+          <span class="text-[10px] text-gray-400 block mt-0.5 font-mono">Cash Drawer & Branch UPI</span>
         </div>
       </div>
 
-      <div class="bg-[#10101c] p-4 rounded-2xl border border-purple-500/25 shadow-lg relative overflow-hidden">
+      <div class="bg-[#10101c] p-4 rounded-2xl border border-amber-500/25 shadow-lg relative overflow-hidden">
         <div class="flex items-center justify-between text-xs text-gray-400 font-semibold">
-          <span>Kalyan UPI</span>
-          <i class="fa-solid fa-mobile-screen-button text-purple-400"></i>
+          <span>Owner Account</span>
+          <i class="fa-solid fa-crown text-amber-400"></i>
         </div>
         <div class="mt-2">
-          <span class="text-xl font-black font-heading text-purple-400">₹${upiTotal.toLocaleString('en-IN')}</span>
-          <span class="text-[10px] text-gray-400 block mt-0.5">Manager Reimbursement</span>
+          <span class="text-xl font-black font-heading text-amber-300">₹${ownerAccountTotal.toLocaleString('en-IN')}</span>
+          <span class="text-[10px] text-gray-400 block mt-0.5 font-mono">Direct Owner Transfers</span>
         </div>
       </div>
 
@@ -3992,9 +4005,10 @@ function renderPettyCashLedger() {
   };
 
   const getPaidByBadge = (pb) => {
-    if (pb === 'Cash Drawer') return '<span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold text-[10px] flex items-center gap-1 w-fit"><i class="fa-solid fa-cash-register"></i>Cash Drawer</span>';
-    if (pb === 'Kalyan UPI') return '<span class="px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30 font-semibold text-[10px] flex items-center gap-1 w-fit"><i class="fa-solid fa-mobile-screen"></i>Kalyan UPI</span>';
-    return '<span class="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold text-[10px] flex items-center gap-1 w-fit"><i class="fa-solid fa-crown"></i>Owner Direct</span>';
+    if (pb === 'Owner Account' || pb === 'Owner Direct') {
+      return '<span class="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold text-[10px] flex items-center gap-1 w-fit"><i class="fa-solid fa-crown text-amber-400"></i>Owner Account</span>';
+    }
+    return '<span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold text-[10px] flex items-center gap-1 w-fit"><i class="fa-solid fa-store text-emerald-400"></i>Salon Account</span>';
   };
 
   // 2. Render Table Rows
@@ -4083,13 +4097,15 @@ function submitAddExpense(e) {
     return;
   }
 
+  const finalPaidBy = paidBy === 'Owner Account' ? 'Owner Account' : 'Salon Account';
+
   const newExpense = {
     id: 'exp_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
     date,
     category,
     amount,
     note: note || category,
-    paidBy: paidBy || 'Cash Drawer',
+    paidBy: finalPaidBy,
     createdAt: new Date().toISOString()
   };
 
@@ -4097,7 +4113,7 @@ function submitAddExpense(e) {
   saveSalonExpenses();
   renderPettyCashLedger();
   closeAddExpenseModal();
-  showToast(`✓ Added ₹${amount.toLocaleString('en-IN')} expense for ${category}`);
+  showToast(`✓ Added ₹${amount.toLocaleString('en-IN')} expense via ${finalPaidBy}`);
 }
 
 function deleteSalonExpense(id) {
@@ -4136,6 +4152,350 @@ function exportExpensesCSV() {
   showToast(`Exported ${filtered.length} expense records to CSV`);
 }
 
+// ==========================================
+// 9. FRONT DESK KIOSK MODE (1-TAP CHECK-IN / CHECK-OUT)
+// ==========================================
+
+function renderKioskView() {
+  const grid = document.getElementById('kioskStaffGrid');
+  const ticker = document.getElementById('kioskStatsTicker');
+  if (!grid) return;
+
+  const dateKey = selectedDateStr || new Date().toISOString().split('T')[0];
+  const dayRecords = attendanceData[dateKey] || {};
+
+  let presentCount = 0;
+  let offCount = 0;
+  let pendingCount = 0;
+
+  staffList.forEach(s => {
+    const rec = dayRecords[s.id];
+    if (rec && rec.status === 'Present') presentCount++;
+    else if (rec && rec.status === 'Weekly Off') offCount++;
+    else pendingCount++;
+  });
+
+  if (ticker) {
+    ticker.innerHTML = `
+      <span class="px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-400 text-xs font-bold border border-emerald-500/30 flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <strong>${presentCount}</strong> On Duty
+      </span>
+      <span class="px-2.5 py-1 rounded-xl bg-indigo-500/15 text-indigo-300 text-xs font-bold border border-indigo-500/30 flex items-center gap-1.5">
+        <i class="fa-solid fa-mug-hot text-xs"></i>
+        <strong>${offCount}</strong> Weekly Off
+      </span>
+      <span class="px-2.5 py-1 rounded-xl bg-amber-500/15 text-amber-300 text-xs font-bold border border-amber-500/30 flex items-center gap-1.5">
+        <i class="fa-solid fa-user-clock text-xs"></i>
+        <strong>${pendingCount}</strong> Pending
+      </span>
+    `;
+  }
+
+  grid.innerHTML = staffList.map(staff => {
+    const rec = dayRecords[staff.id] || { status: 'Present', inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0, outAmpm: 'PM' };
+    const isPresent = rec.status === 'Present';
+    const isOff = rec.status === 'Weekly Off';
+    const isLeave = rec.status === 'Leave' || rec.status === 'Absent';
+
+    const inTimeFormatted = `${rec.inH || 10}:${String(rec.inM || 0).padStart(2, '0')} ${rec.inAmpm || 'AM'}`;
+    const outTimeFormatted = `${rec.outH || 7}:${String(rec.outM || 0).padStart(2, '0')} ${rec.outAmpm || 'PM'}`;
+
+    const shiftCalc = calculateShiftHoursParsed(
+      rec.inH || 10,
+      rec.inM || 0,
+      rec.inAmpm || 'AM',
+      rec.outH || 7,
+      rec.outM || 0,
+      rec.outAmpm || 'PM',
+      staff.isHousekeeping
+    );
+
+    let statusPill = '';
+    let cardBorder = 'border-[#222236]';
+    let glow = '';
+
+    if (isPresent) {
+      if ((rec.otHours || 0) > 0) {
+        statusPill = `<span class="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-bold flex items-center gap-1">
+          <i class="fa-solid fa-fire text-amber-400"></i> ${rec.otHours}h OT (+₹${rec.otPay || 0})
+        </span>`;
+        cardBorder = 'border-amber-500/40';
+        glow = 'shadow-amber-500/10';
+      } else {
+        statusPill = `<span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] font-bold flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> ON DUTY
+        </span>`;
+        cardBorder = 'border-emerald-500/35';
+        glow = 'shadow-emerald-500/10';
+      }
+    } else if (isOff) {
+      statusPill = `<span class="px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[10px] font-bold flex items-center gap-1">
+        <i class="fa-solid fa-mug-hot text-xs"></i> WEEKLY OFF
+      </span>`;
+      cardBorder = 'border-indigo-500/30';
+    } else {
+      statusPill = `<span class="px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-bold flex items-center gap-1">
+        <i class="fa-solid fa-xmark text-xs"></i> LEAVE
+      </span>`;
+      cardBorder = 'border-rose-500/30';
+    }
+
+    return `
+      <div class="kiosk-card bg-[#0d0d18] ${cardBorder} p-5 rounded-3xl shadow-xl ${glow} flex flex-col justify-between space-y-4 hover:border-[#ff2a85]/50 transition-all">
+        <!-- Card Header: Avatar & Info -->
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#1f1025] to-[#2d1234] border border-[#ff2a85]/40 flex items-center justify-center font-syne font-black text-lg text-[#ff7eb3] shadow-md shadow-[#ff2a85]/20 shrink-0">
+              ${staff.name.substring(0, 2).toUpperCase()}
+            </div>
+            <div>
+              <h3 class="font-syne font-black text-base text-white leading-tight">${staff.name}</h3>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <span class="text-xs text-gray-400 font-medium">${staff.role}</span>
+                ${staff.isManager ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-[#ff2a85]/20 text-[#ff7eb3] font-bold border border-[#ff2a85]/30">MANAGER</span>' : ''}
+              </div>
+            </div>
+          </div>
+          <div>${statusPill}</div>
+        </div>
+
+        <!-- Timesheet Badges -->
+        <div class="bg-[#121222] p-3 rounded-2xl border border-[#202036] space-y-2">
+          <div class="flex items-center justify-between text-xs font-mono">
+            <span class="text-gray-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-arrow-right-to-bracket text-emerald-400"></i> Check In:
+            </span>
+            <span class="font-bold text-white">${isPresent ? inTimeFormatted : '—'}</span>
+          </div>
+          <div class="flex items-center justify-between text-xs font-mono">
+            <span class="text-gray-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-arrow-right-from-bracket text-rose-400"></i> Check Out:
+            </span>
+            <span class="font-bold text-white">${isPresent ? outTimeFormatted : '—'}</span>
+          </div>
+          <div class="pt-1 border-t border-[#1c1c30] flex items-center justify-between text-[11px]">
+            <span class="text-gray-400 font-medium">Shift Duration:</span>
+            <span class="font-bold ${isPresent ? 'text-purple-300 font-mono' : 'text-gray-500'}">
+              ${isPresent ? shiftCalc.formattedDuration : 'Not clocked in'}
+            </span>
+          </div>
+        </div>
+
+        <!-- 1-Tap Action Touch Targets -->
+        <div class="space-y-2 pt-1">
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="kioskClockIn('${staff.id}')" 
+              class="w-full py-3 rounded-2xl text-xs font-extrabold bg-gradient-to-r from-emerald-600 to-teal-500 hover:brightness-110 active:scale-95 text-white shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              title="1-Tap Check-In with current time">
+              <i class="fa-solid fa-stopwatch text-sm"></i>
+              <span>1-Tap In</span>
+            </button>
+
+            <button type="button" onclick="kioskClockOut('${staff.id}')" 
+              class="w-full py-3 rounded-2xl text-xs font-extrabold bg-gradient-to-r from-rose-600 to-pink-600 hover:brightness-110 active:scale-95 text-white shadow-lg shadow-rose-500/25 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              title="1-Tap Check-Out with current time">
+              <i class="fa-solid fa-flag-checkered text-sm"></i>
+              <span>1-Tap Out</span>
+            </button>
+          </div>
+
+          <button type="button" onclick="kioskMarkOff('${staff.id}')" 
+            class="w-full py-1.5 rounded-xl text-[11px] font-bold bg-[#141424] hover:bg-[#1f1f34] text-indigo-300 border border-indigo-500/20 hover:border-indigo-500/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+            <i class="fa-solid fa-mug-hot text-[11px]"></i>
+            <span>Set Weekly Off</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function kioskClockIn(staffId) {
+  const dateKey = selectedDateStr || new Date().toISOString().split('T')[0];
+  const now = new Date();
+  let hours24 = now.getHours();
+  let minutes = now.getMinutes();
+  let ampm = hours24 >= 12 ? 'PM' : 'AM';
+  let hours12 = hours24 % 12;
+  if (hours12 === 0) hours12 = 12;
+
+  if (!attendanceData[dateKey]) attendanceData[dateKey] = {};
+  if (!attendanceData[dateKey][staffId]) {
+    attendanceData[dateKey][staffId] = {
+      status: 'Present',
+      inH: hours12,
+      inM: minutes,
+      inAmpm: ampm,
+      outH: 7,
+      outM: 0,
+      outAmpm: 'PM',
+      servicesDone: 0,
+      productsSold: 0
+    };
+  } else {
+    const rec = attendanceData[dateKey][staffId];
+    rec.status = 'Present';
+    rec.inH = hours12;
+    rec.inM = minutes;
+    rec.inAmpm = ampm;
+    if (!rec.outH) {
+      rec.outH = 7;
+      rec.outM = 0;
+      rec.outAmpm = 'PM';
+    }
+  }
+
+  const staff = staffList.find(s => s.id === staffId);
+  const rec = attendanceData[dateKey][staffId];
+  if (staff) {
+    const shiftCalc = calculateShiftHoursParsed(rec.inH, rec.inM, rec.inAmpm, rec.outH, rec.outM, rec.outAmpm || 'PM', staff.isHousekeeping);
+    rec.workedMinutes = shiftCalc.workedMinutes;
+    rec.otHours = shiftCalc.otHours;
+    rec.shortfallHours = shiftCalc.shortfallHours;
+    rec.otPay = shiftCalc.otPay;
+  }
+
+  saveAttendanceData();
+  renderKioskView();
+
+  const formattedTime = `${hours12}:${String(minutes).padStart(2, '0')} ${ampm}`;
+  showKioskCelebration(
+    staff ? staff.name : 'Stylist',
+    'CHECK-IN CONFIRMED',
+    `Clocked in at ${formattedTime}`,
+    'Have a fabulous, productive shift at Green Trends Kothapet! ✨',
+    'check'
+  );
+}
+
+function kioskClockOut(staffId) {
+  const dateKey = selectedDateStr || new Date().toISOString().split('T')[0];
+  const now = new Date();
+  let hours24 = now.getHours();
+  let minutes = now.getMinutes();
+  let ampm = hours24 >= 12 ? 'PM' : 'AM';
+  let hours12 = hours24 % 12;
+  if (hours12 === 0) hours12 = 12;
+
+  if (!attendanceData[dateKey]) attendanceData[dateKey] = {};
+  if (!attendanceData[dateKey][staffId]) {
+    attendanceData[dateKey][staffId] = {
+      status: 'Present',
+      inH: 10,
+      inM: 0,
+      inAmpm: 'AM',
+      outH: hours12,
+      outM: minutes,
+      outAmpm: 'PM',
+      servicesDone: 0,
+      productsSold: 0
+    };
+  } else {
+    const rec = attendanceData[dateKey][staffId];
+    rec.status = 'Present';
+    rec.outH = hours12;
+    rec.outM = minutes;
+    rec.outAmpm = 'PM';
+  }
+
+  const staff = staffList.find(s => s.id === staffId);
+  const rec = attendanceData[dateKey][staffId];
+  let summaryMsg = 'Shift completed successfully!';
+  if (staff) {
+    const shiftCalc = calculateShiftHoursParsed(rec.inH, rec.inM, rec.inAmpm, rec.outH, rec.outM, rec.outAmpm || 'PM', staff.isHousekeeping);
+    rec.workedMinutes = shiftCalc.workedMinutes;
+    rec.otHours = shiftCalc.otHours;
+    rec.shortfallHours = shiftCalc.shortfallHours;
+    rec.otPay = shiftCalc.otPay;
+    if (rec.otHours > 0) {
+      summaryMsg = `🔥 +${rec.otHours}h Overtime earned (+₹${rec.otPay})! Outstanding work!`;
+    } else if (rec.shortfallHours > 0) {
+      summaryMsg = `Shift logged: ${shiftCalc.formattedDuration} (${rec.shortfallHours}h shortfall from 9h standard).`;
+    } else {
+      summaryMsg = `Standard 9-hour shift completed (${shiftCalc.formattedDuration})! Great work! 👏`;
+    }
+  }
+
+  saveAttendanceData();
+  renderKioskView();
+
+  const formattedTime = `${hours12}:${String(minutes).padStart(2, '0')} ${ampm}`;
+  showKioskCelebration(
+    staff ? staff.name : 'Stylist',
+    'CHECK-OUT CONFIRMED',
+    `Clocked out at ${formattedTime}`,
+    summaryMsg,
+    'flag-checkered'
+  );
+}
+
+function kioskMarkOff(staffId) {
+  const dateKey = selectedDateStr || new Date().toISOString().split('T')[0];
+  if (!attendanceData[dateKey]) attendanceData[dateKey] = {};
+  if (!attendanceData[dateKey][staffId]) attendanceData[dateKey][staffId] = {};
+  attendanceData[dateKey][staffId].status = 'Weekly Off';
+  saveAttendanceData();
+  renderKioskView();
+  const staff = staffList.find(s => s.id === staffId);
+  showToast(`${staff ? staff.name : 'Stylist'} marked on Weekly Off`);
+}
+
+function showKioskCelebration(name, badge, subtitle, message, iconType = 'check') {
+  const modal = document.getElementById('kioskCelebrationModal');
+  if (!modal) return;
+
+  const titleEl = document.getElementById('kioskModalTitle');
+  const badgeEl = document.getElementById('kioskModalBadge');
+  const subEl = document.getElementById('kioskModalSubtitle');
+  const msgEl = document.getElementById('kioskModalMessage');
+  const iconEl = document.getElementById('kioskModalIcon');
+
+  if (titleEl) titleEl.innerText = name;
+  if (badgeEl) badgeEl.innerText = badge;
+  if (subEl) subEl.innerText = subtitle;
+  if (msgEl) msgEl.innerText = message;
+  if (iconEl) {
+    iconEl.className = iconType === 'flag-checkered' 
+      ? 'fa-solid fa-flag-checkered text-2xl text-emerald-400'
+      : 'fa-solid fa-check text-2xl text-emerald-400';
+  }
+
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+
+  if (window._kioskCelebrationTimeout) clearTimeout(window._kioskCelebrationTimeout);
+  window._kioskCelebrationTimeout = setTimeout(() => {
+    closeKioskCelebration();
+  }, 3200);
+}
+
+function closeKioskCelebration() {
+  const modal = document.getElementById('kioskCelebrationModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+}
+
+function toggleKioskFullscreen() {
+  if (!document.fullscreenElement) {
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.log('Fullscreen error:', err.message);
+      });
+    }
+    const btn = document.getElementById('kioskFullscreenBtn');
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-compress text-purple-400"></i><span>Exit Fullscreen</span>';
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+    const btn = document.getElementById('kioskFullscreenBtn');
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-expand text-purple-400"></i><span>Fullscreen Kiosk</span>';
+  }
+}
+
 // Global window attachments
 window.updateStaffAdvance = updateStaffAdvance;
 window.saveAdvanceData = saveAdvanceData;
@@ -4153,5 +4513,14 @@ window.submitAddExpense = submitAddExpense;
 window.deleteSalonExpense = deleteSalonExpense;
 window.exportExpensesCSV = exportExpensesCSV;
 window.renderPettyCashLedger = renderPettyCashLedger;
+
+// Kiosk mode functions
+window.renderKioskView = renderKioskView;
+window.kioskClockIn = kioskClockIn;
+window.kioskClockOut = kioskClockOut;
+window.kioskMarkOff = kioskMarkOff;
+window.showKioskCelebration = showKioskCelebration;
+window.closeKioskCelebration = closeKioskCelebration;
+window.toggleKioskFullscreen = toggleKioskFullscreen;
 
 
