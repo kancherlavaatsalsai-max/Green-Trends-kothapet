@@ -150,85 +150,85 @@
 
   <!-- Top Navigation Header - Ultra-Luxury Design -->
   <header class="sticky top-0 z-40 bg-[#07070d]/95 backdrop-blur-xl border-b border-[#1c1c2e] shadow-2xl shadow-black/80">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+    <div class="w-full max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-6 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
       
       <!-- Brand: strictly GREEN TRENDS KOTHAPET -->
-      <div class="flex items-center cursor-pointer select-none" onclick="navigateTo('attendance')">
-        <h1 class="font-heading font-black text-xl sm:text-2xl tracking-wider text-white flex items-center gap-2.5">
+      <div class="flex items-center cursor-pointer select-none shrink-0" onclick="navigateTo('attendance')">
+        <h1 class="font-heading font-black text-lg sm:text-xl tracking-wider text-white flex items-center gap-2">
           <span>GREEN TRENDS</span>
-          <span class="text-xs sm:text-sm font-extrabold px-2.5 py-1 rounded-xl bg-gradient-to-r from-[#ff2a85]/20 to-purple-500/20 text-[#ff7eb3] border border-[#ff2a85]/40 tracking-widest uppercase">
+          <span class="text-[10px] sm:text-xs font-extrabold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-xl bg-gradient-to-r from-[#ff2a85]/20 to-purple-500/20 text-[#ff7eb3] border border-[#ff2a85]/40 tracking-widest uppercase">
             KOTHAPET
           </span>
         </h1>
       </div>
 
-      <!-- Navigation Tabs (5 Tabs - Now includes Admin Settings with small icon) -->
-      <nav id="mainNav" class="hidden md:flex items-center gap-1 bg-[#0d0d18] p-1.5 rounded-2xl border border-[#232338] shadow-2xl">
+      <!-- Navigation Tabs (5 Compact Luxury Tabs) -->
+      <nav id="mainNav" class="hidden md:flex items-center gap-1 bg-[#0d0d18] p-1 rounded-2xl border border-[#232338] shadow-2xl shrink-0">
         <button id="navBtn-attendance" onclick="navigateTo('attendance')" 
-          class="nav-tab active px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 cursor-pointer">
+          class="nav-tab active px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
           <i class="fa-solid fa-calendar-check text-[#ff2a85]"></i>
-          <span>Daily Attendance</span>
+          <span>Attendance</span>
         </button>
 
         <button id="navBtn-payroll" onclick="navigateTo('payroll')" 
-          class="nav-tab px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-2 cursor-pointer">
+          class="nav-tab px-3 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
           <i class="fa-solid fa-file-invoice-dollar text-[#ff2a85]"></i>
-          <span>Monthly Payroll</span>
+          <span>Payroll</span>
         </button>
 
         <button id="navBtn-incentives" onclick="navigateTo('incentives')" 
-          class="nav-tab px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-2 cursor-pointer">
+          class="nav-tab px-3 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
           <i class="fa-solid fa-trophy text-[#ff2a85]"></i>
-          <span>Incentive Tracker</span>
+          <span>Incentives</span>
         </button>
 
         <button id="navBtn-roster" onclick="navigateTo('roster')" 
-          class="nav-tab px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-2 cursor-pointer">
+          class="nav-tab px-3 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
           <i class="fa-solid fa-camera text-[#ff2a85]"></i>
-          <span>Roster Scanner</span>
+          <span>Roster</span>
         </button>
 
         <button id="navBtn-admin" onclick="navigateTo('admin')" 
-          class="nav-tab px-3.5 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer" title="Salon Settings, Percentages & Credentials">
+          class="nav-tab px-3 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer" title="Salon Settings, Percentages & Credentials">
           <i class="fa-solid fa-sliders text-[#ff2a85]"></i>
           <span>Admin</span>
         </button>
       </nav>
 
-      <!-- Right Header: Live Digital Clock & User Badge (Settings removed) -->
-      <div class="flex items-center gap-3">
-        <!-- Sleek Live Date & Time Display -->
-        <div class="hidden sm:flex items-center gap-3 bg-[#0d0d18] border border-[#242438] px-4 py-2 rounded-2xl shadow-xl shadow-black/40">
-          <div class="flex items-center gap-2 border-r border-[#1f1f32] pr-3.5">
+      <!-- Right Header: Live Digital Clock, Cloud Sync, & Compact User Badge -->
+      <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        <!-- Sleek Live Clock -->
+        <div class="hidden sm:flex items-center gap-2 bg-[#0d0d18] border border-[#242438] px-3 py-1.5 rounded-2xl shadow-xl shadow-black/40">
+          <div class="flex items-center gap-1.5">
             <span class="relative flex h-2 w-2">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
             </span>
-            <span id="liveTime" class="text-xs sm:text-sm font-mono font-black text-white tracking-widest tabular-nums">--:--:--</span>
+            <span id="liveTime" class="text-xs font-mono font-bold text-white tracking-wider tabular-nums">--:--</span>
           </div>
-          <div class="flex items-center gap-1.5 text-xs text-gray-300 font-semibold font-mono">
-            <i class="fa-regular fa-calendar text-[#ff2a85] text-xs"></i>
-            <span id="liveDate">Loading date...</span>
+          <div class="hidden 2xl:flex items-center gap-1 text-[11px] text-gray-400 font-semibold font-mono border-l border-[#1f1f32] pl-2">
+            <i class="fa-regular fa-calendar text-[#ff2a85] text-[10px]"></i>
+            <span id="liveDate">Date</span>
           </div>
         </div>
 
-        <!-- Cloud Sync Status Badge -->
+        <!-- Compact Cloud Sync Status Badge -->
         <button type="button" id="cloudSyncHeaderBadge" onclick="navigateTo('admin')" 
-          class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0d0d18] border border-[#222238] text-[11px] font-mono font-bold transition-all hover:border-[#ff2a85]/50 cursor-pointer" title="Cloud Sync Status (Click to manage in Admin)">
+          class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#0d0d18] border border-[#222238] text-[11px] font-mono font-bold transition-all hover:border-[#ff2a85]/50 cursor-pointer shrink-0" title="Cloud Sync Status (Click to manage in Admin)">
           <span id="cloudSyncHeaderDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
           <span id="cloudSyncHeaderText" class="text-gray-400">Local Only</span>
         </button>
 
-        <!-- User Badge: Username & Logout only -->
-        <div id="userHeaderBadge" class="hidden flex items-center gap-2.5 bg-[#0d0d18] border border-[#222238] pl-3.5 pr-1.5 py-1.5 rounded-2xl shadow-lg">
-          <div class="flex items-center gap-2 text-xs font-bold text-gray-300">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span id="headerUserName">Admin</span>
+        <!-- Compact User Badge & Quick Logout -->
+        <div id="userHeaderBadge" class="hidden flex items-center gap-2 bg-[#0d0d18] border border-[#222238] pl-3 pr-1 py-1 rounded-2xl shadow-lg shrink-0">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-gray-300">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="headerUserName">Owner</span>
           </div>
           <button type="button" onclick="logoutUser()" 
-            class="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#1a0c16] hover:bg-rose-950/60 text-rose-400 border border-rose-500/30 hover:border-rose-500/60 transition-all flex items-center gap-1.5 cursor-pointer" title="Sign Out">
-            <i class="fa-solid fa-power-off text-[11px]"></i>
-            <span class="hidden sm:inline">Logout</span>
+            class="px-2.5 py-1 rounded-xl text-xs font-bold bg-[#1a0c16] hover:bg-rose-950/60 text-rose-400 border border-rose-500/30 hover:border-rose-500/60 transition-all flex items-center gap-1 cursor-pointer" title="Sign Out">
+            <i class="fa-solid fa-power-off text-[10px]"></i>
+            <span class="hidden sm:inline text-[11px]">Logout</span>
           </button>
         </div>
       </div>
@@ -1307,6 +1307,6 @@ const firebaseConfig = {
   </div>
 
   <!-- Application Logic Scripts -->
-  <script src="app.js?v=20260926_v10"></script>
+  <script src="app.js?v=20260926_v11"></script>
 </body>
 </html>
