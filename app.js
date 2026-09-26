@@ -150,7 +150,8 @@ const STORAGE_KEYS = {
   AUTH: 'gt_kothapet_auth_v5',
   SESSION: 'gt_kothapet_session_v5',
   FIREBASE: 'gt_kothapet_firebase_config_v1',
-  ADVANCES: 'gt_kothapet_advances_v1'
+  ADVANCES: 'gt_kothapet_advances_v1',
+  EXPENSES: 'gt_kothapet_petty_cash_v1'
 };
 
 const DEFAULT_AUTH = {
@@ -172,6 +173,17 @@ const DEFAULT_FIREBASE_CONFIG = {
   appId: "1:871394737782:web:7f397a729d588c5d3ba957"
 };
 
+// Default Realistic Operational Petty Cash Expenses for Green Trends Kothapet
+const DEFAULT_SALON_EXPENSES = [
+  { id: 'exp_seed_1', date: '2026-09-02', category: 'Towel Laundry', amount: 350, note: '50 Salon towels washed and sanitized by Ramesh laundry vendor', paidBy: 'Cash Drawer', createdAt: '2026-09-02T11:30:00.000Z' },
+  { id: 'exp_seed_2', date: '2026-09-05', category: 'Drinking Water', amount: 180, note: '6 Bisleri 20L water cans for salon dispenser', paidBy: 'Cash Drawer', createdAt: '2026-09-05T10:15:00.000Z' },
+  { id: 'exp_seed_3', date: '2026-09-10', category: 'Client Refreshments', amount: 420, note: 'Tata Tea Gold, Nescafe Coffee, Milk & Marie Gold biscuits for clients', paidBy: 'Kalyan UPI', createdAt: '2026-09-10T14:20:00.000Z' },
+  { id: 'exp_seed_4', date: '2026-09-15', category: 'Cleaning & Housekeeping', amount: 650, note: 'Lizol disinfectant floor cleaner, Colin glass cleaner & Harpic', paidBy: 'Cash Drawer', createdAt: '2026-09-15T09:45:00.000Z' },
+  { id: 'exp_seed_5', date: '2026-09-18', category: 'Towel Laundry', amount: 400, note: '60 Salon towels washed, dried and folded', paidBy: 'Cash Drawer', createdAt: '2026-09-18T12:10:00.000Z' },
+  { id: 'exp_seed_6', date: '2026-09-22', category: 'Salon Maintenance', amount: 500, note: 'Stylist station blow dryer electrical plug replacement & spare LED tube', paidBy: 'Kalyan UPI', createdAt: '2026-09-22T16:00:00.000Z' },
+  { id: 'exp_seed_7', date: '2026-09-24', category: 'Drinking Water', amount: 150, note: '5 Bisleri 20L water cans', paidBy: 'Cash Drawer', createdAt: '2026-09-24T10:00:00.000Z' }
+];
+
 // ==========================================
 // 2. STATE & STORAGE
 // ==========================================
@@ -180,6 +192,8 @@ let staffList = [];
 let salonRules = {};
 let attendanceData = {}; 
 let advanceData = {}; 
+let salonExpenses = [];
+let selectedExpenseFilterMonth = ''; 
 
 let currentDate = new Date();
 let selectedDateStr = formatDateKey(currentDate);
@@ -255,6 +269,14 @@ function initStorage() {
   } else {
     advanceData = {};
   }
+
+  const savedExpenses = localStorage.getItem(STORAGE_KEYS.EXPENSES);
+  if (savedExpenses) {
+    try { salonExpenses = JSON.parse(savedExpenses); } catch(e) { salonExpenses = [...DEFAULT_SALON_EXPENSES]; }
+  } else {
+    salonExpenses = [...DEFAULT_SALON_EXPENSES];
+    saveSalonExpenses();
+  }
 }
 
 function syncRealSeptemberAttendanceData() {
@@ -283,6 +305,11 @@ function saveAttendanceData() {
 
 function saveAdvanceData() {
   localStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(advanceData));
+  pushToFirestoreDebounced();
+}
+
+function saveSalonExpenses() {
+  localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(salonExpenses));
   pushToFirestoreDebounced();
 }
 
@@ -326,6 +353,7 @@ async function pushLocalDataToFirestore(showToastNotification = false) {
       staff: staffList,
       rules: salonRules,
       advances: advanceData,
+      expenses: salonExpenses,
       lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
       updatedBy: getSessionUser()?.username || 'Owner'
     }, { merge: true });
@@ -376,6 +404,16 @@ async function pullDataFromFirestore(showToastNotification = false) {
       if (data.rules) {
         salonRules = data.rules;
         localStorage.setItem(STORAGE_KEYS.RULES, JSON.stringify(salonRules));
+        updated = true;
+      }
+      if (data.advances) {
+        advanceData = data.advances;
+        localStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(advanceData));
+        updated = true;
+      }
+      if (data.expenses) {
+        salonExpenses = data.expenses;
+        localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(salonExpenses));
         updated = true;
       }
 
@@ -504,6 +542,11 @@ function initFirebaseSync() {
             if (cloudData.advances && JSON.stringify(cloudData.advances) !== JSON.stringify(advanceData)) {
               advanceData = cloudData.advances;
               localStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(advanceData));
+              changed = true;
+            }
+            if (cloudData.expenses && JSON.stringify(cloudData.expenses) !== JSON.stringify(salonExpenses)) {
+              salonExpenses = cloudData.expenses;
+              localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(salonExpenses));
               changed = true;
             }
 
@@ -1171,9 +1214,41 @@ function renderDailyAttendance() {
     const isOff = record.status === 'Weekly Off';
     const isLeave = record.status === 'Leave' || record.status === 'Absent';
 
+    // Live Shift Progress & Overtime Calculations
+    const targetHours = staff.isHousekeeping ? 12 : 9;
+    const targetMinutes = targetHours * 60;
+    const workedMin = isPresent ? (shiftCalc.workedMinutes || 0) : 0;
+    const progressPct = isPresent ? Math.min(100, Math.max(0, Math.round((workedMin / targetMinutes) * 100))) : 0;
+    const isShiftComplete = workedMin >= targetMinutes;
+    const hasOt = (record.otHours || 0) > 0;
+
+    let shiftTimerLabel = '';
+    let shiftBadgeClass = '';
+    if (isPresent) {
+      if (hasOt) {
+        shiftTimerLabel = `🔥 Standard ${targetHours}h Shift Done • +${record.otHours}h Overtime Active (+₹${record.otPay || 0})`;
+        shiftBadgeClass = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+      } else if (isShiftComplete) {
+        shiftTimerLabel = `✓ Standard ${targetHours}h Shift Completed (${shiftCalc.formattedDuration})`;
+        shiftBadgeClass = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40';
+      } else {
+        const remainingMin = targetMinutes - workedMin;
+        const remH = Math.floor(remainingMin / 60);
+        const remM = remainingMin % 60;
+        shiftTimerLabel = `⏱️ ${shiftCalc.formattedDuration} elapsed • ${remH}h ${remM > 0 ? remM + 'm ' : ''}remaining in ${targetHours}h shift (${shiftCalc.shortfallHours}h Shortfall)`;
+        shiftBadgeClass = 'bg-[#ff2a85]/15 text-[#ff7eb3] border-[#ff2a85]/30';
+      }
+    } else if (isOff) {
+      shiftTimerLabel = `☕ On Scheduled Weekly Off`;
+      shiftBadgeClass = 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30';
+    } else {
+      shiftTimerLabel = `❌ Full Day Leave (Daily Salary Deducted)`;
+      shiftBadgeClass = 'bg-rose-500/15 text-rose-300 border-rose-500/30';
+    }
+
     // Robust Two-Tier Layout:
     // Top Row: Avatar, Name, Salary, and Status buttons.
-    // Bottom Row: Check In, Check Out (with +/- Steppers & Quick Shifts), Duration/OT, and Sales Inputs.
+    // Bottom Row: Check In, Check Out (with +/- Steppers & Quick Shifts), Duration/OT, Sales Inputs & Live Shift Timer.
     html += `
       <div class="staff-card bg-[#0d0d15] p-5 sm:p-6 rounded-3xl border border-[#1f1f30] shadow-xl transition-all space-y-4">
         
@@ -1338,6 +1413,32 @@ function renderDailyAttendance() {
 
         </div>
         `}
+
+        <!-- Live Shift Progress & Overtime Timer Bar -->
+        <div class="pt-3 border-t border-[#181826]/80">
+          <div class="flex flex-wrap items-center justify-between gap-2 text-xs mb-1.5 font-medium">
+            <div class="flex items-center gap-2">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full ${hasOt ? 'bg-amber-400 opacity-75' : (isShiftComplete ? 'bg-emerald-400 opacity-75' : 'bg-[#ff2a85] opacity-75')}"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 ${hasOt ? 'bg-amber-400' : (isShiftComplete ? 'bg-emerald-400' : 'bg-[#ff2a85]')}"></span>
+              </span>
+              <span class="text-white font-bold text-[11px] sm:text-xs tracking-tight">${shiftTimerLabel}</span>
+            </div>
+            <div class="flex items-center gap-2 font-mono text-[11px]">
+              ${isPresent ? `
+                <span class="text-gray-400">${progressPct}% of shift</span>
+                ${hasOt ? `<span class="px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-extrabold border border-amber-400/40 animate-pulse text-[10px]">🔥 OT ACTIVE</span>` : ''}
+              ` : `
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${shiftBadgeClass}">${record.status}</span>
+              `}
+            </div>
+          </div>
+          ${isPresent ? `
+          <div class="w-full h-1.5 bg-[#12121e] rounded-full overflow-hidden p-0.5 border border-[#1f1f32]">
+            <div class="h-full rounded-full transition-all duration-500 ${hasOt ? 'bg-gradient-to-r from-emerald-500 via-[#ff2a85] to-amber-400' : (isShiftComplete ? 'bg-gradient-to-r from-emerald-500 to-teal-400' : 'bg-gradient-to-r from-[#ff2a85] via-purple-500 to-[#ff7eb3]')}" style="width: ${progressPct}%"></div>
+          </div>
+          ` : ''}
+        </div>
 
       </div>
     `;
@@ -1689,6 +1790,7 @@ function exportPayrollCSV() {
 function renderIncentivesView() {
   const container = document.getElementById('incentivesProgressContainer');
   const summaryBox = document.getElementById('incentivesSummaryHighlights');
+  const leaderboardContainer = document.getElementById('stylistLeaderboardContainer');
   if (!container) return;
 
   const [yearStr, monthStr] = selectedMonthStr.split('-');
@@ -1707,6 +1809,10 @@ function renderIncentivesView() {
   let topServiceStylist = { name: 'None', amount: 0, commission: 0 };
   let topProductStylist = { name: 'None', amount: 0, commission: 0 };
 
+  const stylistStats = [];
+  let maxRetailAmount = 0;
+  let retailChampionStaffId = null;
+
   staffList.forEach(staff => {
     if (staff.isManager || staff.isHousekeeping) return;
     const p = calculateStaffMonthPayroll(staff, year, month);
@@ -1719,6 +1825,66 @@ function renderIncentivesView() {
     if (p.totalProductsSold > topProductStylist.amount) {
       topProductStylist = { name: staff.name, amount: p.totalProductsSold, commission: p.productCommission };
     }
+
+    if (p.totalProductsSold > maxRetailAmount) {
+      maxRetailAmount = p.totalProductsSold;
+      retailChampionStaffId = staff.id;
+    }
+
+    const servTarget = staff.serviceTarget || (staff.baseSalary * 5);
+    const servPercent = Math.min(100, Math.round((p.totalServicesDone / servTarget) * 100));
+    const servAchieved = p.totalServicesDone >= servTarget;
+
+    stylistStats.push({
+      staff,
+      payroll: p,
+      servicesDone: p.totalServicesDone,
+      productsSold: p.totalProductsSold,
+      serviceCommission: p.serviceCommission,
+      productCommission: p.productCommission,
+      totalIncentives: p.totalIncentives,
+      target: servTarget,
+      targetPercent: servPercent,
+      targetAchieved: servAchieved
+    });
+  });
+
+  // Rank stylists descending by services done, then products sold
+  stylistStats.sort((a, b) => b.servicesDone - a.servicesDone || b.productsSold - a.productsSold);
+
+  // Map each stylist's rank and badge metadata
+  const stylistRankMeta = {};
+  stylistStats.forEach((item, index) => {
+    const rank = index + 1;
+    const badges = [];
+
+    if (rank === 1) {
+      badges.push({ icon: '👑', label: '#1 Service Champion', border: 'border-amber-400/50 bg-amber-400/15 text-amber-300' });
+    } else if (rank === 2) {
+      badges.push({ icon: '🥈', label: '#2 Silver Stylist', border: 'border-slate-300/40 bg-slate-400/15 text-slate-200' });
+    } else if (rank === 3) {
+      badges.push({ icon: '🥉', label: '#3 Bronze Stylist', border: 'border-amber-700/40 bg-amber-700/15 text-orange-300' });
+    }
+
+    if (item.staff.id === retailChampionStaffId && item.productsSold > 0) {
+      badges.push({ icon: '🛍️', label: 'Retail Champion', border: 'border-pink-500/40 bg-pink-500/15 text-pink-300' });
+    }
+
+    if (item.targetAchieved) {
+      badges.push({ icon: '🎯', label: 'Target 100% Unlocked', border: 'border-emerald-500/40 bg-emerald-500/15 text-emerald-400' });
+    } else if (item.targetPercent >= 75) {
+      badges.push({ icon: '🚀', label: '75%+ Target Club', border: 'border-purple-500/40 bg-purple-500/15 text-purple-300' });
+    }
+
+    if (item.totalIncentives > 0) {
+      badges.push({ icon: '💰', label: 'Incentives Active', border: 'border-[#ff2a85]/40 bg-[#ff2a85]/15 text-[#ff7eb3]' });
+    }
+
+    stylistRankMeta[item.staff.id] = {
+      rank,
+      badges,
+      data: item
+    };
   });
 
   // Render Top Highlights Summary Cards
@@ -1797,7 +1963,187 @@ function renderIncentivesView() {
     `;
   }
 
-  // Render Individual Staff Progress Cards
+  // 2. Render Live Stylist Leaderboard & Podium Showcase
+  if (leaderboardContainer) {
+    const top3 = stylistStats.slice(0, 3);
+    const rest = stylistStats.slice(3);
+
+    let podiumCardsHtml = '';
+    top3.forEach((item, idx) => {
+      const rank = idx + 1;
+      const rankMeta = stylistRankMeta[item.staff.id];
+      const isGold = rank === 1;
+      const isSilver = rank === 2;
+      const isBronze = rank === 3;
+
+      const rankBadgeColor = isGold 
+        ? 'from-amber-400 to-yellow-500 text-black shadow-amber-400/40' 
+        : (isSilver 
+          ? 'from-slate-200 to-slate-400 text-black shadow-slate-300/30' 
+          : 'from-amber-700 to-orange-700 text-white shadow-orange-700/30');
+
+      const cardBorder = isGold 
+        ? 'border-amber-400/50 shadow-amber-500/15 ring-1 ring-amber-400/20 bg-gradient-to-b from-[#1b170c] via-[#0d0d18] to-[#0c0c16]' 
+        : (isSilver 
+          ? 'border-slate-400/30 bg-gradient-to-b from-[#141822] via-[#0d0d18] to-[#0c0c16]' 
+          : 'border-amber-700/30 bg-gradient-to-b from-[#1c120c] via-[#0d0d18] to-[#0c0c16]');
+
+      const crownOrMedal = isGold ? '👑' : (isSilver ? '🥈' : '🥉');
+      const rankTitle = isGold ? '1ST PLACE • CHAMPION' : (isSilver ? '2ND PLACE' : '3RD PLACE');
+
+      podiumCardsHtml += `
+        <div class="relative rounded-3xl p-5 border ${cardBorder} shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02]">
+          <!-- Rank Pill Header -->
+          <div class="flex items-center justify-between gap-2 border-b border-[#1e1e30] pb-3 mb-3.5">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-xl bg-gradient-to-tr ${rankBadgeColor} font-black text-xs flex items-center justify-center shadow-md">
+                ${crownOrMedal}
+              </span>
+              <span class="text-[11px] font-mono font-extrabold uppercase tracking-wider ${isGold ? 'text-amber-300' : (isSilver ? 'text-slate-300' : 'text-orange-300')}">
+                ${rankTitle}
+              </span>
+            </div>
+            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded-lg bg-[#141424] text-white">
+              #${rank}
+            </span>
+          </div>
+
+          <!-- Stylist Identity -->
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr ${isGold ? 'from-amber-500/30 to-yellow-300/20 border-amber-400/50' : 'from-[#1e1e32] to-[#252540] border-[#32324e]'} border flex items-center justify-center font-bold text-white text-base shrink-0 shadow-inner">
+              ${item.staff.name.substring(0, 2).toUpperCase()}
+            </div>
+            <div class="min-w-0">
+              <h4 class="font-syne font-bold text-base text-white truncate">${item.staff.name}</h4>
+              <p class="text-xs text-gray-400 truncate">${item.staff.role}</p>
+            </div>
+          </div>
+
+          <!-- Service Revenue & Target Bar -->
+          <div class="space-y-1.5 text-xs mb-3 bg-[#080810]/70 p-3 rounded-2xl border border-[#1b1b2c]">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-gray-400">Services Revenue:</span>
+              <span class="text-white font-mono font-bold">₹${item.servicesDone.toLocaleString('en-IN')} <span class="text-gray-500 font-normal">/ ₹${item.target.toLocaleString('en-IN')}</span></span>
+            </div>
+            <div class="w-full bg-[#141422] h-2 rounded-full overflow-hidden">
+              <div class="h-full rounded-full transition-all duration-500 ${item.targetAchieved ? 'bg-gradient-to-r from-purple-500 to-emerald-400' : 'bg-gradient-to-r from-[#ff2a85] to-purple-500'}" style="width: ${item.targetPercent}%"></div>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-gray-400">
+              <span>Target Met: <strong class="${item.targetAchieved ? 'text-emerald-400' : 'text-gray-300'} font-mono">${item.targetPercent}%</strong></span>
+              <span class="${item.targetAchieved ? 'text-emerald-400 font-bold' : 'text-gray-500'}">${item.targetAchieved ? '✓ 5% Unlocked' : 'In Progress'}</span>
+            </div>
+          </div>
+
+          <!-- Retail Sales & Commission Earned -->
+          <div class="grid grid-cols-2 gap-2 text-xs mb-3 font-mono">
+            <div class="bg-[#080810]/50 p-2.5 rounded-xl border border-[#181826]">
+              <span class="text-[10px] text-gray-400 block font-sans">Retail Sales</span>
+              <span class="font-bold text-pink-400">₹${item.productsSold.toLocaleString('en-IN')}</span>
+            </div>
+            <div class="bg-[#080810]/50 p-2.5 rounded-xl border border-[#181826]">
+              <span class="text-[10px] text-gray-400 block font-sans">Commission</span>
+              <span class="font-bold ${item.totalIncentives > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">₹${item.totalIncentives.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Badges -->
+          <div class="flex flex-wrap gap-1.5 pt-2 border-t border-[#181828]">
+            ${rankMeta.badges.map(b => `
+              <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold border ${b.border} flex items-center gap-1">
+                <span>${b.icon}</span>
+                <span>${b.label}</span>
+              </span>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    });
+
+    let restHtml = '';
+    if (rest.length > 0) {
+      restHtml = `
+        <div class="mt-4 pt-4 border-t border-[#1f1f34]">
+          <h4 class="text-xs uppercase font-extrabold text-gray-400 tracking-wider mb-2.5 flex items-center gap-2">
+            <i class="fa-solid fa-list-ol text-gray-500"></i>
+            <span>Stylist Rankings (Positions 4+)</span>
+          </h4>
+          <div class="space-y-2">
+            ${rest.map((item, idx) => {
+              const rank = idx + 4;
+              const meta = stylistRankMeta[item.staff.id];
+              return `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#090912] border border-[#1a1a2b] hover:border-[#2e2e46] transition-all">
+                  <div class="flex items-center gap-3">
+                    <span class="w-7 h-7 rounded-xl bg-[#141424] border border-[#222238] text-gray-300 font-mono font-bold text-xs flex items-center justify-center">
+                      #${rank}
+                    </span>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="font-syne font-bold text-sm text-white">${item.staff.name}</span>
+                        <span class="text-[10px] text-gray-400 font-medium">(${item.staff.role})</span>
+                      </div>
+                      <div class="flex flex-wrap gap-1 mt-1">
+                        ${meta.badges.map(b => `<span class="px-1.5 py-0.2 rounded text-[9px] font-semibold border ${b.border}">${b.icon} ${b.label}</span>`).join('')}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-4 text-xs font-mono justify-between sm:justify-end border-t sm:border-t-0 border-[#151522] pt-2 sm:pt-0">
+                    <div>
+                      <span class="text-[10px] text-gray-500 block font-sans">Services</span>
+                      <span class="text-white font-bold">₹${item.servicesDone.toLocaleString('en-IN')} <span class="text-[10px] text-gray-400">(${item.targetPercent}%)</span></span>
+                    </div>
+                    <div>
+                      <span class="text-[10px] text-gray-500 block font-sans">Retail</span>
+                      <span class="text-pink-400 font-bold">₹${item.productsSold.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div>
+                      <span class="text-[10px] text-gray-500 block font-sans">Incentives</span>
+                      <span class="font-bold ${item.totalIncentives > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">+₹${item.totalIncentives.toLocaleString('en-IN')}</span>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    leaderboardContainer.innerHTML = `
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1f1f34] pb-4">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 via-yellow-500 to-amber-600 p-0.5 shadow-lg shadow-amber-500/20 flex items-center justify-center shrink-0">
+            <div class="w-full h-full bg-[#0d0d18] rounded-[14px] flex items-center justify-center">
+              <i class="fa-solid fa-trophy text-amber-400 text-lg"></i>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-syne font-extrabold text-lg text-white">Live Stylist Leaderboard & Performance Badges</h2>
+              <span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">RANKINGS</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-0.5">Top-earning stylists for <span class="text-white font-semibold">${selectedMonthStr}</span> ranked by service revenue & retail targets.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 bg-[#121220] px-3 py-1.5 rounded-2xl border border-[#202036]">
+          <i class="fa-solid fa-medal text-amber-400 text-xs"></i>
+          <span class="text-xs text-gray-400">Total Stylist Incentives:</span>
+          <span class="text-xs font-bold font-mono text-[#ff7eb3]">₹${totalStylistCommissions.toLocaleString('en-IN')}</span>
+        </div>
+      </div>
+
+      <!-- Top 3 Podium Showcase -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+        ${podiumCardsHtml}
+      </div>
+
+      <!-- Positions 4+ -->
+      ${restHtml}
+    `;
+  }
+
+  // 3. Render Individual Staff Progress Cards with Dynamic Badges
   let html = '';
 
   staffList.forEach(staff => {
@@ -1881,6 +2227,17 @@ function renderIncentivesView() {
     const t2Rate = staff.productTier2Rate || 8;
     const prodTierLabel = `${t1Rate}% above ₹${t1Min.toLocaleString('en-IN')}, ${t2Rate}% above ₹${t2Min.toLocaleString('en-IN')}`;
 
+    const rankInfo = stylistRankMeta[staff.id];
+    const rankNum = rankInfo ? rankInfo.rank : null;
+    const rankBadgeClass = rankNum === 1 
+      ? 'bg-amber-400/20 text-amber-300 border-amber-400/40' 
+      : (rankNum === 2 
+        ? 'bg-slate-300/20 text-slate-200 border-slate-300/40' 
+        : (rankNum === 3 
+          ? 'bg-orange-700/20 text-orange-300 border-orange-600/40' 
+          : 'bg-[#181826] text-gray-400 border-[#28283a]'));
+    const rankTitle = rankNum === 1 ? '👑 #1 Stylist' : (rankNum === 2 ? '🥈 #2 Stylist' : (rankNum === 3 ? '🥉 #3 Stylist' : `#${rankNum}`));
+
     html += `
       <div class="bg-[#0d0d15] p-6 rounded-3xl border border-[#1f1f30] shadow-xl space-y-4">
         <div class="flex items-center justify-between border-b border-[#181826] pb-3">
@@ -1889,8 +2246,16 @@ function renderIncentivesView() {
               ${staff.name.substring(0, 2).toUpperCase()}
             </div>
             <div>
-              <h3 class="font-heading font-bold text-white text-base">${staff.name}</h3>
+              <div class="flex items-center gap-2">
+                <h3 class="font-heading font-bold text-white text-base">${staff.name}</h3>
+                ${rankNum ? `<span class="px-2 py-0.5 rounded-full font-mono text-[10px] font-bold border ${rankBadgeClass}">${rankTitle}</span>` : ''}
+              </div>
               <p class="text-xs text-gray-400">${staff.role}</p>
+              ${rankInfo && rankInfo.badges.length > 0 ? `
+                <div class="flex flex-wrap gap-1 mt-1.5">
+                  ${rankInfo.badges.map(b => `<span class="px-2 py-0.5 rounded-md text-[9px] font-semibold border ${b.border}">${b.icon} ${b.label}</span>`).join('')}
+                </div>
+              ` : ''}
             </div>
           </div>
           <div class="text-right">
@@ -2936,6 +3301,7 @@ function renderAdminView() {
   });
 
   container.innerHTML = html;
+  renderPettyCashLedger();
 }
 
 function saveAllStaffEdits() {
@@ -3523,6 +3889,253 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// ==========================================
+// 8. SALON PETTY CASH & DAILY EXPENSE TRACKER
+// ==========================================
+
+function renderPettyCashLedger() {
+  const kpisContainer = document.getElementById('expenseKpis');
+  const tbody = document.getElementById('expenseTableBody');
+  const tfoot = document.getElementById('expenseTableFoot');
+  if (!tbody) return;
+
+  const targetMonth = selectedExpenseFilterMonth || selectedMonthStr;
+  const filtered = salonExpenses.filter(e => !targetMonth || e.date.startsWith(targetMonth));
+
+  // Sort latest first
+  filtered.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id.localeCompare(a.id));
+
+  let totalAmount = 0;
+  let cashDrawerTotal = 0;
+  let upiTotal = 0;
+  let ownerTotal = 0;
+  const catTotals = {};
+
+  filtered.forEach(e => {
+    const amt = Number(e.amount) || 0;
+    totalAmount += amt;
+    if (e.paidBy === 'Cash Drawer') cashDrawerTotal += amt;
+    else if (e.paidBy === 'Kalyan UPI') upiTotal += amt;
+    else if (e.paidBy === 'Owner Direct') ownerTotal += amt;
+
+    catTotals[e.category] = (catTotals[e.category] || 0) + amt;
+  });
+
+  let topCat = 'None';
+  let topCatAmt = 0;
+  Object.entries(catTotals).forEach(([cat, sum]) => {
+    if (sum > topCatAmt) {
+      topCat = cat;
+      topCatAmt = sum;
+    }
+  });
+
+  // 1. Render Summary KPI Cards
+  if (kpisContainer) {
+    kpisContainer.innerHTML = `
+      <div class="bg-[#10101c] p-4 rounded-2xl border border-amber-500/25 shadow-lg relative overflow-hidden">
+        <div class="flex items-center justify-between text-xs text-gray-400 font-semibold">
+          <span>Month Payouts</span>
+          <i class="fa-solid fa-receipt text-amber-400"></i>
+        </div>
+        <div class="mt-2">
+          <span class="text-xl font-black font-heading text-white">₹${totalAmount.toLocaleString('en-IN')}</span>
+          <span class="text-[10px] text-amber-400 block mt-0.5 font-mono">${filtered.length} entries for ${targetMonth}</span>
+        </div>
+      </div>
+
+      <div class="bg-[#10101c] p-4 rounded-2xl border border-emerald-500/25 shadow-lg relative overflow-hidden">
+        <div class="flex items-center justify-between text-xs text-gray-400 font-semibold">
+          <span>Cash Drawer</span>
+          <i class="fa-solid fa-cash-register text-emerald-400"></i>
+        </div>
+        <div class="mt-2">
+          <span class="text-xl font-black font-heading text-emerald-400">₹${cashDrawerTotal.toLocaleString('en-IN')}</span>
+          <span class="text-[10px] text-gray-400 block mt-0.5">Drawer Reconciliation</span>
+        </div>
+      </div>
+
+      <div class="bg-[#10101c] p-4 rounded-2xl border border-purple-500/25 shadow-lg relative overflow-hidden">
+        <div class="flex items-center justify-between text-xs text-gray-400 font-semibold">
+          <span>Kalyan UPI</span>
+          <i class="fa-solid fa-mobile-screen-button text-purple-400"></i>
+        </div>
+        <div class="mt-2">
+          <span class="text-xl font-black font-heading text-purple-400">₹${upiTotal.toLocaleString('en-IN')}</span>
+          <span class="text-[10px] text-gray-400 block mt-0.5">Manager Reimbursement</span>
+        </div>
+      </div>
+
+      <div class="bg-[#10101c] p-4 rounded-2xl border border-sky-500/25 shadow-lg relative overflow-hidden">
+        <div class="flex items-center justify-between text-xs text-gray-400 font-semibold">
+          <span>Top Category</span>
+          <i class="fa-solid fa-tag text-sky-400"></i>
+        </div>
+        <div class="mt-2">
+          <span class="text-sm font-black font-heading text-sky-400 truncate block">${topCat}</span>
+          <span class="text-[10px] text-gray-400 block mt-0.5 font-mono">₹${topCatAmt.toLocaleString('en-IN')}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // Helper Badge Renderers
+  const getCatBadge = (cat) => {
+    switch(cat) {
+      case 'Towel Laundry': return '<span class="px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30 text-[10px] font-semibold flex items-center gap-1.5 w-fit"><i class="fa-solid fa-shirt"></i>Towel Laundry</span>';
+      case 'Drinking Water': return '<span class="px-2.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 text-[10px] font-semibold flex items-center gap-1.5 w-fit"><i class="fa-solid fa-bottle-water"></i>Drinking Water</span>';
+      case 'Client Refreshments': return '<span class="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-semibold flex items-center gap-1.5 w-fit"><i class="fa-solid fa-mug-hot"></i>Refreshments</span>';
+      case 'Cleaning & Housekeeping': return '<span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-semibold flex items-center gap-1.5 w-fit"><i class="fa-solid fa-broom"></i>Cleaning</span>';
+      case 'Salon Maintenance': return '<span class="px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30 text-[10px] font-semibold flex items-center gap-1.5 w-fit"><i class="fa-solid fa-wrench"></i>Maintenance</span>';
+      default: return '<span class="px-2.5 py-0.5 rounded-full bg-gray-500/15 text-gray-300 border border-gray-500/30 text-[10px] font-semibold flex items-center gap-1.5 w-fit"><i class="fa-solid fa-box"></i>' + cat + '</span>';
+    }
+  };
+
+  const getPaidByBadge = (pb) => {
+    if (pb === 'Cash Drawer') return '<span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold text-[10px] flex items-center gap-1 w-fit"><i class="fa-solid fa-cash-register"></i>Cash Drawer</span>';
+    if (pb === 'Kalyan UPI') return '<span class="px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30 font-semibold text-[10px] flex items-center gap-1 w-fit"><i class="fa-solid fa-mobile-screen"></i>Kalyan UPI</span>';
+    return '<span class="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold text-[10px] flex items-center gap-1 w-fit"><i class="fa-solid fa-crown"></i>Owner Direct</span>';
+  };
+
+  // 2. Render Table Rows
+  if (filtered.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="text-center py-10 text-gray-400">
+          <i class="fa-solid fa-receipt text-3xl text-gray-600 mb-2 block"></i>
+          <p class="font-bold text-sm">No petty cash expenses recorded for ${targetMonth}</p>
+          <p class="text-xs text-gray-500 mt-1">Click "+ Add Daily Expense" above to record daily towel laundry, water cans, or cleaning supplies.</p>
+        </td>
+      </tr>
+    `;
+  } else {
+    tbody.innerHTML = filtered.map(exp => `
+      <tr class="hover:bg-[#141424] transition-colors">
+        <td class="py-3 px-3 font-mono font-medium text-gray-300">${exp.date}</td>
+        <td class="py-3 px-3">${getCatBadge(exp.category)}</td>
+        <td class="py-3 px-3 text-white max-w-xs truncate" title="${exp.note || ''}">${exp.note || '—'}</td>
+        <td class="py-3 px-3">${getPaidByBadge(exp.paidBy)}</td>
+        <td class="py-3 px-3 text-right font-mono font-bold text-amber-400 text-sm">₹${Number(exp.amount || 0).toLocaleString('en-IN')}</td>
+        <td class="py-3 px-3 text-center">
+          <button type="button" onclick="deleteSalonExpense('${exp.id}')" class="w-7 h-7 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white transition-all flex items-center justify-center cursor-pointer mx-auto" title="Delete Expense">
+            <i class="fa-solid fa-trash-can text-xs"></i>
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // 3. Render Totals in Table Footer
+  if (tfoot) {
+    tfoot.innerHTML = `
+      <tr>
+        <td colspan="4" class="py-3.5 px-3 uppercase text-[11px] tracking-wider text-gray-300">
+          Total Operational Expenses for ${targetMonth} (${filtered.length} entries)
+        </td>
+        <td class="py-3.5 px-3 text-right text-base text-amber-400 font-mono">
+          ₹${totalAmount.toLocaleString('en-IN')}
+        </td>
+        <td></td>
+      </tr>
+    `;
+  }
+}
+
+function openAddExpenseModal() {
+  const modal = document.getElementById('addExpenseModal');
+  if (!modal) return;
+  const dateInput = document.getElementById('expenseDateInput');
+  const amountInput = document.getElementById('expenseAmountInput');
+  const noteInput = document.getElementById('expenseNoteInput');
+
+  if (dateInput) dateInput.value = selectedDateStr || new Date().toISOString().split('T')[0];
+  if (amountInput) amountInput.value = '';
+  if (noteInput) noteInput.value = '';
+
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+  if (amountInput) setTimeout(() => amountInput.focus(), 120);
+}
+
+function closeAddExpenseModal() {
+  const modal = document.getElementById('addExpenseModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+}
+
+function submitAddExpense(e) {
+  if (e && e.preventDefault) e.preventDefault();
+
+  const date = document.getElementById('expenseDateInput').value;
+  const category = document.getElementById('expenseCategoryInput').value;
+  const amount = parseFloat(document.getElementById('expenseAmountInput').value) || 0;
+  const note = document.getElementById('expenseNoteInput').value.trim();
+  const paidBy = document.getElementById('expensePaidByInput').value;
+
+  if (!date) {
+    alert("Please select a date for the expense.");
+    return;
+  }
+  if (amount <= 0) {
+    alert("Please enter a valid amount greater than ₹0.");
+    return;
+  }
+
+  const newExpense = {
+    id: 'exp_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+    date,
+    category,
+    amount,
+    note: note || category,
+    paidBy: paidBy || 'Cash Drawer',
+    createdAt: new Date().toISOString()
+  };
+
+  salonExpenses.unshift(newExpense);
+  saveSalonExpenses();
+  renderPettyCashLedger();
+  closeAddExpenseModal();
+  showToast(`✓ Added ₹${amount.toLocaleString('en-IN')} expense for ${category}`);
+}
+
+function deleteSalonExpense(id) {
+  const exp = salonExpenses.find(e => e.id === id);
+  if (!exp) return;
+  if (!confirm(`Delete expense of ₹${Number(exp.amount).toLocaleString('en-IN')} for "${exp.category}"?`)) return;
+
+  salonExpenses = salonExpenses.filter(e => e.id !== id);
+  saveSalonExpenses();
+  renderPettyCashLedger();
+  showToast("Expense entry deleted");
+}
+
+function exportExpensesCSV() {
+  const targetMonth = selectedExpenseFilterMonth || selectedMonthStr;
+  const filtered = salonExpenses.filter(e => !targetMonth || e.date.startsWith(targetMonth));
+  if (filtered.length === 0) {
+    showToast("No expenses to export for " + targetMonth);
+    return;
+  }
+
+  let csv = "Date,Category,Description / Note,Paid Via,Amount (INR)\n";
+  filtered.forEach(e => {
+    const cleanNote = (e.note || '').replace(/"/g, '""');
+    csv += `"${e.date}","${e.category}","${cleanNote}","${e.paidBy}",${e.amount}\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `GreenTrends_Kothapet_Expenses_${targetMonth}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast(`Exported ${filtered.length} expense records to CSV`);
+}
+
 // Global window attachments
 window.updateStaffAdvance = updateStaffAdvance;
 window.saveAdvanceData = saveAdvanceData;
@@ -3532,4 +4145,13 @@ window.closePwaInstallModal = closePwaInstallModal;
 window.triggerNativeInstall = triggerNativeInstall;
 window.markAppAsInstalled = markAppAsInstalled;
 window.checkIsStandalone = checkIsStandalone;
+
+// Petty cash functions
+window.openAddExpenseModal = openAddExpenseModal;
+window.closeAddExpenseModal = closeAddExpenseModal;
+window.submitAddExpense = submitAddExpense;
+window.deleteSalonExpense = deleteSalonExpense;
+window.exportExpensesCSV = exportExpensesCSV;
+window.renderPettyCashLedger = renderPettyCashLedger;
+
 
