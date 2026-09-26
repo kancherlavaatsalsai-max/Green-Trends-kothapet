@@ -163,9 +163,9 @@
       
       <!-- Brand: strictly GREEN TRENDS KOTHAPET -->
       <div class="flex items-center cursor-pointer select-none shrink-0" onclick="navigateTo('attendance')">
-        <h1 class="font-heading font-black text-lg sm:text-xl tracking-wider text-white flex items-center gap-2">
+        <h1 class="font-heading font-black text-base sm:text-lg tracking-wider text-white flex items-center gap-1.5 sm:gap-2">
           <span>GREEN TRENDS</span>
-          <span class="text-[10px] sm:text-xs font-extrabold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-xl bg-gradient-to-r from-[#ff2a85]/20 to-purple-500/20 text-[#ff7eb3] border border-[#ff2a85]/40 tracking-widest uppercase">
+          <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-xl bg-gradient-to-r from-[#ff2a85]/20 to-purple-500/20 text-[#ff7eb3] border border-[#ff2a85]/40 tracking-widest uppercase">
             KOTHAPET
           </span>
         </h1>
@@ -174,40 +174,40 @@
       <!-- Navigation Tabs (5 Compact Luxury Tabs) -->
       <nav id="mainNav" class="hidden md:flex items-center gap-1 bg-[#0d0d18] p-1 rounded-2xl border border-[#232338] shadow-2xl shrink-0">
         <button id="navBtn-attendance" onclick="navigateTo('attendance')" 
-          class="nav-tab active px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
+          class="nav-tab active px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
           <i class="fa-solid fa-calendar-check text-[#ff2a85]"></i>
           <span>Attendance</span>
         </button>
 
         <button id="navBtn-payroll" onclick="navigateTo('payroll')" 
-          class="nav-tab px-3 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
+          class="nav-tab px-2.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
           <i class="fa-solid fa-file-invoice-dollar text-[#ff2a85]"></i>
           <span>Payroll</span>
         </button>
 
         <button id="navBtn-incentives" onclick="navigateTo('incentives')" 
-          class="nav-tab px-3 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
+          class="nav-tab px-2.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
           <i class="fa-solid fa-trophy text-[#ff2a85]"></i>
           <span>Incentives</span>
         </button>
 
         <button id="navBtn-roster" onclick="navigateTo('roster')" 
-          class="nav-tab px-3 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
+          class="nav-tab px-2.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
           <i class="fa-solid fa-camera text-[#ff2a85]"></i>
           <span>Roster</span>
         </button>
 
         <button id="navBtn-admin" onclick="navigateTo('admin')" 
-          class="nav-tab px-3 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer" title="Salon Settings, Percentages & Credentials">
+          class="nav-tab px-2.5 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer" title="Salon Settings, Percentages & Credentials">
           <i class="fa-solid fa-sliders text-[#ff2a85]"></i>
           <span>Admin</span>
         </button>
       </nav>
 
-      <!-- Right Header: Live Digital Clock, Cloud Sync, & Compact User Badge -->
-      <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
-        <!-- Sleek Live Clock -->
-        <div class="hidden sm:flex items-center gap-2 bg-[#0d0d18] border border-[#242438] px-3 py-1.5 rounded-2xl shadow-xl shadow-black/40">
+      <!-- Right Header: Compact Status, Install App & Integrated User Pill -->
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <!-- Sleek Live Clock (Desktop screens >= 1536px) -->
+        <div class="hidden 2xl:flex items-center gap-2 bg-[#0d0d18] border border-[#242438] px-2.5 py-1.5 rounded-2xl shadow-xl shadow-black/40">
           <div class="flex items-center gap-1.5">
             <span class="relative flex h-2 w-2">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -215,37 +215,33 @@
             </span>
             <span id="liveTime" class="text-xs font-mono font-bold text-white tracking-wider tabular-nums">--:--</span>
           </div>
-          <div class="hidden 2xl:flex items-center gap-1 text-[11px] text-gray-400 font-semibold font-mono border-l border-[#1f1f32] pl-2">
-            <i class="fa-regular fa-calendar text-[#ff2a85] text-[10px]"></i>
-            <span id="liveDate">Date</span>
-          </div>
         </div>
 
         <!-- Compact Cloud Sync Status Badge -->
         <button type="button" id="cloudSyncHeaderBadge" onclick="navigateTo('admin')" 
           class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#0d0d18] border border-[#222238] text-[11px] font-mono font-bold transition-all hover:border-[#ff2a85]/50 cursor-pointer shrink-0" title="Cloud Sync Status (Click to manage in Admin)">
           <span id="cloudSyncHeaderDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
-          <span id="cloudSyncHeaderText" class="text-gray-400">Local Only</span>
+          <span id="cloudSyncHeaderText" class="text-gray-300">Live</span>
         </button>
 
         <!-- Quick Install App / Mobile Mode -->
-        <button type="button" id="installPwaBtn" onclick="promptPwaInstall()" 
-          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-[#ff2a85]/15 to-purple-500/15 hover:from-[#ff2a85]/25 hover:to-purple-500/25 border border-[#ff2a85]/35 text-[#ff7eb3] hover:text-white text-[11px] font-bold transition-all shadow-sm cursor-pointer shrink-0" 
+        <button type="button" id="installPwaBtn" onclick="openPwaInstallHelpModal()" 
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#ff2a85]/15 to-purple-500/15 hover:from-[#ff2a85]/25 hover:to-purple-500/25 border border-[#ff2a85]/35 text-[#ff7eb3] hover:text-white text-[11px] font-bold transition-all shadow-sm cursor-pointer shrink-0" 
           title="Install App / Add to Home Screen">
           <i class="fa-solid fa-mobile-screen-button text-[11px] text-[#ff2a85]"></i>
-          <span class="hidden sm:inline">Install App</span>
+          <span>Install App</span>
         </button>
 
-        <!-- Compact User Badge & Quick Logout -->
-        <div id="userHeaderBadge" class="hidden flex items-center gap-2 bg-[#0d0d18] border border-[#222238] pl-3 pr-1 py-1 rounded-2xl shadow-lg shrink-0">
-          <div class="flex items-center gap-1.5 text-xs font-bold text-gray-300">
+        <!-- Combined Luxury User Badge & Quick Logout in One Pill -->
+        <div id="userHeaderBadge" class="hidden flex items-center bg-[#0d0d18] border border-[#222238] p-0.5 rounded-2xl shadow-lg shrink-0">
+          <div class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-gray-300">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span id="headerUserName">Owner</span>
           </div>
           <button type="button" onclick="logoutUser()" 
-            class="px-2.5 py-1 rounded-xl text-xs font-bold bg-[#1a0c16] hover:bg-rose-950/60 text-rose-400 border border-rose-500/30 hover:border-rose-500/60 transition-all flex items-center gap-1 cursor-pointer" title="Sign Out">
+            class="px-2 py-1 rounded-xl text-xs font-bold text-rose-400 hover:text-white hover:bg-rose-500/20 transition-all flex items-center gap-1 cursor-pointer" title="Sign Out">
             <i class="fa-solid fa-power-off text-[10px]"></i>
-            <span class="hidden sm:inline text-[11px]">Logout</span>
+            <span class="hidden lg:inline text-[11px]">Logout</span>
           </button>
         </div>
       </div>
@@ -502,24 +498,24 @@
           <span class="text-xs text-gray-400">Total Staff: <strong class="text-white">8 Members</strong></span>
         </div>
 
-        <!-- Responsive Table -->
+        <!-- Responsive Table with Perfect Width Fit -->
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-xs">
+          <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
             <thead>
-              <tr class="bg-[#12121e] text-gray-400 border-b border-[#1f1f30] uppercase tracking-wider font-bold">
-                <th class="py-4 px-4">Staff Member</th>
-                <th class="py-4 px-3">Base Salary</th>
-                <th class="py-4 px-3">Food Allow.</th>
-                <th class="py-4 px-3">Per Day Rate</th>
-                <th class="py-4 px-3 text-center">Present / Offs</th>
-                <th class="py-4 px-3 text-center whitespace-nowrap">Leaves (Cut)</th>
-                <th class="py-4 px-3">Leave Deduction</th>
-                <th class="py-4 px-3 text-center">Net OT</th>
-                <th class="py-4 px-3">OT Pay (₹50/h)</th>
-                <th class="py-4 px-3">Incentives (%)</th>
-                <th class="py-4 px-3 text-rose-300 font-bold">Advance / Loan</th>
-                <th class="py-4 px-4 font-bold text-[#ff7eb3]">Net Payable</th>
-                <th class="py-4 px-4 text-center">Pay Slip</th>
+              <tr class="bg-[#12121e] text-gray-400 border-b border-[#1f1f30] uppercase tracking-wider font-bold text-[11px]">
+                <th class="py-3 px-3">Staff Member</th>
+                <th class="py-3 px-2">Base Salary</th>
+                <th class="py-3 px-2">Food</th>
+                <th class="py-3 px-2">Per Day</th>
+                <th class="py-3 px-2 text-center">Attd (P/WO)</th>
+                <th class="py-3 px-2 text-center">Leaves (Cut)</th>
+                <th class="py-3 px-2">Leave Cut</th>
+                <th class="py-3 px-2 text-center">Net OT</th>
+                <th class="py-3 px-2">OT Pay</th>
+                <th class="py-3 px-2">Incentives</th>
+                <th class="py-3 px-2 text-center text-rose-300 font-bold">Advance / Loan</th>
+                <th class="py-3 px-3 font-bold text-[#ff7eb3] text-right">Net Payable</th>
+                <th class="py-3 px-3 text-center">Pay Slip</th>
               </tr>
             </thead>
             <tbody id="payrollTableBody" class="divide-y divide-[#171726] text-gray-200">
@@ -1400,6 +1396,23 @@ const firebaseConfig = {
   </div>
 
   <!-- Application Logic Scripts -->
-  <script src="app.js?v=20260926_v11"></script>
+  <script>
+    // Fail-safe PWA modal open/close functions (works instantly under all browser conditions)
+    function openPwaInstallHelpModal() {
+      const m = document.getElementById('pwaModal');
+      if (m) {
+        m.classList.remove('hidden');
+        m.style.display = 'flex';
+      }
+    }
+    function closePwaInstallModal() {
+      const m = document.getElementById('pwaModal');
+      if (m) {
+        m.classList.add('hidden');
+        m.style.display = 'none';
+      }
+    }
+  </script>
+  <script src="app.js?v=20260926_v14"></script>
 </body>
 </html>

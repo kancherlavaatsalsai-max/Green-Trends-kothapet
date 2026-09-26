@@ -1,5 +1,5 @@
-// Green Trends Kothapet - PWA Service Worker (v1)
-const CACHE_NAME = 'gt-kothapet-cache-v1';
+// Green Trends Kothapet - PWA Service Worker (v2)
+const CACHE_NAME = 'gt-kothapet-cache-v2';
 const STATIC_ASSETS = [
   './',
   './index.html',

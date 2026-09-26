@@ -1530,94 +1530,93 @@ function renderMonthlyPayroll() {
 
     rowsHtml += `
       <tr class="hover:bg-[#12121e] transition-colors border-b border-[#181826]">
-        <td class="py-4 px-4">
-          <div class="flex items-center gap-2">
-            <span class="font-syne font-bold text-white text-sm">${staff.name}</span>
-            ${staff.isManager ? '<span class="text-[9px] px-2 py-0.5 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] font-bold">MANAGER</span>' : ''}
+        <td class="py-3 px-3 whitespace-nowrap">
+          <div class="flex items-center gap-1.5">
+            <span class="font-syne font-bold text-white text-xs sm:text-sm">${staff.name}</span>
+            ${staff.isManager ? '<span class="text-[9px] px-1.5 py-0.2 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] font-bold">MGR</span>' : ''}
           </div>
-          <div class="text-[11px] text-gray-400">${staff.role}</div>
+          <div class="text-[10px] text-gray-400">${staff.role}</div>
         </td>
 
-        <td class="py-4 px-3 font-mono font-semibold text-white">
+        <td class="py-3 px-2 font-mono font-semibold text-white whitespace-nowrap">
           ₹${staff.baseSalary.toLocaleString('en-IN')}
         </td>
 
-        <td class="py-4 px-3 font-mono">
+        <td class="py-3 px-2 font-mono whitespace-nowrap">
           ${staff.foodAllowance > 0 ? 
             `<span class="text-emerald-400 font-semibold">+₹${staff.foodAllowance.toLocaleString('en-IN')}</span>` : 
             `<span class="text-gray-600">₹0</span>`
           }
         </td>
 
-        <td class="py-4 px-3 font-mono text-gray-300">
-          <div>₹${p.perDaySalary.toFixed(2)}</div>
-          <span class="text-[10px] text-gray-500 font-sans">÷ ${daysInMonth}d</span>
+        <td class="py-3 px-2 font-mono text-gray-300 whitespace-nowrap">
+          <div>₹${Math.round(p.perDaySalary)}</div>
+          <span class="text-[9px] text-gray-500 font-sans">÷ ${daysInMonth}d</span>
         </td>
 
-        <td class="py-4 px-3 text-center">
-          <div class="inline-flex items-center gap-1.5 font-mono text-xs">
-            <span class="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 font-bold">${p.presentDays}P</span>
-            <span class="px-2 py-0.5 rounded-md bg-indigo-500/15 text-indigo-400 font-bold">${p.weeklyOffs}WO</span>
+        <td class="py-3 px-2 text-center whitespace-nowrap">
+          <div class="inline-flex items-center gap-1 font-mono text-xs">
+            <span class="px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 font-bold">${p.presentDays}P</span>
+            <span class="px-1.5 py-0.5 rounded-md bg-indigo-500/15 text-indigo-400 font-bold">${p.weeklyOffs}WO</span>
           </div>
         </td>
 
         <!-- STRICTLY PURE NUMBER IN LEAVES CUT: NO "Days" TEXT! -->
-        <td class="py-4 px-3 text-center whitespace-nowrap">
+        <td class="py-3 px-2 text-center whitespace-nowrap">
           ${p.unpaidLeaves > 0 ? 
-            `<span class="inline-block px-3 py-1 rounded-xl bg-rose-500/20 text-rose-400 font-mono font-extrabold text-xs">${p.unpaidLeaves}</span>` : 
+            `<span class="inline-block px-2.5 py-0.5 rounded-lg bg-rose-500/20 text-rose-400 font-mono font-extrabold text-xs">${p.unpaidLeaves}</span>` : 
             `<span class="text-gray-600 font-mono text-xs">0</span>`
           }
         </td>
 
-        <td class="py-4 px-3 font-mono">
+        <td class="py-3 px-2 font-mono whitespace-nowrap">
           ${p.leaveDeduction > 0 ? 
             `<span class="text-rose-400 font-bold">-₹${Math.round(p.leaveDeduction).toLocaleString('en-IN')}</span>` : 
             `<span class="text-gray-600">₹0</span>`
           }
         </td>
 
-        <td class="py-4 px-3 font-mono text-center">
+        <td class="py-3 px-2 font-mono text-center whitespace-nowrap">
           ${staff.isHousekeeping ? 
             `<span class="text-gray-600">0h</span>` : 
             `<span class="text-white font-bold">${p.netOtHours}h</span>
-             ${p.totalShortfallHours > 0 ? `<span class="text-[10px] text-amber-400 block font-sans">-${p.totalShortfallHours}h cut</span>` : ''}`
+             ${p.totalShortfallHours > 0 ? `<span class="text-[9px] text-amber-400 block font-sans">-${p.totalShortfallHours}h</span>` : ''}`
           }
         </td>
 
-        <td class="py-4 px-3 font-mono">
+        <td class="py-3 px-2 font-mono whitespace-nowrap">
           ${p.netOtPay > 0 ? 
             `<span class="text-[#ff7eb3] font-bold">+₹${p.netOtPay.toLocaleString('en-IN')}</span>` : 
             `<span class="text-gray-600">₹0</span>`
           }
         </td>
 
-        <td class="py-4 px-3 font-mono">
+        <td class="py-3 px-2 font-mono whitespace-nowrap">
           ${p.totalIncentives > 0 ? 
-            `<span class="text-purple-400 font-bold">+₹${p.totalIncentives.toLocaleString('en-IN')}</span>
-             <span class="text-[10px] text-gray-500 block">${p.serviceCommission > 0 ? 'Serv%' : ''} ${p.productCommission > 0 ? 'Prod%' : ''}</span>` : 
+            `<span class="text-purple-400 font-bold">+₹${p.totalIncentives.toLocaleString('en-IN')}</span>` : 
             `<span class="text-gray-600">₹0</span>`
           }
         </td>
 
-        <!-- Salary Advance / Loan Input -->
-        <td class="py-4 px-3 font-mono">
-          <div class="flex items-center gap-1 justify-end">
-            <span class="text-rose-400 font-bold text-xs">-₹</span>
+        <!-- Salary Advance / Loan Input: Fixed strictly on one line, no wrapping -->
+        <td class="py-3 px-2 font-mono text-center whitespace-nowrap">
+          <div class="inline-flex items-center gap-1 justify-center whitespace-nowrap">
+            <span class="text-rose-400 font-bold text-xs shrink-0 select-none whitespace-nowrap">-₹</span>
             <input type="number" min="0" step="500" value="${p.advanceTaken > 0 ? p.advanceTaken : ''}" placeholder="0"
               onchange="updateStaffAdvance('${staff.id}', this.value)"
-              class="w-20 bg-[#161626] border border-[#27273d] focus:border-[#ff2a85] rounded-lg px-2 py-1 text-rose-300 font-mono text-xs font-bold text-right outline-none transition-colors"
+              class="w-16 bg-[#161626] border border-[#27273d] focus:border-[#ff2a85] rounded-lg px-1.5 py-1 text-rose-300 font-mono text-xs font-bold text-right outline-none transition-colors"
               title="Enter mid-month salary advance or loan taken">
           </div>
         </td>
 
-        <td class="py-4 px-4 font-mono font-extrabold text-base text-[#ff2a85]">
+        <td class="py-3 px-3 font-mono font-extrabold text-sm text-[#ff2a85] text-right whitespace-nowrap">
           ₹${p.netPayable.toLocaleString('en-IN')}
         </td>
 
-        <td class="py-4 px-4 text-center">
+        <td class="py-3 px-3 text-center whitespace-nowrap">
           <button onclick="openPaySlipModal('${staff.id}')" 
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#141420] hover:bg-[#ff2a85] text-gray-300 hover:text-white transition-all border border-[#222234] hover:border-[#ff2a85] flex items-center justify-center gap-1.5 mx-auto shadow-sm">
-            <i class="fa-solid fa-receipt text-[11px]"></i>
+            class="px-2.5 py-1 rounded-xl text-xs font-bold bg-[#141420] hover:bg-[#ff2a85] text-gray-300 hover:text-white transition-all border border-[#222234] hover:border-[#ff2a85] inline-flex items-center justify-center gap-1 shadow-sm">
+            <i class="fa-solid fa-receipt text-[10px]"></i>
             <span>Slip</span>
           </button>
         </td>
@@ -1629,19 +1628,19 @@ function renderMonthlyPayroll() {
 
   tableFoot.innerHTML = `
     <tr>
-      <td class="py-4 px-4 uppercase text-xs tracking-wider text-gray-300">Total Salon Payroll</td>
-      <td class="py-4 px-3 font-mono text-white">₹${totalGrossBase.toLocaleString('en-IN')}</td>
-      <td class="py-4 px-3 font-mono text-emerald-400">+₹${totalFoodAllowances.toLocaleString('en-IN')}</td>
-      <td class="py-4 px-3 text-gray-500 text-[11px] font-sans">÷ ${daysInMonth}d</td>
-      <td class="py-4 px-3 text-center text-gray-400">--</td>
-      <td class="py-4 px-3 text-center text-gray-400">--</td>
-      <td class="py-4 px-3 font-mono text-rose-400">-₹${Math.round(totalDeductions).toLocaleString('en-IN')}</td>
-      <td class="py-4 px-3 text-center text-gray-400">--</td>
-      <td class="py-4 px-3 font-mono text-[#ff7eb3]">+₹${totalNetOtPay.toLocaleString('en-IN')}</td>
-      <td class="py-4 px-3 font-mono text-purple-400">+₹${totalIncentives.toLocaleString('en-IN')}</td>
-      <td class="py-4 px-3 font-mono text-rose-400 font-bold text-right">-₹${totalAdvances.toLocaleString('en-IN')}</td>
-      <td class="py-4 px-4 font-mono font-extrabold text-lg text-[#ff2a85]">₹${totalNetPayout.toLocaleString('en-IN')}</td>
-      <td class="py-4 px-4 text-center">--</td>
+      <td class="py-3 px-3 uppercase text-[11px] tracking-wider text-gray-300 whitespace-nowrap">Total Salon Payroll</td>
+      <td class="py-3 px-2 font-mono text-white whitespace-nowrap">₹${totalGrossBase.toLocaleString('en-IN')}</td>
+      <td class="py-3 px-2 font-mono text-emerald-400 whitespace-nowrap">+₹${totalFoodAllowances.toLocaleString('en-IN')}</td>
+      <td class="py-3 px-2 text-gray-500 text-[10px] font-sans whitespace-nowrap">÷ ${daysInMonth}d</td>
+      <td class="py-3 px-2 text-center text-gray-400 whitespace-nowrap">--</td>
+      <td class="py-3 px-2 text-center text-gray-400 whitespace-nowrap">--</td>
+      <td class="py-3 px-2 font-mono text-rose-400 whitespace-nowrap">-₹${Math.round(totalDeductions).toLocaleString('en-IN')}</td>
+      <td class="py-3 px-2 text-center text-gray-400 whitespace-nowrap">--</td>
+      <td class="py-3 px-2 font-mono text-[#ff7eb3] whitespace-nowrap">+₹${totalNetOtPay.toLocaleString('en-IN')}</td>
+      <td class="py-3 px-2 font-mono text-purple-400 whitespace-nowrap">+₹${totalIncentives.toLocaleString('en-IN')}</td>
+      <td class="py-3 px-2 font-mono text-rose-400 font-bold text-center whitespace-nowrap">-₹${totalAdvances.toLocaleString('en-IN')}</td>
+      <td class="py-3 px-3 font-mono font-extrabold text-base text-[#ff2a85] text-right whitespace-nowrap">₹${totalNetPayout.toLocaleString('en-IN')}</td>
+      <td class="py-3 px-3 text-center text-gray-500 whitespace-nowrap">--</td>
     </tr>
   `;
 
