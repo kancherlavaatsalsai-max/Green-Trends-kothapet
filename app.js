@@ -148,7 +148,8 @@ const STORAGE_KEYS = {
   RULES: 'gt_kothapet_rules_v4',
   ATTENDANCE: 'gt_kothapet_attendance_v4',
   AUTH: 'gt_kothapet_auth_v5',
-  SESSION: 'gt_kothapet_session_v5'
+  SESSION: 'gt_kothapet_session_v5',
+  FIREBASE: 'gt_kothapet_firebase_config_v1'
 };
 
 const DEFAULT_AUTH = {
@@ -157,6 +158,16 @@ const DEFAULT_AUTH = {
   accounts: [
     { username: 'kancherlavatsalsai@gmial.com', password: 'Vinayaka@9', role: 'Owner & Administrator' }
   ]
+};
+
+// User's Green Trends Kothapet Firebase Cloud Configuration
+const DEFAULT_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBaF9hdqzs7IN4AVNrvD7owr9hCQl7exFw",
+  authDomain: "green-trends-kothapet-b28ea.firebaseapp.com",
+  projectId: "green-trends-kothapet-b28ea",
+  storageBucket: "green-trends-kothapet-b28ea.firebasestorage.app",
+  messagingSenderId: "871394737782",
+  appId: "1:871394737782:web:7f397a729d588c5d3ba957"
 };
 
 // ==========================================
@@ -173,6 +184,14 @@ let selectedMonthStr = formatMonthKey(currentDate);
 
 // Parsed Roster Buffer (Only contains staff found in the roster!)
 let parsedRosterBuffer = {};
+
+// Firebase Cloud Sync State
+let firebaseApp = null;
+let firestoreDb = null;
+let firestoreUnsubscribe = null;
+let isSyncingToCloud = false;
+let cloudSyncTimeout = null;
+let cloudSyncStatus = 'local';
 
 // ==========================================
 // REAL SEPTEMBER 2026 WHATSAPP ATTENDANCE DATASET
@@ -239,14 +258,349 @@ function syncRealSeptemberAttendanceData() {
 
 function saveStaffList() {
   localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify(staffList));
+  pushToFirestoreDebounced();
 }
 
 function saveSalonRules() {
   localStorage.setItem(STORAGE_KEYS.RULES, JSON.stringify(salonRules));
+  pushToFirestoreDebounced();
 }
 
 function saveAttendanceData() {
   localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceData));
+  pushToFirestoreDebounced();
+}
+
+// ==========================================
+// 2.3 FIREBASE REAL-TIME CLOUD SYNC (100% FREE)
+// ==========================================
+
+function pushToFirestoreDebounced() {
+  if (!firestoreDb) return;
+  if (cloudSyncTimeout) clearTimeout(cloudSyncTimeout);
+  cloudSyncTimeout = setTimeout(() => {
+    pushLocalDataToFirestore(false);
+  }, 1200);
+}
+
+async function pushLocalDataToFirestore(showToastNotification = false) {
+  if (!firestoreDb) {
+    if (showToastNotification) alert("Firebase is not connected yet. Paste your config in Admin to connect.");
+    return;
+  }
+
+  try {
+    isSyncingToCloud = true;
+    updateCloudSyncUI('syncing');
+
+    await firestoreDb.collection('salons').doc('green_trends_kothapet').set({
+      attendance: attendanceData,
+      staff: staffList,
+      rules: salonRules,
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedBy: getSessionUser()?.username || 'Owner'
+    }, { merge: true });
+
+    setTimeout(() => {
+      isSyncingToCloud = false;
+      const savedConfig = localStorage.getItem(STORAGE_KEYS.FIREBASE);
+      const projectId = savedConfig ? JSON.parse(savedConfig).projectId : '';
+      updateCloudSyncUI('connected', projectId);
+    }, 500);
+
+    if (showToastNotification) {
+      showToast("✓ Synced all 15-day attendance & staff records to Firebase Cloud!");
+    }
+  } catch (err) {
+    console.error("Firestore push error:", err);
+    isSyncingToCloud = false;
+    updateCloudSyncUI('error');
+    if (showToastNotification) {
+      alert("Cloud Push Error: " + (err.message || err));
+    }
+  }
+}
+
+async function pullDataFromFirestore(showToastNotification = false) {
+  if (!firestoreDb) {
+    if (showToastNotification) alert("Firebase is not connected yet.");
+    return;
+  }
+
+  try {
+    showToast("Checking cloud for latest updates...");
+    const docSnap = await firestoreDb.collection('salons').doc('green_trends_kothapet').get();
+    if (docSnap.exists) {
+      const data = docSnap.data();
+      let updated = false;
+
+      if (data.attendance) {
+        attendanceData = data.attendance;
+        localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceData));
+        updated = true;
+      }
+      if (data.staff) {
+        staffList = data.staff;
+        localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify(staffList));
+        updated = true;
+      }
+      if (data.rules) {
+        salonRules = data.rules;
+        localStorage.setItem(STORAGE_KEYS.RULES, JSON.stringify(salonRules));
+        updated = true;
+      }
+
+      if (updated) {
+        updateViewFromHash();
+      }
+
+      if (showToastNotification) {
+        showToast("✓ Pulled latest salon records from Firebase Cloud!");
+      }
+    } else {
+      if (showToastNotification) {
+        showToast("No data in cloud yet. Click 'Push to Cloud' to upload your local data.");
+      }
+    }
+  } catch (err) {
+    console.error("Firestore pull error:", err);
+    if (showToastNotification) {
+      alert("Cloud Pull Error: " + (err.message || err));
+    }
+  }
+}
+
+function parseFirebaseConfigInput(raw) {
+  if (!raw) return null;
+  let str = raw.trim();
+
+  // 1. Direct JSON parse
+  try {
+    const parsed = JSON.parse(str);
+    if (parsed.apiKey && parsed.projectId) return parsed;
+  } catch (e) {}
+
+  // 2. Strip JavaScript declaration: "const firebaseConfig = { ... };"
+  str = str.replace(/^(?:const|let|var)\s+\w+\s*=\s*/i, '');
+  str = str.replace(/;\s*$/, '').trim();
+
+  try {
+    const parsed = JSON.parse(str);
+    if (parsed.apiKey && parsed.projectId) return parsed;
+  } catch (e) {}
+
+  // 3. Robust regex extraction for loose JS objects
+  const extract = (key) => {
+    const m = str.match(new RegExp('(?:["\']?' + key + '["\']?\\s*:\\s*["\']([^"\']+)["\'])', 'i'));
+    return m ? m[1].trim() : '';
+  };
+
+  const apiKey = extract('apiKey');
+  const projectId = extract('projectId');
+  if (apiKey && projectId) {
+    return {
+      apiKey: apiKey,
+      authDomain: extract('authDomain') || `${projectId}.firebaseapp.com`,
+      projectId: projectId,
+      storageBucket: extract('storageBucket') || `${projectId}.appspot.com`,
+      messagingSenderId: extract('messagingSenderId'),
+      appId: extract('appId')
+    };
+  }
+
+  return null;
+}
+
+function initFirebaseSync() {
+  const savedSetting = localStorage.getItem(STORAGE_KEYS.FIREBASE);
+  if (savedSetting === 'disabled') {
+    updateCloudSyncUI('local');
+    return;
+  }
+
+  let config = null;
+  if (savedSetting) {
+    try { config = JSON.parse(savedSetting); } catch (e) {}
+  }
+
+  if (!config && typeof DEFAULT_FIREBASE_CONFIG !== 'undefined' && DEFAULT_FIREBASE_CONFIG.apiKey) {
+    config = { ...DEFAULT_FIREBASE_CONFIG };
+  }
+
+  if (!config || !config.apiKey || !config.projectId) {
+    updateCloudSyncUI('local');
+    return;
+  }
+
+  try {
+    if (typeof firebase === 'undefined') {
+      console.warn("Firebase SDK not available");
+      updateCloudSyncUI('local');
+      return;
+    }
+
+    if (!firebase.apps || firebase.apps.length === 0) {
+      firebaseApp = firebase.initializeApp(config);
+    } else {
+      firebaseApp = firebase.apps[0];
+    }
+
+    firestoreDb = firebase.firestore();
+
+    // Attach real-time snapshot listener
+    if (firestoreUnsubscribe) firestoreUnsubscribe();
+
+    firestoreUnsubscribe = firestoreDb.collection('salons').doc('green_trends_kothapet')
+      .onSnapshot((doc) => {
+        if (doc.exists) {
+          const cloudData = doc.data();
+          if (cloudData && !isSyncingToCloud) {
+            let changed = false;
+            if (cloudData.attendance && JSON.stringify(cloudData.attendance) !== JSON.stringify(attendanceData)) {
+              attendanceData = cloudData.attendance;
+              localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceData));
+              changed = true;
+            }
+            if (cloudData.staff && JSON.stringify(cloudData.staff) !== JSON.stringify(staffList)) {
+              staffList = cloudData.staff;
+              localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify(staffList));
+              changed = true;
+            }
+            if (cloudData.rules && JSON.stringify(cloudData.rules) !== JSON.stringify(salonRules)) {
+              salonRules = cloudData.rules;
+              localStorage.setItem(STORAGE_KEYS.RULES, JSON.stringify(salonRules));
+              changed = true;
+            }
+
+            if (changed) {
+              updateViewFromHash();
+              showToast("Cloud update received! Synced with remote device.");
+            }
+            updateCloudSyncUI('connected', config.projectId);
+          }
+        } else {
+          // New document: Push existing local data so nothing is lost!
+          pushLocalDataToFirestore(false);
+          updateCloudSyncUI('connected', config.projectId);
+        }
+      }, (err) => {
+        console.error("Firestore onSnapshot error:", err);
+        updateCloudSyncUI('error', config.projectId);
+      });
+
+    updateCloudSyncUI('connected', config.projectId);
+  } catch (err) {
+    console.error("Firebase init error:", err);
+    updateCloudSyncUI('error');
+  }
+}
+
+async function connectFirebaseCloud() {
+  const inputEl = document.getElementById('firebaseConfigInput');
+  if (!inputEl) return;
+
+  const raw = inputEl.value;
+  const config = parseFirebaseConfigInput(raw);
+
+  if (!config || !config.apiKey || !config.projectId) {
+    alert("Please paste a valid Firebase configuration with 'apiKey' and 'projectId'. Click 'How to get free key?' for 3 quick steps.");
+    return;
+  }
+
+  localStorage.setItem(STORAGE_KEYS.FIREBASE, JSON.stringify(config));
+  initFirebaseSync();
+
+  showToast("Connecting to Firebase Cloud...");
+  setTimeout(async () => {
+    await pushLocalDataToFirestore(true);
+    renderAdminView();
+  }, 1000);
+}
+
+function disconnectFirebaseCloud() {
+  if (confirm("Disconnect from Firebase Cloud and switch back to Local Storage? Your data will remain safe on your device.")) {
+    if (firestoreUnsubscribe) firestoreUnsubscribe();
+    firestoreUnsubscribe = null;
+    firestoreDb = null;
+    firebaseApp = null;
+    localStorage.setItem(STORAGE_KEYS.FIREBASE, 'disabled');
+    updateCloudSyncUI('local');
+    renderAdminView();
+    showToast("Disconnected from Firebase. Operating in Local Storage mode.");
+  }
+}
+
+function updateCloudSyncUI(status, projectId = '') {
+  cloudSyncStatus = status;
+
+  // Header Badge
+  const headerDot = document.getElementById('cloudSyncHeaderDot');
+  const headerText = document.getElementById('cloudSyncHeaderText');
+
+  if (headerDot && headerText) {
+    if (status === 'connected') {
+      headerDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+      headerText.className = 'text-emerald-400 font-bold';
+      headerText.innerHTML = '<i class="fa-solid fa-cloud text-emerald-400 mr-1"></i>Cloud Live';
+    } else if (status === 'syncing') {
+      headerDot.className = 'w-2 h-2 rounded-full bg-[#ff2a85] animate-ping';
+      headerText.className = 'text-[#ff7eb3] font-bold';
+      headerText.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin text-[#ff2a85] mr-1"></i>Syncing...';
+    } else if (status === 'error') {
+      headerDot.className = 'w-2 h-2 rounded-full bg-rose-500';
+      headerText.className = 'text-rose-400 font-bold';
+      headerText.innerHTML = '<i class="fa-solid fa-circle-exclamation text-rose-400 mr-1"></i>Sync Error';
+    } else {
+      headerDot.className = 'w-2 h-2 rounded-full bg-amber-400';
+      headerText.className = 'text-gray-400 font-semibold';
+      headerText.innerHTML = '<i class="fa-solid fa-hard-drive text-amber-400 mr-1"></i>Local Storage';
+    }
+  }
+
+  // Admin Card UI
+  const adminBadge = document.getElementById('cloudStatusBadgeAdmin');
+  const adminDot = document.getElementById('cloudStatusDotAdmin');
+  const adminText = document.getElementById('cloudStatusTextAdmin');
+  const setupSec = document.getElementById('firebaseSetupSection');
+  const connSec = document.getElementById('firebaseConnectedSection');
+  const projName = document.getElementById('connectedProjectName');
+  const syncTime = document.getElementById('lastCloudSyncTime');
+
+  if (adminBadge && adminText && adminDot) {
+    if (status === 'connected') {
+      adminBadge.className = 'text-[10px] font-bold font-mono px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5';
+      adminDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400';
+      adminText.innerText = 'Connected & Live';
+      if (setupSec) setupSec.classList.add('hidden');
+      if (connSec) connSec.classList.remove('hidden');
+      if (projName) projName.innerText = `Connected: ${projectId || 'green-trends-kothapet'}`;
+      if (syncTime) syncTime.innerText = `Live 2-Way Sync Active (${new Date().toLocaleTimeString()})`;
+    } else if (status === 'syncing') {
+      adminBadge.className = 'text-[10px] font-bold font-mono px-2.5 py-1 rounded-full bg-[#ff2a85]/15 text-[#ff7eb3] border border-[#ff2a85]/30 flex items-center gap-1.5';
+      adminDot.className = 'w-1.5 h-1.5 rounded-full bg-[#ff2a85] animate-ping';
+      adminText.innerText = 'Syncing...';
+    } else if (status === 'error') {
+      adminBadge.className = 'text-[10px] font-bold font-mono px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30 flex items-center gap-1.5';
+      adminDot.className = 'w-1.5 h-1.5 rounded-full bg-rose-400';
+      adminText.innerText = 'Connection Error';
+    } else {
+      adminBadge.className = 'text-[10px] font-bold font-mono px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center gap-1.5';
+      adminDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400';
+      adminText.innerText = 'Local Storage Only';
+      if (setupSec) setupSec.classList.remove('hidden');
+      if (connSec) connSec.classList.add('hidden');
+    }
+  }
+}
+
+function openFirebaseHelpModal() {
+  const m = document.getElementById('firebaseHelpModal');
+  if (m) m.classList.remove('hidden');
+}
+
+function closeFirebaseHelpModal() {
+  const m = document.getElementById('firebaseHelpModal');
+  if (m) m.classList.add('hidden');
 }
 
 // ==========================================
@@ -2399,6 +2753,19 @@ function renderAdminView() {
   const authPassInput = document.getElementById('adminAuthPassword');
   if (authPassInput) authPassInput.value = '';
 
+  // Refresh Cloud Sync UI State
+  const savedFb = localStorage.getItem(STORAGE_KEYS.FIREBASE);
+  if (savedFb) {
+    try {
+      const cfg = JSON.parse(savedFb);
+      updateCloudSyncUI(firestoreDb ? 'connected' : 'local', cfg.projectId);
+    } catch(e) {
+      updateCloudSyncUI('local');
+    }
+  } else {
+    updateCloudSyncUI('local');
+  }
+
   let html = '';
 
   staffList.forEach((staff, idx) => {
@@ -2860,6 +3227,7 @@ function startLiveClock() {
 window.addEventListener('DOMContentLoaded', () => {
   initStorage();
   initAuth();
+  initFirebaseSync();
 
   const dateInput = document.getElementById('selectedDateInput');
   if (dateInput) dateInput.value = selectedDateStr;
