@@ -1530,7 +1530,7 @@ function renderMonthlyPayroll() {
 
     rowsHtml += `
       <tr class="hover:bg-[#12121e] transition-colors border-b border-[#181826]">
-        <td class="py-3 px-3 whitespace-nowrap">
+        <td class="py-3 px-3 whitespace-nowrap sticky-first-col">
           <div class="flex items-center gap-1.5">
             <span class="font-syne font-bold text-white text-xs sm:text-sm">${staff.name}</span>
             ${staff.isManager ? '<span class="text-[9px] px-1.5 py-0.2 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] font-bold">MGR</span>' : ''}
@@ -1628,7 +1628,7 @@ function renderMonthlyPayroll() {
 
   tableFoot.innerHTML = `
     <tr>
-      <td class="py-3 px-3 uppercase text-[11px] tracking-wider text-gray-300 whitespace-nowrap">Total Salon Payroll</td>
+      <td class="py-3 px-3 uppercase text-[11px] tracking-wider text-gray-300 whitespace-nowrap sticky-first-col">Total Salon Payroll</td>
       <td class="py-3 px-2 font-mono text-white whitespace-nowrap">₹${totalGrossBase.toLocaleString('en-IN')}</td>
       <td class="py-3 px-2 font-mono text-emerald-400 whitespace-nowrap">+₹${totalFoodAllowances.toLocaleString('en-IN')}</td>
       <td class="py-3 px-2 text-gray-500 text-[10px] font-sans whitespace-nowrap">÷ ${daysInMonth}d</td>
@@ -3365,10 +3365,31 @@ window.addEventListener('DOMContentLoaded', () => {
 // ==========================================
 
 let deferredInstallPrompt = null;
+window.deferredInstallPrompt = null;
+
+// Check if running in standalone mode (already installed on device home screen)
+function checkIsStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches || 
+         window.navigator.standalone === true || 
+         document.referrer.includes('android-app://');
+}
+
+function markAppAsInstalled() {
+  const installBtn = document.getElementById('installPwaBtn');
+  if (installBtn) {
+    installBtn.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i> <span>Installed</span>';
+    installBtn.title = '✓ Green Trends App is installed on your Home Screen';
+    installBtn.classList.remove('from-[#ff2a85]/20', 'to-purple-500/20', 'border-[#ff2a85]/40', 'text-[#ff7eb3]');
+    installBtn.classList.add('bg-emerald-500/15', 'border-emerald-500/35', 'text-emerald-400');
+  }
+}
 
 window.addEventListener('beforeinstallprompt', (e) => {
+  // Prevent default mini-infobar on mobile Chrome
   e.preventDefault();
+  // Stash the event so it can be triggered directly on click
   deferredInstallPrompt = e;
+  window.deferredInstallPrompt = e;
   console.log('PWA beforeinstallprompt captured!');
   const installBtn = document.getElementById('installPwaBtn');
   if (installBtn) {
@@ -3378,42 +3399,116 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
-  showToast('🎉 Green Trends App successfully installed on your home screen!');
+  window.deferredInstallPrompt = null;
+  showToast('🎉 Green Trends App successfully installed on your Home Screen!');
+  markAppAsInstalled();
 });
 
-function promptPwaInstall() {
-  if (deferredInstallPrompt) {
-    deferredInstallPrompt.prompt();
-    deferredInstallPrompt.userChoice.then((choiceResult) => {
-      if (choiceResult.outcome === 'accepted') {
-        showToast('Installing Green Trends Salon App...');
-      }
-      deferredInstallPrompt = null;
-    });
-  } else {
-    openPwaInstallHelpModal();
+// Auto-check on startup if already running as installed standalone app
+window.addEventListener('DOMContentLoaded', () => {
+  if (checkIsStandalone()) {
+    setTimeout(markAppAsInstalled, 300);
   }
+});
+
+async function promptPwaInstall() {
+  if (checkIsStandalone()) {
+    showToast('✓ Green Trends is already installed and running from your Home Screen!');
+    return;
+  }
+
+  const promptEvt = deferredInstallPrompt || window.deferredInstallPrompt;
+  // If Chrome/Edge beforeinstallprompt event is ready, trigger native installation directly!
+  if (promptEvt && typeof promptEvt.prompt === 'function') {
+    try {
+      promptEvt.prompt();
+      const choiceResult = await promptEvt.userChoice;
+      if (choiceResult && choiceResult.outcome === 'accepted') {
+        showToast('🎉 Green Trends App added to your Home Screen!');
+        deferredInstallPrompt = null;
+        window.deferredInstallPrompt = null;
+        markAppAsInstalled();
+      } else {
+        showToast('Install cancelled. Tap Install anytime!');
+      }
+      return;
+    } catch (err) {
+      console.error('Install prompt error:', err);
+    }
+  }
+
+  // If deferredInstallPrompt is not ready or user is on iOS:
+  openPwaInstallHelpModal();
 }
 
 function openPwaInstallHelpModal() {
   const modal = document.getElementById('pwaModal');
-  if (modal) modal.classList.remove('hidden');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isAndroid = /android/i.test(navigator.userAgent);
+
+  const bIos = document.getElementById('badgeIos');
+  const bAndroid = document.getElementById('badgeAndroid');
+  const bDesktop = document.getElementById('badgeDesktop');
+  const stepIos = document.getElementById('pwaStepIos');
+  const stepAndroid = document.getElementById('pwaStepAndroid');
+  const stepDesktop = document.getElementById('pwaStepDesktop');
+  const directBtnText = document.getElementById('pwaDirectInstallText');
+
+  if (stepIos) stepIos.classList.remove('border-[#ff2a85]', 'bg-[#ff2a85]/10');
+  if (stepAndroid) stepAndroid.classList.remove('border-emerald-500', 'bg-emerald-500/10');
+  if (stepDesktop) stepDesktop.classList.remove('border-indigo-500', 'bg-indigo-500/10');
+
+  const hasPrompt = !!(deferredInstallPrompt || window.deferredInstallPrompt);
+
+  if (isIOS) {
+    if (bIos) bIos.classList.remove('hidden');
+    if (stepIos) stepIos.classList.add('border-[#ff2a85]', 'bg-[#ff2a85]/10');
+    if (directBtnText) directBtnText.innerText = 'Got It (Share ➔ Add)';
+  } else if (isAndroid) {
+    if (bAndroid) bAndroid.classList.remove('hidden');
+    if (stepAndroid) stepAndroid.classList.add('border-emerald-500', 'bg-emerald-500/10');
+    if (directBtnText) directBtnText.innerText = hasPrompt ? 'Install Now' : 'Got It (Menu ➔ Install)';
+  } else {
+    if (bDesktop) bDesktop.classList.remove('hidden');
+    if (stepDesktop) stepDesktop.classList.add('border-indigo-500', 'bg-indigo-500/10');
+    if (directBtnText) directBtnText.innerText = hasPrompt ? 'Install Now' : 'Got It';
+  }
 }
 
 function closePwaInstallModal() {
   const modal = document.getElementById('pwaModal');
-  if (modal) modal.classList.add('hidden');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
 }
 
 function triggerNativeInstall() {
   closePwaInstallModal();
-  if (deferredInstallPrompt) {
-    deferredInstallPrompt.prompt();
-    deferredInstallPrompt.userChoice.then(() => {
-      deferredInstallPrompt = null;
-    });
+  const promptEvt = deferredInstallPrompt || window.deferredInstallPrompt;
+  if (promptEvt && typeof promptEvt.prompt === 'function') {
+    promptEvt.prompt();
+    if (promptEvt.userChoice) {
+      promptEvt.userChoice.then((choiceResult) => {
+        if (choiceResult && choiceResult.outcome === 'accepted') {
+          showToast('🎉 Green Trends App added to your Home Screen!');
+          markAppAsInstalled();
+        }
+        deferredInstallPrompt = null;
+        window.deferredInstallPrompt = null;
+      });
+    }
   } else {
-    showToast('To install: Use "Add to Home Screen" in your browser menu 📱');
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (isIOS) {
+      showToast('Tap Share [⎋] below in Safari, then select "Add to Home Screen" ➕');
+    } else {
+      showToast('Tap browser menu (⋮) ➔ "Install app" or "Add to Home screen" 📲');
+    }
   }
 }
 
@@ -3435,4 +3530,6 @@ window.promptPwaInstall = promptPwaInstall;
 window.openPwaInstallHelpModal = openPwaInstallHelpModal;
 window.closePwaInstallModal = closePwaInstallModal;
 window.triggerNativeInstall = triggerNativeInstall;
+window.markAppAsInstalled = markAppAsInstalled;
+window.checkIsStandalone = checkIsStandalone;
 

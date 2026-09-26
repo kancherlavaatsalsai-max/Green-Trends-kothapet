@@ -2,12 +2,14 @@
   "name": "Green Trends Kothapet - Salon Staff & Payroll",
   "short_name": "Green Trends",
   "description": "Daily salon attendance, staff salary calculation, incentive tiers and payroll management portal for Green Trends Kothapet.",
+  "id": "./index.html",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#07070d",
   "theme_color": "#07070d",
   "orientation": "any",
+  "categories": ["business", "productivity", "utilities"],
   "icons": [
     {
       "src": "icon-192.png",

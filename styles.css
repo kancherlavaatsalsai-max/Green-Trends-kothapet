@@ -177,3 +177,29 @@ input[type="number"] {
   animation: loginShake 0.45s ease-in-out;
 }
 
+/* Mobile Responsiveness & Sticky Table Columns */
+@media (max-width: 768px) {
+  .sticky-first-col {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background-color: #0d0d15 !important;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.75);
+  }
+  thead th.sticky-first-col {
+    background-color: #12121e !important;
+    z-index: 15;
+  }
+  tfoot td.sticky-first-col {
+    background-color: #10101b !important;
+    z-index: 15;
+  }
+  .touch-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom, 8px), 8px);
+}
+
