@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Green Trends Kothapet - Staff & Payroll Management System</title>
   
+  <!-- Progressive Web App (PWA) Meta & Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07070d">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Green Trends">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
   <!-- Google Fonts: Outfit (Luxury Headings) & Plus Jakarta Sans (Clean UI Body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -219,6 +228,14 @@
           <span id="cloudSyncHeaderText" class="text-gray-400">Local Only</span>
         </button>
 
+        <!-- Quick Install App / Mobile Mode -->
+        <button type="button" id="installPwaBtn" onclick="promptPwaInstall()" 
+          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-[#ff2a85]/15 to-purple-500/15 hover:from-[#ff2a85]/25 hover:to-purple-500/25 border border-[#ff2a85]/35 text-[#ff7eb3] hover:text-white text-[11px] font-bold transition-all shadow-sm cursor-pointer shrink-0" 
+          title="Install App / Add to Home Screen">
+          <i class="fa-solid fa-mobile-screen-button text-[11px] text-[#ff2a85]"></i>
+          <span class="hidden sm:inline">Install App</span>
+        </button>
+
         <!-- Compact User Badge & Quick Logout -->
         <div id="userHeaderBadge" class="hidden flex items-center gap-2 bg-[#0d0d18] border border-[#222238] pl-3 pr-1 py-1 rounded-2xl shadow-lg shrink-0">
           <div class="flex items-center gap-1.5 text-xs font-bold text-gray-300">
@@ -284,24 +301,36 @@
           </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3">
-          <!-- Quick Date Selector -->
-          <div class="flex items-center bg-[#131320] rounded-2xl border border-[#252538] px-3.5 py-2 shadow-inner">
-            <button onclick="shiftDate(-1)" class="text-gray-400 hover:text-white p-1 transition-colors" title="Previous Day">
-              <i class="fa-solid fa-chevron-left text-xs"></i>
+        <div class="flex flex-wrap items-center gap-2.5">
+          <!-- Quick Day Buttons: Yesterday, Today, Tomorrow -->
+          <div class="inline-flex items-center bg-[#131320] rounded-2xl border border-[#252538] p-1 shadow-inner">
+            <button onclick="shiftDate(-1)" 
+              class="px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white hover:bg-[#1f1f33] transition-all flex items-center gap-1.5 cursor-pointer" 
+              title="Go to Yesterday">
+              <i class="fa-solid fa-angle-left text-[11px]"></i>
+              <span>Yesterday</span>
             </button>
-            <input type="date" id="selectedDateInput" onchange="onDateChanged()" 
-              class="bg-transparent text-white text-xs font-bold focus:outline-none px-2 cursor-pointer font-mono">
-            <button onclick="shiftDate(1)" class="text-gray-400 hover:text-white p-1 transition-colors" title="Next Day">
-              <i class="fa-solid fa-chevron-right text-xs"></i>
+            
+            <button onclick="setTodayDate()" 
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#ff2a85]/20 hover:bg-[#ff2a85]/30 text-[#ff7eb3] border border-[#ff2a85]/40 transition-all cursor-pointer shadow-sm" 
+              title="Go to Today">
+              Today
+            </button>
+
+            <button onclick="shiftDate(1)" 
+              class="px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white hover:bg-[#1f1f33] transition-all flex items-center gap-1.5 cursor-pointer" 
+              title="Go to Tomorrow">
+              <span>Tomorrow</span>
+              <i class="fa-solid fa-angle-right text-[11px]"></i>
             </button>
           </div>
 
-          <!-- Quick Actions -->
-          <button onclick="setTodayDate()" 
-            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-[#171726] hover:bg-[#202032] text-gray-300 hover:text-white border border-[#252538] transition-all">
-            Today
-          </button>
+          <!-- Quick Date Selector -->
+          <div class="flex items-center bg-[#131320] rounded-2xl border border-[#252538] px-3 py-1.5 shadow-inner">
+            <i class="fa-regular fa-calendar text-gray-400 text-xs mr-2"></i>
+            <input type="date" id="selectedDateInput" onchange="onDateChanged()" 
+              class="bg-transparent text-white text-xs font-bold focus:outline-none cursor-pointer font-mono">
+          </div>
 
           <button onclick="bulkMarkAllPresent()" 
             class="px-5 py-2.5 rounded-2xl text-xs font-bold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] hover:brightness-110 text-white shadow-xl shadow-[#ff2a85]/25 transition-all flex items-center gap-2 cursor-pointer">
@@ -468,7 +497,7 @@
         <div class="p-5 border-b border-[#1f1f30] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 class="font-syne font-bold text-lg text-white">Staff Salary Breakdown</h2>
-            <p class="text-xs text-gray-400 mt-0.5">Kalyan: 1% salon revenue | Stylists: 5% service commission & tiered product % | Housekeeping: No OT.</p>
+            <p class="text-xs text-gray-400 mt-0.5">Kalyan: 1% salon revenue | Stylists: 5% service commission & tiered product % | Mid-month advances deducted from net.</p>
           </div>
           <span class="text-xs text-gray-400">Total Staff: <strong class="text-white">8 Members</strong></span>
         </div>
@@ -488,6 +517,7 @@
                 <th class="py-4 px-3 text-center">Net OT</th>
                 <th class="py-4 px-3">OT Pay (₹50/h)</th>
                 <th class="py-4 px-3">Incentives (%)</th>
+                <th class="py-4 px-3 text-rose-300 font-bold">Advance / Loan</th>
                 <th class="py-4 px-4 font-bold text-[#ff7eb3]">Net Payable</th>
                 <th class="py-4 px-4 text-center">Pay Slip</th>
               </tr>
@@ -1131,6 +1161,12 @@ const firebaseConfig = {
                 <span class="text-gray-400">Hours Shortfall (Cut from OT)</span>
                 <span class="font-mono text-amber-400" id="psShortfallText">0h</span>
               </div>
+              <div class="flex justify-between hidden" id="psAdvanceRow">
+                <span class="text-rose-300 font-semibold flex items-center gap-1">
+                  <i class="fa-solid fa-hand-holding-dollar text-rose-400"></i> Salary Advance / Loan
+                </span>
+                <span class="font-mono text-rose-400 font-bold" id="psAdvanceDeduction">-₹0</span>
+              </div>
               <p class="text-[10px] text-gray-500 italic mt-2">
                 * Daily cut is calculated as Base Salary ÷ Month Days.
               </p>
@@ -1245,6 +1281,63 @@ const firebaseConfig = {
       <div class="flex items-center justify-end gap-3 pt-4 border-t border-[#1f1f30] mt-4">
         <button type="button" onclick="closeQuickAddStaffModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-[#141420] text-gray-400 hover:text-white">
           Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progressive Web App (PWA) Install Guide Modal -->
+  <div id="pwaModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="relative w-full max-w-md bg-[#0c0c14] border border-[#ff2a85]/40 rounded-3xl p-6 sm:p-7 shadow-2xl text-white">
+      <button type="button" onclick="closePwaInstallModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white w-8 h-8 rounded-full bg-[#181826] flex items-center justify-center">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#ff2a85] to-[#ff7eb3] p-0.5 flex items-center justify-center shadow-lg shadow-[#ff2a85]/30 shrink-0">
+          <img src="icon-192.png" alt="App Icon" class="w-full h-full rounded-[14px] object-cover">
+        </div>
+        <div>
+          <h3 class="font-syne font-bold text-base text-white">Install Green Trends App</h3>
+          <p class="text-[11px] text-[#ff7eb3] font-mono">Mobile App Mode (PWA)</p>
+        </div>
+      </div>
+
+      <p class="text-xs text-gray-300 mb-4 leading-relaxed">
+        Install this portal directly onto your Android, iPhone, or PC to launch it in full-screen standalone mode with offline caching.
+      </p>
+
+      <div class="space-y-3 bg-[#12121e] p-4 rounded-2xl border border-[#222236] text-xs">
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-lg bg-pink-500/20 text-[#ff7eb3] flex items-center justify-center font-bold shrink-0">1</span>
+          <div>
+            <span class="font-bold text-white block">iPhone / iPad (Safari)</span>
+            <span class="text-gray-400 text-[11px]">Tap the <i class="fa-solid fa-arrow-up-from-bracket text-sky-400"></i> <strong>Share</strong> button at bottom, then select <strong>'Add to Home Screen'</strong> ➕.</span>
+          </div>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0">2</span>
+          <div>
+            <span class="font-bold text-white block">Android Phone (Chrome)</span>
+            <span class="text-gray-400 text-[11px]">Tap the <i class="fa-solid fa-ellipsis-vertical text-gray-300"></i> <strong>menu</strong>, then tap <strong>'Install app'</strong> or 'Add to Home screen'.</span>
+          </div>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold shrink-0">3</span>
+          <div>
+            <span class="font-bold text-white block">Windows PC / Mac</span>
+            <span class="text-gray-400 text-[11px]">Click the <strong>Install</strong> icon <i class="fa-solid fa-download text-indigo-300"></i> in the browser URL address bar.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 flex items-center justify-end gap-2">
+        <button type="button" onclick="closePwaInstallModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-[#181828] text-gray-300 hover:text-white">
+          Close
+        </button>
+        <button type="button" id="pwaDirectInstallBtn" onclick="triggerNativeInstall()" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] text-white shadow-lg shadow-[#ff2a85]/30 hover:brightness-110 flex items-center gap-1.5 cursor-pointer">
+          <i class="fa-solid fa-download"></i>
+          <span>Install Now</span>
         </button>
       </div>
     </div>

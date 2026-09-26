@@ -149,7 +149,8 @@ const STORAGE_KEYS = {
   ATTENDANCE: 'gt_kothapet_attendance_v4',
   AUTH: 'gt_kothapet_auth_v5',
   SESSION: 'gt_kothapet_session_v5',
-  FIREBASE: 'gt_kothapet_firebase_config_v1'
+  FIREBASE: 'gt_kothapet_firebase_config_v1',
+  ADVANCES: 'gt_kothapet_advances_v1'
 };
 
 const DEFAULT_AUTH = {
@@ -178,6 +179,7 @@ const DEFAULT_FIREBASE_CONFIG = {
 let staffList = [];
 let salonRules = {};
 let attendanceData = {}; 
+let advanceData = {}; 
 
 let currentDate = new Date();
 let selectedDateStr = formatDateKey(currentDate);
@@ -246,6 +248,13 @@ function initStorage() {
     attendanceData = JSON.parse(JSON.stringify(SEPTEMBER_2026_REAL_ATTENDANCE));
     saveAttendanceData();
   }
+
+  const savedAdvances = localStorage.getItem(STORAGE_KEYS.ADVANCES);
+  if (savedAdvances) {
+    try { advanceData = JSON.parse(savedAdvances); } catch(e) { advanceData = {}; }
+  } else {
+    advanceData = {};
+  }
 }
 
 function syncRealSeptemberAttendanceData() {
@@ -270,6 +279,24 @@ function saveSalonRules() {
 function saveAttendanceData() {
   localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceData));
   pushToFirestoreDebounced();
+}
+
+function saveAdvanceData() {
+  localStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(advanceData));
+  pushToFirestoreDebounced();
+}
+
+function updateStaffAdvance(staffId, amount) {
+  if (!advanceData[selectedMonthStr]) advanceData[selectedMonthStr] = {};
+  const numVal = Math.max(0, parseFloat(amount) || 0);
+  if (numVal === 0) {
+    delete advanceData[selectedMonthStr][staffId];
+  } else {
+    advanceData[selectedMonthStr][staffId] = numVal;
+  }
+  saveAdvanceData();
+  renderMonthlyPayroll();
+  showToast(`Advance updated for ${getStaffName(staffId)}: ₹${numVal.toLocaleString('en-IN')}`);
 }
 
 // ==========================================
@@ -298,6 +325,7 @@ async function pushLocalDataToFirestore(showToastNotification = false) {
       attendance: attendanceData,
       staff: staffList,
       rules: salonRules,
+      advances: advanceData,
       lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
       updatedBy: getSessionUser()?.username || 'Owner'
     }, { merge: true });
@@ -471,6 +499,11 @@ function initFirebaseSync() {
             if (cloudData.rules && JSON.stringify(cloudData.rules) !== JSON.stringify(salonRules)) {
               salonRules = cloudData.rules;
               localStorage.setItem(STORAGE_KEYS.RULES, JSON.stringify(salonRules));
+              changed = true;
+            }
+            if (cloudData.advances && JSON.stringify(cloudData.advances) !== JSON.stringify(advanceData)) {
+              advanceData = cloudData.advances;
+              localStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(advanceData));
               changed = true;
             }
 
@@ -960,9 +993,12 @@ function calculateStaffMonthPayroll(staff, year, month) {
   const totalIncentives = serviceCommission + productCommission;
   const foodAllowance = staff.foodAllowance || 0;
 
-  const netPayable = Math.round(
-    staff.baseSalary + foodAllowance - leaveDeduction + netOtPay + totalIncentives
-  );
+  const monthKey = `${year}-${String(month).padStart(2, '0')}`;
+  const advanceTaken = (advanceData[monthKey] && advanceData[monthKey][staff.id]) || 0;
+
+  const netPayable = Math.max(0, Math.round(
+    staff.baseSalary + foodAllowance - leaveDeduction + netOtPay + totalIncentives - advanceTaken
+  ));
 
   return {
     staff,
@@ -982,6 +1018,7 @@ function calculateStaffMonthPayroll(staff, year, month) {
     productCommission,
     totalIncentives,
     foodAllowance,
+    advanceTaken,
     netPayable
   };
 }
@@ -1439,6 +1476,9 @@ function shiftDate(deltaDays) {
   const input = document.getElementById('selectedDateInput');
   if (input) input.value = selectedDateStr;
   renderDailyAttendance();
+
+  const dayLabel = dateObj.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' });
+  showToast(`📅 Date: ${dayLabel}`);
 }
 
 function setTodayDate() {
@@ -1447,6 +1487,7 @@ function setTodayDate() {
   const input = document.getElementById('selectedDateInput');
   if (input) input.value = selectedDateStr;
   renderDailyAttendance();
+  showToast('📅 Switched to Today');
 }
 
 // ==========================================
@@ -1471,6 +1512,7 @@ function renderMonthlyPayroll() {
   let totalDeductions = 0;
   let totalNetOtPay = 0;
   let totalIncentives = 0;
+  let totalAdvances = 0;
   let totalNetPayout = 0;
 
   let rowsHtml = '';
@@ -1483,6 +1525,7 @@ function renderMonthlyPayroll() {
     totalDeductions += p.leaveDeduction;
     totalNetOtPay += p.netOtPay;
     totalIncentives += p.totalIncentives;
+    totalAdvances += (p.advanceTaken || 0);
     totalNetPayout += p.netPayable;
 
     rowsHtml += `
@@ -1556,6 +1599,17 @@ function renderMonthlyPayroll() {
           }
         </td>
 
+        <!-- Salary Advance / Loan Input -->
+        <td class="py-4 px-3 font-mono">
+          <div class="flex items-center gap-1 justify-end">
+            <span class="text-rose-400 font-bold text-xs">-₹</span>
+            <input type="number" min="0" step="500" value="${p.advanceTaken > 0 ? p.advanceTaken : ''}" placeholder="0"
+              onchange="updateStaffAdvance('${staff.id}', this.value)"
+              class="w-20 bg-[#161626] border border-[#27273d] focus:border-[#ff2a85] rounded-lg px-2 py-1 text-rose-300 font-mono text-xs font-bold text-right outline-none transition-colors"
+              title="Enter mid-month salary advance or loan taken">
+          </div>
+        </td>
+
         <td class="py-4 px-4 font-mono font-extrabold text-base text-[#ff2a85]">
           ₹${p.netPayable.toLocaleString('en-IN')}
         </td>
@@ -1585,13 +1639,14 @@ function renderMonthlyPayroll() {
       <td class="py-4 px-3 text-center text-gray-400">--</td>
       <td class="py-4 px-3 font-mono text-[#ff7eb3]">+₹${totalNetOtPay.toLocaleString('en-IN')}</td>
       <td class="py-4 px-3 font-mono text-purple-400">+₹${totalIncentives.toLocaleString('en-IN')}</td>
+      <td class="py-4 px-3 font-mono text-rose-400 font-bold text-right">-₹${totalAdvances.toLocaleString('en-IN')}</td>
       <td class="py-4 px-4 font-mono font-extrabold text-lg text-[#ff2a85]">₹${totalNetPayout.toLocaleString('en-IN')}</td>
       <td class="py-4 px-4 text-center">--</td>
     </tr>
   `;
 
   document.getElementById('summaryGrossBase').innerText = `₹${(totalGrossBase + totalFoodAllowances).toLocaleString('en-IN')}`;
-  document.getElementById('summaryDeductions').innerText = `-₹${Math.round(totalDeductions).toLocaleString('en-IN')}`;
+  document.getElementById('summaryDeductions').innerText = `-₹${Math.round(totalDeductions + totalAdvances).toLocaleString('en-IN')}`;
   document.getElementById('summaryAdditions').innerText = `+₹${(totalNetOtPay + totalIncentives).toLocaleString('en-IN')}`;
   document.getElementById('summaryNetPayout').innerText = `₹${totalNetPayout.toLocaleString('en-IN')}`;
 }
@@ -1610,11 +1665,11 @@ function exportPayrollCSV() {
   const month = parseInt(monthStr, 10);
   const daysInMonth = getDaysInMonth(year, month);
 
-  let csvContent = 'Staff Name,Role,Base Salary,Food Allowance,Per Day Rate,Present Days,Weekly Offs,Leaves,Leave Deduction,Net OT Hours,OT Pay,Services Done,Products Sold,Incentives,Net Payable Salary\n';
+  let csvContent = 'Staff Name,Role,Base Salary,Food Allowance,Per Day Rate,Present Days,Weekly Offs,Leaves,Leave Deduction,Net OT Hours,OT Pay,Services Done,Products Sold,Incentives,Salary Advance,Net Payable Salary\n';
 
   staffList.forEach(staff => {
     const p = calculateStaffMonthPayroll(staff, year, month);
-    csvContent += `"${staff.name}","${staff.role}",${staff.baseSalary},${p.foodAllowance},${p.perDaySalary.toFixed(2)},${p.presentDays},${p.weeklyOffs},${p.unpaidLeaves},${Math.round(p.leaveDeduction)},${p.netOtHours},${p.netOtPay},${p.totalServicesDone},${p.totalProductsSold},${p.totalIncentives},${p.netPayable}\n`;
+    csvContent += `"${staff.name}","${staff.role}",${staff.baseSalary},${p.foodAllowance},${p.perDaySalary.toFixed(2)},${p.presentDays},${p.weeklyOffs},${p.unpaidLeaves},${Math.round(p.leaveDeduction)},${p.netOtHours},${p.netOtPay},${p.totalServicesDone},${p.totalProductsSold},${p.totalIncentives},${p.advanceTaken || 0},${p.netPayable}\n`;
   });
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -3160,6 +3215,17 @@ function openPaySlipModal(staffId) {
   }
 
   document.getElementById('psLeaveDeduction').innerText = `-₹${Math.round(p.leaveDeduction).toLocaleString('en-IN')}`;
+
+  const advRow = document.getElementById('psAdvanceRow');
+  if (advRow) {
+    if (p.advanceTaken > 0) {
+      advRow.classList.remove('hidden');
+      document.getElementById('psAdvanceDeduction').innerText = `-₹${p.advanceTaken.toLocaleString('en-IN')}`;
+    } else {
+      advRow.classList.add('hidden');
+    }
+  }
+
   document.getElementById('psNetPayable').innerText = `₹${p.netPayable.toLocaleString('en-IN')}`;
 
   document.getElementById('paySlipModal').classList.remove('hidden');
@@ -3294,3 +3360,80 @@ window.addEventListener('DOMContentLoaded', () => {
   startLiveClock();
   updateViewFromHash();
 });
+
+// ==========================================
+// 13. PWA & STANDALONE APP INSTALLATION
+// ==========================================
+
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  console.log('PWA beforeinstallprompt captured!');
+  const installBtn = document.getElementById('installPwaBtn');
+  if (installBtn) {
+    installBtn.classList.remove('hidden');
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  showToast('🎉 Green Trends App successfully installed on your home screen!');
+});
+
+function promptPwaInstall() {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        showToast('Installing Green Trends Salon App...');
+      }
+      deferredInstallPrompt = null;
+    });
+  } else {
+    openPwaInstallHelpModal();
+  }
+}
+
+function openPwaInstallHelpModal() {
+  const modal = document.getElementById('pwaModal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closePwaInstallModal() {
+  const modal = document.getElementById('pwaModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function triggerNativeInstall() {
+  closePwaInstallModal();
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(() => {
+      deferredInstallPrompt = null;
+    });
+  } else {
+    showToast('To install: Use "Add to Home Screen" in your browser menu 📱');
+  }
+}
+
+// Register PWA Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').then((reg) => {
+      console.log('Green Trends PWA Service Worker registered:', reg.scope);
+    }).catch((err) => {
+      console.log('PWA Service Worker registration note:', err);
+    });
+  });
+}
+
+// Global window attachments
+window.updateStaffAdvance = updateStaffAdvance;
+window.saveAdvanceData = saveAdvanceData;
+window.promptPwaInstall = promptPwaInstall;
+window.openPwaInstallHelpModal = openPwaInstallHelpModal;
+window.closePwaInstallModal = closePwaInstallModal;
+window.triggerNativeInstall = triggerNativeInstall;
+
