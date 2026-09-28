@@ -159,64 +159,58 @@
 
   <!-- Top Navigation Header - Ultra-Luxury Design -->
   <header class="sticky top-0 z-40 bg-[#07070d]/95 backdrop-blur-xl border-b border-[#1c1c2e] shadow-2xl shadow-black/80">
-    <div class="w-full max-w-[1720px] mx-auto px-2 sm:px-4 lg:px-6 h-16 flex items-center justify-between gap-2 lg:gap-3">
+    <div class="w-full max-w-[1720px] mx-auto px-3 sm:px-5 lg:px-8 h-16 flex items-center justify-between gap-2 lg:gap-4">
       
       <!-- Brand: strictly GREEN TRENDS KOTHAPET -->
-      <div class="flex items-center gap-2 sm:gap-2.5 cursor-pointer select-none shrink-0" onclick="navigateTo('attendance')">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#ff2a85] to-purple-600 p-0.5 shadow-md shadow-[#ff2a85]/20 flex items-center justify-center">
-          <div class="w-full h-full bg-[#080811] rounded-[10px] flex items-center justify-center">
+      <div class="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none shrink-0 group" onclick="navigateTo('attendance')">
+        <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#ff2a85] via-purple-600 to-indigo-600 p-0.5 shadow-lg shadow-[#ff2a85]/20 flex items-center justify-center group-hover:scale-105 transition-transform">
+          <div class="w-full h-full bg-[#080811] rounded-[14px] flex items-center justify-center">
             <i class="fa-solid fa-scissors text-[#ff2a85] text-xs"></i>
           </div>
         </div>
-        <div class="flex items-center gap-1.5">
-          <span class="font-heading font-black text-sm sm:text-base tracking-wider text-white">GREEN TRENDS</span>
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <span class="font-syne font-black text-sm sm:text-base tracking-wider text-white">GREEN TRENDS</span>
           <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#ff2a85]/20 text-[#ff7eb3] border border-[#ff2a85]/35 tracking-widest uppercase">
             KOTHAPET
           </span>
         </div>
       </div>
 
-      <!-- Navigation Tabs (Sleek Luxury Tabs, Overflow-Protected) -->
-      <nav id="mainNav" class="hidden lg:flex items-center gap-0.5 xl:gap-1 bg-[#0c0c16]/95 p-1 rounded-2xl border border-[#222238] shadow-2xl shrink-0 overflow-x-auto no-scrollbar">
+      <!-- Navigation Tabs (Sleek Luxury Tabs, Balanced 6 Modules) -->
+      <nav id="mainNav" class="hidden lg:flex items-center gap-1 bg-[#0c0c16]/95 p-1.5 rounded-2xl border border-[#222238] shadow-2xl shrink-0">
         <button id="navBtn-attendance" onclick="navigateTo('attendance')" 
-          class="nav-tab active px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+          class="nav-tab active px-3 xl:px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
           <i class="fa-solid fa-calendar-check text-[#ff2a85]"></i>
           <span>Attendance</span>
         </button>
 
         <button id="navBtn-kiosk" onclick="navigateTo('kiosk')" 
-          class="nav-tab px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Front Desk Stylist 1-Tap Self Check-In">
+          class="nav-tab px-3 xl:px-4 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Front Desk Stylist 1-Tap Self Check-In">
           <i class="fa-solid fa-stopwatch text-emerald-400"></i>
           <span>Kiosk</span>
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
         </button>
 
         <button id="navBtn-payroll" onclick="navigateTo('payroll')" 
-          class="nav-tab px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+          class="nav-tab px-3 xl:px-4 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
           <i class="fa-solid fa-file-invoice-dollar text-[#ff2a85]"></i>
           <span>Payroll</span>
         </button>
 
         <button id="navBtn-incentives" onclick="navigateTo('incentives')" 
-          class="nav-tab px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+          class="nav-tab px-3 xl:px-4 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
           <i class="fa-solid fa-trophy text-[#ff2a85]"></i>
           <span>Incentives</span>
         </button>
 
-        <button id="navBtn-expenses" onclick="navigateTo('expenses')" 
-          class="nav-tab px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Salon Petty Cash & Daily Expenses">
-          <i class="fa-solid fa-receipt text-amber-400"></i>
-          <span>Petty Cash</span>
-        </button>
-
         <button id="navBtn-roster" onclick="navigateTo('roster')" 
-          class="nav-tab px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+          class="nav-tab px-3 xl:px-4 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
           <i class="fa-solid fa-camera text-[#ff2a85]"></i>
           <span>Roster</span>
         </button>
 
         <button id="navBtn-admin" onclick="navigateTo('admin')" 
-          class="nav-tab px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Salon Settings, Percentages & Credentials">
+          class="nav-tab px-3 xl:px-4 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Salon Settings & Master Controls">
           <i class="fa-solid fa-sliders text-[#ff2a85]"></i>
           <span>Admin</span>
         </button>
@@ -338,34 +332,7 @@
         </div>
       </div>
 
-            <!-- Official Salon Attendance & Weekend Double Salary Cut Policy Banner -->
-      <div class="bg-gradient-to-r from-[#1c0f20] via-[#120e24] to-[#0c1422] border border-[#ff2a85]/40 p-4 sm:p-5 rounded-3xl shadow-xl">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div class="flex items-start sm:items-center gap-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-[#ff2a85]/20 border border-[#ff2a85]/40 flex items-center justify-center shrink-0 text-[#ff7eb3] text-xl shadow-md">
-              <i class="fa-solid fa-scale-balanced"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <h2 class="text-sm sm:text-base font-syne font-bold text-white">Green Trends Kothapet Attendance & Leave Policy</h2>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">1 Week Off / Week</span>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">Sat & Sun 2x Cut</span>
-              </div>
-              <p class="text-xs text-gray-300 mt-1 leading-relaxed">
-                <strong class="text-white">Week Off:</strong> Exactly 1 day off per week allowed strictly between <span class="text-emerald-400 font-semibold">Monday to Friday</span> • 
-                <strong class="text-white">Weekends:</strong> <span class="text-amber-300 font-semibold">Saturday & Sunday</span> are mandatory full salon presence — absolutely <span class="text-rose-400 font-bold">NO Week Off</span> allowed! • 
-                <strong class="text-white">Salary Cut:</strong> Absence on Saturday or Sunday is marked as <span class="text-rose-400 font-bold">Leave</span> with mandatory <span class="text-rose-300 font-black underline">DOUBLE SALARY CUT (2x Daily Pay)</span>. Same-day leaves without prior notice also incur double cut.
-              </p>
-            </div>
-          </div>
-          <div class="shrink-0 flex items-center gap-2">
-            <div class="px-3.5 py-2 rounded-2xl bg-black/50 border border-white/10 text-right">
-              <span class="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">Weekend Rule</span>
-              <strong class="text-xs font-mono text-rose-400 font-bold">2× Daily Salary Cut</strong>
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       <!-- Quick KPI Metric Cards - Crisp Typography, Zero Distortion -->
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
@@ -569,32 +536,7 @@
         </div>
       </div>
 
-            <!-- Official Attendance & Weekend Double Salary Cut Policy Callout -->
-      <div class="bg-gradient-to-r from-[#1c0f20] via-[#120e24] to-[#0c1422] border border-[#ff2a85]/40 p-4 sm:p-5 rounded-3xl shadow-xl">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div class="flex items-start sm:items-center gap-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-[#ff2a85]/20 border border-[#ff2a85]/40 flex items-center justify-center shrink-0 text-[#ff7eb3] text-xl shadow-md">
-              <i class="fa-solid fa-gavel"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <h3 class="text-sm sm:text-base font-syne font-bold text-white">Payroll Attendance Policy Rules</h3>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">Double Cut Applied</span>
-              </div>
-              <p class="text-xs text-gray-300 mt-1 leading-relaxed">
-                • <strong class="text-white">Week Offs:</strong> Entitled to 1 day off per week strictly from <span class="text-emerald-400 font-semibold">Monday to Friday</span>. Excess weekday offs convert to unpaid leave.
-                <br>• <strong class="text-white">Saturday & Sunday Absences:</strong> Strictly marked as <span class="text-rose-400 font-bold">Leave</span>. Deducted at <span class="text-rose-300 font-black underline">DOUBLE SALARY (2x Daily Pay)</span>.
-              </p>
-            </div>
-          </div>
-          <div class="shrink-0 flex items-center gap-2">
-            <div class="px-3.5 py-2 rounded-2xl bg-black/50 border border-white/10 text-right">
-              <span class="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">Saturday & Sunday</span>
-              <strong class="text-xs font-mono text-rose-400 font-bold">2x Pay Deduction</strong>
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       <!-- Master Payroll Table Card -->
       <div class="bg-[#0d0d15] rounded-3xl border border-[#1f1f30] overflow-hidden shadow-2xl">
@@ -625,12 +567,12 @@
                 <th class="py-3 px-2">Food</th>
                 <th class="py-3 px-2">Per Day</th>
                 <th class="py-3 px-2 text-center">Attd (P/WO)</th>
-                <th class="py-3 px-2 text-center">Leaves <span class="text-[9px] text-rose-400 block font-normal">(Sat/Sun 2x Cut)</span></th>
-                <th class="py-3 px-2">Leave Cut (₹)</th>
+                <th class="py-3 px-2 text-center">Leaves</th>
+                <th class="py-3 px-2 text-right">Leave Cut (₹)</th>
                 <th class="py-3 px-2 text-center">Net OT</th>
-                <th class="py-3 px-2">OT Pay</th>
-                <th class="py-3 px-2">Incentives</th>
-                <th class="py-3 px-2 text-center text-rose-300 font-bold">Advance / Loan</th>
+                <th class="py-3 px-2 text-right">OT Pay</th>
+                <th class="py-3 px-2 text-right">Incentives</th>
+                <th class="py-3 px-2 text-center text-rose-300 font-bold">Advance</th>
                 <th class="py-3 px-3 font-bold text-[#ff7eb3] text-right">Net Payable</th>
                 <th class="py-3 px-3 text-center">Pay Slip</th>
               </tr>
@@ -678,36 +620,7 @@
     <!-- ========================================== -->
     <section id="view-incentives" class="view-panel hidden space-y-6">
       
-      <!-- Incentive Top Banner - Ultra-Luxe -->
-      <div class="bg-gradient-to-r from-[#0d0d18] via-[#090912] to-[#0d0d18] p-6 rounded-3xl border border-[#222238] shadow-2xl shadow-black/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#ff2a85] to-purple-500 p-0.5 shadow-lg shadow-purple-500/20 flex-shrink-0">
-            <div class="w-full h-full bg-[#090912] rounded-[14px] flex items-center justify-center">
-              <i class="fa-solid fa-trophy text-[#ff7eb3] text-xl"></i>
-            </div>
-          </div>
-          <div>
-            <div class="flex flex-wrap items-center gap-2.5">
-              <h1 class="text-2xl font-black font-heading text-white tracking-tight">
-                Percentage-Based Incentive Tracker
-              </h1>
-              <span class="text-[10px] font-bold px-3 py-1 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] border border-[#ff2a85]/40 tracking-wider uppercase">
-                Active Commission Rules
-              </span>
-            </div>
-            <p class="text-xs text-gray-400 mt-1 font-medium">
-              Kalyan Manager gets <strong class="text-white">1% on total salon revenue</strong> (₹6,00,000 target). Stylists get <strong class="text-white">5% on services</strong> (5x salary target) and <strong class="text-white">5% / 8% tiered on products</strong>.
-            </p>
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <button onclick="resetAllSalesAndIncentivesToZero(this)"
-            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 border border-purple-700/50 transition-all flex items-center gap-2 shadow-lg shadow-purple-950/40 cursor-pointer">
-            <i class="fa-solid fa-coins text-[#ff7eb3]"></i>
-            <span>Reset All Sales & Incentives to ₹0</span>
-          </button>
-        </div>
-      </div>
+
 
       <!-- Live Salon Revenue & Incentives Summary Highlights -->
       <div id="incentivesSummaryHighlights" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -725,67 +638,7 @@
       </div>
     </section>
 
-    <!-- ========================================== -->
-    <!-- VIEW 5: SALON PETTY CASH & DAILY EXPENSES  -->
-    <!-- ========================================== -->
-    <section id="view-expenses" class="view-panel hidden space-y-6">
-      
-      <div class="bg-[#0d0d15] p-6 rounded-3xl border border-[#1f1f30] shadow-2xl space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1f1f30] pb-4">
-          <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 p-0.5 shadow-lg shadow-orange-500/20 flex items-center justify-center shrink-0">
-              <div class="w-full h-full bg-[#0d0d15] rounded-[14px] flex items-center justify-center">
-                <i class="fa-solid fa-receipt text-amber-400 text-lg"></i>
-              </div>
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h2 class="font-syne font-extrabold text-xl text-white">Salon Petty Cash & Daily Expense Tracker</h2>
-                <span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">BRANCH LEDGER</span>
-              </div>
-              <p class="text-xs text-gray-400 mt-0.5">Track daily operational cash payouts (towel laundry, drinking water cans, client refreshments, cleaning supplies).</p>
-            </div>
-          </div>
-          <div class="flex flex-wrap items-center gap-2.5">
-            <button type="button" onclick="exportExpensesCSV()" class="px-3.5 py-2.5 rounded-2xl text-xs font-bold bg-[#141424] hover:bg-[#1e1e34] text-gray-300 hover:text-white border border-[#24243a] flex items-center gap-2 transition-all cursor-pointer">
-              <i class="fa-solid fa-file-csv text-emerald-400"></i>
-              <span>Export CSV</span>
-            </button>
-            <button type="button" onclick="openAddExpenseModal()" class="px-5 py-2.5 rounded-2xl text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:brightness-110 text-white shadow-lg shadow-amber-500/30 flex items-center gap-2 transition-all cursor-pointer">
-              <i class="fa-solid fa-plus"></i>
-              <span>Add Daily Expense</span>
-            </button>
-          </div>
-        </div>
 
-        <!-- Summary KPI Cards for Expenses -->
-        <div id="expenseKpis" class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-          <!-- Dynamically rendered by JS -->
-        </div>
-
-        <!-- Expense Ledger Table -->
-        <div class="overflow-x-auto touch-scroll rounded-2xl border border-[#1e1e30]">
-          <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
-            <thead>
-              <tr class="bg-[#12121e] text-gray-400 border-b border-[#1f1f30] uppercase tracking-wider font-bold text-[10px]">
-                <th class="py-3 px-3">Date</th>
-                <th class="py-3 px-3">Category</th>
-                <th class="py-3 px-3">Description / Note</th>
-                <th class="py-3 px-3">Payment Method</th>
-                <th class="py-3 px-3 text-right">Amount (₹)</th>
-                <th class="py-3 px-3 text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody id="expenseTableBody" class="divide-y divide-[#171726] text-gray-200">
-              <!-- Dynamically rendered by JS -->
-            </tbody>
-            <tfoot id="expenseTableFoot" class="bg-[#10101b] font-bold text-white border-t-2 border-[#242438]">
-              <!-- Totals row rendered by JS -->
-            </tfoot>
-          </table>
-        </div>
-      </div>
-    </section>
 
     <!-- ========================================== -->
     <!-- VIEW 6: SCHEDULE ROSTER SCANNER (ROSTER)   -->
@@ -1239,7 +1092,7 @@ const firebaseConfig = {
                   </span>
                   <span class="text-[9px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">MANAGER</span>
                 </div>
-                <p class="text-[11px] text-gray-400">Authorized for Admin Controls, Timesheet, Kiosk, Petty Cash & Operations.</p>
+                <p class="text-[11px] text-gray-400">Authorized for Admin Controls, Timesheet, Kiosk & Operations.</p>
                 <div>
                   <label class="block text-gray-400 mb-1">Username / Email</label>
                   <input type="text" id="adminManagerUsername" value="Greentrendskothapet@gmail.com" 
@@ -1500,75 +1353,7 @@ const firebaseConfig = {
     </div>
   </div>
 
-  <!-- Modal: Add Salon Petty Cash Expense -->
-  <div id="addExpenseModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="relative w-full max-w-md bg-[#0c0c14] border border-amber-500/40 rounded-3xl p-6 sm:p-7 shadow-2xl text-white">
-      <button type="button" onclick="closeAddExpenseModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white w-8 h-8 rounded-full bg-[#181826] flex items-center justify-center cursor-pointer">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
 
-      <div class="flex items-center gap-3 mb-5">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 p-0.5 flex items-center justify-center shadow-lg shadow-orange-500/30 shrink-0">
-          <div class="w-full h-full bg-[#0c0c14] rounded-[14px] flex items-center justify-center">
-            <i class="fa-solid fa-receipt text-amber-400"></i>
-          </div>
-        </div>
-        <div>
-          <h3 class="font-syne font-bold text-base text-white">Add Salon Expense</h3>
-          <p class="text-[11px] text-amber-300 font-mono">Daily Petty Cash Log</p>
-        </div>
-      </div>
-
-      <form onsubmit="submitAddExpense(event)" class="space-y-4 text-xs">
-        <div>
-          <label class="block text-gray-300 font-bold mb-1">Expense Date</label>
-          <input type="date" id="expenseDateInput" required class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2.5 text-white font-mono font-bold focus:outline-none focus:border-amber-400">
-        </div>
-
-        <div>
-          <label class="block text-gray-300 font-bold mb-1">Category</label>
-          <select id="expenseCategoryInput" required class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2.5 text-white font-semibold focus:outline-none focus:border-amber-400">
-            <option value="Towel Laundry">🧺 Towel Laundry / Washing</option>
-            <option value="Drinking Water">💧 Drinking Water Cans</option>
-            <option value="Client Refreshments">☕ Client Refreshments (Tea, Coffee, Biscuits)</option>
-            <option value="Cleaning & Housekeeping">🧹 Cleaning & Housekeeping Supplies</option>
-            <option value="Salon Maintenance">⚡ Salon Maintenance & Repairs</option>
-            <option value="Stationery & Misc">📦 Stationery / Printing / Misc</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-gray-300 font-bold mb-1">Amount (₹)</label>
-          <input type="number" min="1" max="100000" id="expenseAmountInput" placeholder="e.g. 350" required class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2.5 text-white font-mono font-bold focus:outline-none focus:border-amber-400">
-        </div>
-
-        <div>
-          <label class="block text-gray-300 font-bold mb-1">
-            Description / Note <span class="text-gray-500 font-normal text-[11px]">(Optional)</span>
-          </label>
-          <input type="text" id="expenseNoteInput" placeholder="e.g. Towel laundry, water refill (optional)" class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-amber-400">
-        </div>
-
-        <div>
-          <label class="block text-gray-300 font-bold mb-1">Payment Method</label>
-          <select id="expensePaidByInput" class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2.5 text-white font-semibold focus:outline-none focus:border-amber-400">
-            <option value="Salon Account">🏪 Salon Account (Cash Drawer / Salon UPI)</option>
-            <option value="Owner Account">👑 Owner Account (Direct Transfer)</option>
-          </select>
-        </div>
-
-        <div class="mt-6 flex items-center justify-end gap-2 pt-3 border-t border-[#1c1c2c]">
-          <button type="button" onclick="closeAddExpenseModal()" class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#181828] text-gray-300 hover:text-white cursor-pointer">
-            Cancel
-          </button>
-          <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:brightness-110 text-white shadow-lg shadow-amber-500/30 flex items-center gap-1.5 cursor-pointer">
-            <i class="fa-solid fa-check"></i>
-            <span>Save Expense</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
 
   <!-- Progressive Web App (PWA) Install Guide Modal -->
   <div id="pwaModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
@@ -1706,9 +1491,9 @@ const firebaseConfig = {
     </div>
   </div>
 
-  <!-- Modern Native Mobile Bottom Navigation Bar (7 Tabs) -->
+  <!-- Modern Native Mobile Bottom Navigation Bar (6 Tabs) -->
   <nav id="mobileBottomNav" class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#080812]/95 backdrop-blur-xl border-t border-[#1c1c2e] px-1 py-1 safe-bottom shadow-2xl">
-    <div id="mobileNavGrid" class="grid grid-cols-7 gap-0.5 text-center w-full max-w-lg mx-auto">
+    <div id="mobileNavGrid" class="grid grid-cols-6 gap-0.5 text-center w-full max-w-lg mx-auto">
       <button onclick="navigateTo('attendance')" id="mobileNav-attendance" class="py-1 px-0.5 text-[10px] font-bold rounded-xl text-[#ff2a85] bg-[#ff2a85]/15 transition-all cursor-pointer">
         <i class="fa-solid fa-calendar-check block text-sm mb-0.5"></i>
         <span>Attd</span>
@@ -1724,10 +1509,6 @@ const firebaseConfig = {
       <button onclick="navigateTo('incentives')" id="mobileNav-incentives" class="py-1 px-0.5 text-[10px] font-bold rounded-xl text-gray-400 hover:text-white transition-all cursor-pointer">
         <i class="fa-solid fa-trophy block text-sm mb-0.5"></i>
         <span>Incen</span>
-      </button>
-      <button onclick="navigateTo('expenses')" id="mobileNav-expenses" class="py-1 px-0.5 text-[10px] font-bold rounded-xl text-gray-400 hover:text-white transition-all cursor-pointer">
-        <i class="fa-solid fa-receipt block text-sm mb-0.5"></i>
-        <span>Cash</span>
       </button>
       <button onclick="navigateTo('roster')" id="mobileNav-roster" class="py-1 px-0.5 text-[10px] font-bold rounded-xl text-gray-400 hover:text-white transition-all cursor-pointer">
         <i class="fa-solid fa-camera block text-sm mb-0.5"></i>

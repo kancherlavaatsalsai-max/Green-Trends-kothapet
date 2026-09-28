@@ -374,11 +374,11 @@ function initStorage() {
 }
 
 function syncRealSeptemberAttendanceData() {
-  if (confirm("Re-sync all attendance with accurate WhatsApp check-in / check-out data for Sep 1â€“26?")) {
+  if (confirm("Re-sync all attendance with accurate WhatsApp check-in / check-out data for Sep 1-26-)) {
     attendanceData = JSON.parse(JSON.stringify(SEPTEMBER_2026_REAL_ATTENDANCE));
     saveAttendanceData();
     updateViewFromHash();
-    showToast("Successfully synchronized all September 1â€“26 attendance records from chat!");
+    showToast("Successfully synchronized all September 1-26 attendance records from chat!");
   }
 }
 
@@ -417,7 +417,7 @@ function updateStaffAdvance(staffId, amount) {
   }
   saveAdvanceData();
   renderMonthlyPayroll();
-  showToast(`Advance updated for ${getStaffName(staffId)}: â‚¹${numVal.toLocaleString('en-IN')}`);
+  showToast(`Advance updated for ${getStaffName(staffId)}: ₹${numVal.toLocaleString('en-IN')}`);
 }
 
 // ==========================================
@@ -460,7 +460,7 @@ async function pushLocalDataToFirestore(showToastNotification = false) {
     }, 500);
 
     if (showToastNotification) {
-      showToast("âœ“ Synced all 15-day attendance & staff records to Firebase Cloud!");
+      showToast("✓ Synced all 15-day attendance & staff records to Firebase Cloud!");
     }
   } catch (err) {
     console.error("Firestore push error:", err);
@@ -516,7 +516,7 @@ async function pullDataFromFirestore(showToastNotification = false) {
       }
 
       if (showToastNotification) {
-        showToast("âœ“ Pulled latest salon records from Firebase Cloud!");
+        showToast("✓ Pulled latest salon records from Firebase Cloud!");
       }
     } else {
       if (showToastNotification) {
@@ -1057,7 +1057,7 @@ function saveAdminCredentials() {
     if (nameEl) nameEl.innerText = isOwner ? 'Owner' : 'Manager';
   }
 
-  showToast('âœ“ Portal credentials updated successfully for Owner & Manager!');
+  showToast('✓ Portal credentials updated successfully for Owner & Manager!');
 }
 
 // ==========================================
@@ -1344,7 +1344,7 @@ function updateViewFromHash() {
     return;
   }
 
-  const views = ['attendance', 'kiosk', 'payroll', 'incentives', 'expenses', 'roster', 'admin'];
+  const views = ['attendance', 'kiosk', 'payroll', 'incentives', 'roster', 'admin'];
 
   views.forEach(v => {
     const el = document.getElementById(`view-${v}`);
@@ -1379,7 +1379,7 @@ function updateViewFromHash() {
   if (hash === 'kiosk') renderKioskView();
   if (hash === 'payroll') renderMonthlyPayroll();
   if (hash === 'incentives') renderIncentivesView();
-  if (hash === 'expenses') renderPettyCashLedger();
+
   if (hash === 'roster') renderRosterView();
   if (hash === 'admin') renderAdminView();
 }
@@ -1805,7 +1805,7 @@ function updateStaffOtHours(staffId, val) {
 
   saveAttendanceData();
   renderDailyAttendance();
-  showToast(`${getStaffName(staffId)} OT set to ${otVal} hrs (+â‚¹${attendanceData[dateKey][staffId].otPay})`);
+  showToast(`${getStaffName(staffId)} OT set to ${otVal} hrs (+₹${attendanceData[dateKey][staffId].otPay})`);
 }
 
 function toggleAmPm(staffId) {
@@ -1874,7 +1874,7 @@ function shiftDate(deltaDays) {
   renderDailyAttendance();
 
   const dayLabel = dateObj.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' });
-  showToast(`ðŸ“… Date: ${dayLabel}`);
+  showToast(`📅 Date: ${dayLabel}`);
 }
 
 function setTodayDate() {
@@ -1883,7 +1883,7 @@ function setTodayDate() {
   const input = document.getElementById('selectedDateInput');
   if (input) input.value = selectedDateStr;
   renderDailyAttendance();
-  showToast('ðŸ“… Switched to Today');
+  showToast('📅 Switched to Today');
 }
 
 // ==========================================
@@ -1961,23 +1961,17 @@ function renderMonthlyPayroll() {
           </div>
         </td>
 
-        <!-- STRICTLY PURE NUMBER IN LEAVES CUT: Plus Weekend 2x cut tag if applicable -->
+        <!-- STRICTLY PURE NUMBER IN LEAVES CUT -->
         <td class="py-3 px-2 text-center whitespace-nowrap">
           ${p.unpaidLeaves > 0 ? 
-            `<div class="inline-flex flex-col items-center">
-              <span class="inline-block px-2.5 py-0.5 rounded-lg bg-rose-500/20 text-rose-400 font-mono font-extrabold text-xs">${p.unpaidLeaves}</span>
-              ${p.weekendLeaves > 0 ? `<span class="text-[9px] text-rose-300 font-bold block mt-0.5 tracking-tight font-sans">incl. ${p.weekendLeaves} Sat/Sun (2x)</span>` : ''}
-            </div>` : 
+            `<span class="inline-block px-2.5 py-0.5 rounded-lg bg-rose-500/20 text-rose-400 font-mono font-bold text-xs">${p.unpaidLeaves}</span>` : 
             `<span class="text-gray-600 font-mono text-xs">0</span>`
           }
         </td>
 
-        <td class="py-3 px-2 font-mono whitespace-nowrap">
+        <td class="py-3 px-2 font-mono text-right whitespace-nowrap">
           ${p.leaveDeduction > 0 ? 
-            `<div>
-              <span class="text-rose-400 font-bold">-₹${Math.round(p.leaveDeduction).toLocaleString('en-IN')}</span>
-              ${p.weekendLeaves > 0 ? `<span class="text-[9px] text-rose-400/80 block font-sans">(-₹${Math.round(p.weekendCutAmount)} 2x)</span>` : ''}
-            </div>` : 
+            `<span class="text-rose-400 font-bold">-₹${Math.round(p.leaveDeduction).toLocaleString('en-IN')}</span>` : 
             `<span class="text-gray-600">₹0</span>`
           }
         </td>
@@ -2160,25 +2154,25 @@ function renderIncentivesView() {
     const badges = [];
 
     if (rank === 1) {
-      badges.push({ icon: 'ðŸ‘‘', label: '#1 Service Champion', border: 'border-amber-400/50 bg-amber-400/15 text-amber-300' });
+      badges.push({ icon: '<i class="fa-solid fa-crown text-amber-400"></i>', label: '#1 Service Champion', border: 'border-amber-400/50 bg-amber-400/15 text-amber-300' });
     } else if (rank === 2) {
-      badges.push({ icon: 'ðŸ¥ˆ', label: '#2 Silver Stylist', border: 'border-slate-300/40 bg-slate-400/15 text-slate-200' });
+      badges.push({ icon: '<i class="fa-solid fa-medal text-slate-300"></i>', label: '#2 Silver Stylist', border: 'border-slate-300/40 bg-slate-400/15 text-slate-200' });
     } else if (rank === 3) {
-      badges.push({ icon: 'ðŸ¥‰', label: '#3 Bronze Stylist', border: 'border-amber-700/40 bg-amber-700/15 text-orange-300' });
+      badges.push({ icon: '<i class="fa-solid fa-medal text-orange-400"></i>', label: '#3 Bronze Stylist', border: 'border-amber-700/40 bg-amber-700/15 text-orange-300' });
     }
 
     if (item.staff.id === retailChampionStaffId && item.productsSold > 0) {
-      badges.push({ icon: 'ðŸ›ï¸', label: 'Retail Champion', border: 'border-pink-500/40 bg-pink-500/15 text-pink-300' });
+      badges.push({ icon: '<i class="fa-solid fa-bag-shopping text-pink-400"></i>', label: 'Retail Champion', border: 'border-pink-500/40 bg-pink-500/15 text-pink-300' });
     }
 
     if (item.targetAchieved) {
-      badges.push({ icon: 'ðŸŽ¯', label: 'Target 100% Unlocked', border: 'border-emerald-500/40 bg-emerald-500/15 text-emerald-400' });
+      badges.push({ icon: '<i class="fa-solid fa-bullseye text-emerald-400"></i>', label: 'Target 100% Unlocked', border: 'border-emerald-500/40 bg-emerald-500/15 text-emerald-400' });
     } else if (item.targetPercent >= 75) {
-      badges.push({ icon: 'ðŸš€', label: '75%+ Target Club', border: 'border-purple-500/40 bg-purple-500/15 text-purple-300' });
+      badges.push({ icon: '<i class="fa-solid fa-rocket text-purple-400"></i>', label: '75%+ Target Club', border: 'border-purple-500/40 bg-purple-500/15 text-purple-300' });
     }
 
     if (item.totalIncentives > 0) {
-      badges.push({ icon: 'ðŸ’°', label: 'Incentives Active', border: 'border-[#ff2a85]/40 bg-[#ff2a85]/15 text-[#ff7eb3]' });
+      badges.push({ icon: '<i class="fa-solid fa-sack-dollar text-[#ff7eb3]"></i>', label: 'Incentives Active', border: 'border-[#ff2a85]/40 bg-[#ff2a85]/15 text-[#ff7eb3]' });
     }
 
     stylistRankMeta[item.staff.id] = {
@@ -2202,14 +2196,14 @@ function renderIncentivesView() {
         </div>
         <div class="mt-2">
           <div class="flex items-baseline justify-between">
-            <span class="text-xl font-black font-heading text-white">â‚¹${totalSalonRev.toLocaleString('en-IN')}</span>
-            <span class="text-[10px] text-gray-500 font-mono">/ â‚¹${salonTarget.toLocaleString('en-IN')}</span>
+            <span class="text-xl font-black font-heading text-white">₹${totalSalonRev.toLocaleString('en-IN')}</span>
+            <span class="text-[10px] text-gray-500 font-mono">/ ₹${salonTarget.toLocaleString('en-IN')}</span>
           </div>
           <div class="w-full bg-[#161628] h-1.5 rounded-full overflow-hidden mt-2">
             <div class="h-full ${managerAchieved ? 'bg-gradient-to-r from-purple-500 to-emerald-400' : 'bg-[#ff2a85]'} transition-all" style="width: ${targetPct}%"></div>
           </div>
           <span class="text-[10px] mt-1.5 block ${managerAchieved ? 'text-emerald-400 font-bold' : 'text-gray-400'}">
-            ${managerAchieved ? `âœ“ Target Met! Kalyan 1% = +â‚¹${managerCommissionEarned.toLocaleString('en-IN')}` : `â‚¹${Math.max(0, salonTarget - totalSalonRev).toLocaleString('en-IN')} left to unlock 1%`}
+            ${managerAchieved ? `<i class="fa-solid fa-check text-emerald-400 mr-1"></i>Target Met! Kalyan 1% = +₹${managerCommissionEarned.toLocaleString('en-IN')}` : `₹${Math.max(0, salonTarget - totalSalonRev).toLocaleString('en-IN')} left to unlock 1%`}
           </span>
         </div>
       </div>
@@ -2221,7 +2215,7 @@ function renderIncentivesView() {
           <i class="fa-solid fa-coins text-[#ff7eb3] text-xs"></i>
         </div>
         <div class="mt-2">
-          <span class="text-xl font-black font-heading text-[#ff7eb3]">â‚¹${totalStylistCommissions.toLocaleString('en-IN')}</span>
+          <span class="text-xl font-black font-heading text-[#ff7eb3]">₹${totalStylistCommissions.toLocaleString('en-IN')}</span>
           <span class="text-[10px] text-gray-400 block mt-1">
             ${activeCommissionEarners} of ${staffList.filter(s => !s.isManager && !s.isHousekeeping).length} stylists earned incentives
           </span>
@@ -2236,11 +2230,11 @@ function renderIncentivesView() {
         </div>
         <div class="mt-2">
           <div class="flex items-center justify-between">
-            <span class="text-base font-bold font-heading text-white truncate">${topServiceStylist.name}</span>
-            <span class="text-xs font-mono font-bold text-purple-400">â‚¹${topServiceStylist.amount.toLocaleString('en-IN')}</span>
+            <span class="text-base font-bold font-heading text-white truncate max-w-[160px]">${topServiceStylist.name}</span>
+            <span class="text-xs font-mono font-bold text-purple-400 whitespace-nowrap">₹${topServiceStylist.amount.toLocaleString('en-IN')}</span>
           </div>
-          <span class="text-[10px] text-emerald-400 font-bold block mt-1">
-            ${topServiceStylist.commission > 0 ? `+â‚¹${topServiceStylist.commission.toLocaleString('en-IN')} commission (5%)` : 'Target in progress'}
+          <span class="text-[10px] text-emerald-400 font-bold block mt-1 truncate">
+            ${topServiceStylist.commission > 0 ? `+₹${topServiceStylist.commission.toLocaleString('en-IN')} commission (5%)` : 'Target in progress'}
           </span>
         </div>
       </div>
@@ -2253,11 +2247,11 @@ function renderIncentivesView() {
         </div>
         <div class="mt-2">
           <div class="flex items-center justify-between">
-            <span class="text-base font-bold font-heading text-white truncate">${topProductStylist.name}</span>
-            <span class="text-xs font-mono font-bold text-pink-400">â‚¹${topProductStylist.amount.toLocaleString('en-IN')}</span>
+            <span class="text-base font-bold font-heading text-white truncate max-w-[160px]">${topProductStylist.name}</span>
+            <span class="text-xs font-mono font-bold text-pink-400 whitespace-nowrap">₹${topProductStylist.amount.toLocaleString('en-IN')}</span>
           </div>
-          <span class="text-[10px] text-[#ff7eb3] font-bold block mt-1">
-            ${topProductStylist.commission > 0 ? `+â‚¹${topProductStylist.commission.toLocaleString('en-IN')} commission` : 'Below min tier'}
+          <span class="text-[10px] text-[#ff7eb3] font-bold block mt-1 truncate">
+            ${topProductStylist.commission > 0 ? `+₹${topProductStylist.commission.toLocaleString('en-IN')} commission` : 'Below min tier'}
           </span>
         </div>
       </div>
@@ -2289,8 +2283,8 @@ function renderIncentivesView() {
           ? 'border-slate-400/30 bg-gradient-to-b from-[#141822] via-[#0d0d18] to-[#0c0c16]' 
           : 'border-amber-700/30 bg-gradient-to-b from-[#1c120c] via-[#0d0d18] to-[#0c0c16]');
 
-      const crownOrMedal = isGold ? 'ðŸ‘‘' : (isSilver ? 'ðŸ¥ˆ' : 'ðŸ¥‰');
-      const rankTitle = isGold ? '1ST PLACE â€¢ CHAMPION' : (isSilver ? '2ND PLACE' : '3RD PLACE');
+      const crownOrMedal = isGold ? '<i class="fa-solid fa-crown text-black"></i>' : (isSilver ? '<i class="fa-solid fa-medal text-black"></i>' : '<i class="fa-solid fa-medal text-white"></i>');
+      const rankTitle = isGold ? '1ST PLACE • CHAMPION' : (isSilver ? '2ND PLACE' : '3RD PLACE');
 
       podiumCardsHtml += `
         <div class="relative rounded-3xl p-5 border ${cardBorder} shadow-xl flex flex-col justify-between transition-all hover:scale-[1.02]">
@@ -2324,14 +2318,14 @@ function renderIncentivesView() {
           <div class="space-y-1.5 text-xs mb-3 bg-[#080810]/70 p-3 rounded-2xl border border-[#1b1b2c]">
             <div class="flex items-center justify-between text-[11px]">
               <span class="text-gray-400">Services Revenue:</span>
-              <span class="text-white font-mono font-bold">â‚¹${item.servicesDone.toLocaleString('en-IN')} <span class="text-gray-500 font-normal">/ â‚¹${item.target.toLocaleString('en-IN')}</span></span>
+              <span class="text-white font-mono font-bold">₹${item.servicesDone.toLocaleString('en-IN')} <span class="text-gray-500 font-normal">/ ₹${item.target.toLocaleString('en-IN')}</span></span>
             </div>
             <div class="w-full bg-[#141422] h-2 rounded-full overflow-hidden">
               <div class="h-full rounded-full transition-all duration-500 ${item.targetAchieved ? 'bg-gradient-to-r from-purple-500 to-emerald-400' : 'bg-gradient-to-r from-[#ff2a85] to-purple-500'}" style="width: ${item.targetPercent}%"></div>
             </div>
             <div class="flex items-center justify-between text-[10px] text-gray-400">
               <span>Target Met: <strong class="${item.targetAchieved ? 'text-emerald-400' : 'text-gray-300'} font-mono">${item.targetPercent}%</strong></span>
-              <span class="${item.targetAchieved ? 'text-emerald-400 font-bold' : 'text-gray-500'}">${item.targetAchieved ? 'âœ“ 5% Unlocked' : 'In Progress'}</span>
+              <span class="${item.targetAchieved ? 'text-emerald-400 font-bold' : 'text-gray-500'}">${item.targetAchieved ? '<i class="fa-solid fa-check text-emerald-400 mr-1"></i>5% Unlocked' : 'In Progress'}</span>
             </div>
           </div>
 
@@ -2339,18 +2333,18 @@ function renderIncentivesView() {
           <div class="grid grid-cols-2 gap-2 text-xs mb-3 font-mono">
             <div class="bg-[#080810]/50 p-2.5 rounded-xl border border-[#181826]">
               <span class="text-[10px] text-gray-400 block font-sans">Retail Sales</span>
-              <span class="font-bold text-pink-400">â‚¹${item.productsSold.toLocaleString('en-IN')}</span>
+              <span class="font-bold text-pink-400">₹${item.productsSold.toLocaleString('en-IN')}</span>
             </div>
             <div class="bg-[#080810]/50 p-2.5 rounded-xl border border-[#181826]">
               <span class="text-[10px] text-gray-400 block font-sans">Commission</span>
-              <span class="font-bold ${item.totalIncentives > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">â‚¹${item.totalIncentives.toLocaleString('en-IN')}</span>
+              <span class="font-bold ${item.totalIncentives > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">₹${item.totalIncentives.toLocaleString('en-IN')}</span>
             </div>
           </div>
 
           <!-- Dynamic Badges -->
           <div class="flex flex-wrap gap-1.5 pt-2 border-t border-[#181828]">
             ${rankMeta.badges.map(b => `
-              <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold border ${b.border} flex items-center gap-1">
+              <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold border ${b.border} flex items-center gap-1.5">
                 <span>${b.icon}</span>
                 <span>${b.label}</span>
               </span>
@@ -2374,32 +2368,32 @@ function renderIncentivesView() {
               const meta = stylistRankMeta[item.staff.id];
               return `
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#090912] border border-[#1a1a2b] hover:border-[#2e2e46] transition-all">
-                  <div class="flex items-center gap-3">
-                    <span class="w-7 h-7 rounded-xl bg-[#141424] border border-[#222238] text-gray-300 font-mono font-bold text-xs flex items-center justify-center">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <span class="w-7 h-7 rounded-xl bg-[#141424] border border-[#222238] text-gray-300 font-mono font-bold text-xs flex items-center justify-center shrink-0">
                       #${rank}
                     </span>
-                    <div>
-                      <div class="flex items-center gap-2">
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2 flex-wrap">
                         <span class="font-syne font-bold text-sm text-white">${item.staff.name}</span>
                         <span class="text-[10px] text-gray-400 font-medium">(${item.staff.role})</span>
                       </div>
                       <div class="flex flex-wrap gap-1 mt-1">
-                        ${meta.badges.map(b => `<span class="px-1.5 py-0.2 rounded text-[9px] font-semibold border ${b.border}">${b.icon} ${b.label}</span>`).join('')}
+                        ${meta.badges.map(b => `<span class="px-1.5 py-0.2 rounded text-[9px] font-semibold border ${b.border} flex items-center gap-1"><span>${b.icon}</span><span>${b.label}</span></span>`).join('')}
                       </div>
                     </div>
                   </div>
-                  <div class="flex items-center gap-4 text-xs font-mono justify-between sm:justify-end border-t sm:border-t-0 border-[#151522] pt-2 sm:pt-0">
-                    <div>
+                  <div class="flex items-center gap-4 text-xs font-mono justify-between sm:justify-end border-t sm:border-t-0 border-[#151522] pt-2 sm:pt-0 shrink-0">
+                    <div class="text-right">
                       <span class="text-[10px] text-gray-500 block font-sans">Services</span>
-                      <span class="text-white font-bold">â‚¹${item.servicesDone.toLocaleString('en-IN')} <span class="text-[10px] text-gray-400">(${item.targetPercent}%)</span></span>
+                      <span class="text-white font-bold whitespace-nowrap">₹${item.servicesDone.toLocaleString('en-IN')} <span class="text-[10px] text-gray-400 font-sans">(${item.targetPercent}%)</span></span>
                     </div>
-                    <div>
+                    <div class="text-right">
                       <span class="text-[10px] text-gray-500 block font-sans">Retail</span>
-                      <span class="text-pink-400 font-bold">â‚¹${item.productsSold.toLocaleString('en-IN')}</span>
+                      <span class="text-pink-400 font-bold whitespace-nowrap">₹${item.productsSold.toLocaleString('en-IN')}</span>
                     </div>
-                    <div>
+                    <div class="text-right">
                       <span class="text-[10px] text-gray-500 block font-sans">Incentives</span>
-                      <span class="font-bold ${item.totalIncentives > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">+â‚¹${item.totalIncentives.toLocaleString('en-IN')}</span>
+                      <span class="font-bold whitespace-nowrap ${item.totalIncentives > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">+₹${item.totalIncentives.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
                 </div>
@@ -2427,10 +2421,10 @@ function renderIncentivesView() {
             <p class="text-xs text-gray-400 mt-0.5">Top-earning stylists for <span class="text-white font-semibold">${selectedMonthStr}</span> ranked by service revenue & retail targets.</p>
           </div>
         </div>
-        <div class="flex items-center gap-2 bg-[#121220] px-3 py-1.5 rounded-2xl border border-[#202036]">
+        <div class="flex items-center gap-2 bg-[#121220] px-3.5 py-1.5 rounded-2xl border border-[#202036]">
           <i class="fa-solid fa-medal text-amber-400 text-xs"></i>
           <span class="text-xs text-gray-400">Total Stylist Incentives:</span>
-          <span class="text-xs font-bold font-mono text-[#ff7eb3]">â‚¹${totalStylistCommissions.toLocaleString('en-IN')}</span>
+          <span class="text-xs font-bold font-mono text-[#ff7eb3]">₹${totalStylistCommissions.toLocaleString('en-IN')}</span>
         </div>
       </div>
 
@@ -2459,7 +2453,7 @@ function renderIncentivesView() {
           <div class="flex items-center justify-between border-b border-[#181826] pb-3">
             <div class="flex items-center gap-3">
               <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#1f1024] to-[#2a102e] border border-[#ff2a85]/30 flex items-center justify-center font-bold text-white text-sm">
-                KY
+                ${staff.name.substring(0, 2).toUpperCase()}
               </div>
               <div>
                 <h3 class="font-heading font-bold text-white text-base">${staff.name}</h3>
@@ -2469,7 +2463,7 @@ function renderIncentivesView() {
             <div class="text-right">
               <span class="text-[10px] text-gray-400 uppercase tracking-wider block">Commission Earned</span>
               <span class="font-heading font-bold text-lg ${p.serviceCommission > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">
-                +â‚¹${p.serviceCommission.toLocaleString('en-IN')}
+                +₹${p.serviceCommission.toLocaleString('en-IN')}
               </span>
             </div>
           </div>
@@ -2477,10 +2471,10 @@ function renderIncentivesView() {
           <div class="space-y-1.5 text-xs">
             <div class="flex items-center justify-between">
               <span class="text-gray-300">
-                Salon Service Revenue: <strong class="text-white font-mono">â‚¹${totalSalonRev.toLocaleString('en-IN')}</strong> / â‚¹${salonTarget.toLocaleString('en-IN')}
+                Salon Service Revenue: <strong class="text-white font-mono">₹${totalSalonRev.toLocaleString('en-IN')}</strong> / ₹${salonTarget.toLocaleString('en-IN')}
               </span>
               ${achieved ? 
-                `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">Target Reached (${salonRules.managerCommissionRate || 1}% = â‚¹${p.serviceCommission})</span>` : 
+                `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">Target Reached (${salonRules.managerCommissionRate || 1}% = ₹${p.serviceCommission})</span>` : 
                 `<span class="text-gray-400 font-mono text-[10px]">${targetPercent}%</span>`
               }
             </div>
@@ -2500,7 +2494,7 @@ function renderIncentivesView() {
           <div class="flex items-center justify-between border-b border-[#181826] pb-3">
             <div class="flex items-center gap-3">
               <div class="w-11 h-11 rounded-2xl bg-[#141420] border border-[#222234] flex items-center justify-center font-bold text-white text-sm">
-                AN
+                ${staff.name.substring(0, 2).toUpperCase()}
               </div>
               <div>
                 <h3 class="font-heading font-bold text-white text-base">${staff.name}</h3>
@@ -2526,7 +2520,7 @@ function renderIncentivesView() {
     const t1Rate = staff.productTier1Rate || 5;
     const t2Min = staff.productTier2Min || 15000;
     const t2Rate = staff.productTier2Rate || 8;
-    const prodTierLabel = `${t1Rate}% above â‚¹${t1Min.toLocaleString('en-IN')}, ${t2Rate}% above â‚¹${t2Min.toLocaleString('en-IN')}`;
+    const prodTierLabel = `${t1Rate}% above ₹${t1Min.toLocaleString('en-IN')}, ${t2Rate}% above ₹${t2Min.toLocaleString('en-IN')}`;
 
     const rankInfo = stylistRankMeta[staff.id];
     const rankNum = rankInfo ? rankInfo.rank : null;
@@ -2537,32 +2531,32 @@ function renderIncentivesView() {
         : (rankNum === 3 
           ? 'bg-orange-700/20 text-orange-300 border-orange-600/40' 
           : 'bg-[#181826] text-gray-400 border-[#28283a]'));
-    const rankTitle = rankNum === 1 ? 'ðŸ‘‘ #1 Stylist' : (rankNum === 2 ? 'ðŸ¥ˆ #2 Stylist' : (rankNum === 3 ? 'ðŸ¥‰ #3 Stylist' : `#${rankNum}`));
+    const rankTitle = rankNum === 1 ? '<i class="fa-solid fa-crown text-amber-400 mr-1"></i>#1 Stylist' : (rankNum === 2 ? '<i class="fa-solid fa-medal text-slate-300 mr-1"></i>#2 Stylist' : (rankNum === 3 ? '<i class="fa-solid fa-medal text-orange-400 mr-1"></i>#3 Stylist' : `#${rankNum}`));
 
     html += `
       <div class="bg-[#0d0d15] p-6 rounded-3xl border border-[#1f1f30] shadow-xl space-y-4">
         <div class="flex items-center justify-between border-b border-[#181826] pb-3">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#ff2a85]/20 to-purple-500/20 border border-[#ff2a85]/30 flex items-center justify-center font-bold text-white text-sm">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#ff2a85]/20 to-purple-500/20 border border-[#ff2a85]/30 flex items-center justify-center font-bold text-white text-sm shrink-0">
               ${staff.name.substring(0, 2).toUpperCase()}
             </div>
-            <div>
-              <div class="flex items-center gap-2">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
                 <h3 class="font-heading font-bold text-white text-base">${staff.name}</h3>
-                ${rankNum ? `<span class="px-2 py-0.5 rounded-full font-mono text-[10px] font-bold border ${rankBadgeClass}">${rankTitle}</span>` : ''}
+                ${rankNum ? `<span class="px-2 py-0.5 rounded-full font-mono text-[10px] font-bold border ${rankBadgeClass} flex items-center">${rankTitle}</span>` : ''}
               </div>
-              <p class="text-xs text-gray-400">${staff.role}</p>
+              <p class="text-xs text-gray-400 truncate">${staff.role}</p>
               ${rankInfo && rankInfo.badges.length > 0 ? `
                 <div class="flex flex-wrap gap-1 mt-1.5">
-                  ${rankInfo.badges.map(b => `<span class="px-2 py-0.5 rounded-md text-[9px] font-semibold border ${b.border}">${b.icon} ${b.label}</span>`).join('')}
+                  ${rankInfo.badges.map(b => `<span class="px-2 py-0.5 rounded-md text-[9px] font-semibold border ${b.border} flex items-center gap-1"><span>${b.icon}</span><span>${b.label}</span></span>`).join('')}
                 </div>
               ` : ''}
             </div>
           </div>
-          <div class="text-right">
+          <div class="text-right shrink-0">
             <span class="text-[10px] text-gray-400 uppercase tracking-wider block">Commissions Earned</span>
-            <span class="font-heading font-bold text-lg ${p.totalIncentives > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">
-              +â‚¹${p.totalIncentives.toLocaleString('en-IN')}
+            <span class="font-heading font-bold text-lg whitespace-nowrap ${p.totalIncentives > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">
+              +₹${p.totalIncentives.toLocaleString('en-IN')}
             </span>
           </div>
         </div>
@@ -2571,10 +2565,10 @@ function renderIncentivesView() {
         <div class="space-y-1.5 text-xs">
           <div class="flex items-center justify-between">
             <span class="text-gray-300">
-              Services (${servRate}% on Target): <strong class="text-white font-mono">â‚¹${p.totalServicesDone.toLocaleString('en-IN')}</strong> / â‚¹${servTarget.toLocaleString('en-IN')}
+              Services (${servRate}% on Target): <strong class="text-white font-mono">₹${p.totalServicesDone.toLocaleString('en-IN')}</strong> / ₹${servTarget.toLocaleString('en-IN')}
             </span>
             ${servAchieved ? 
-              `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">${servRate}% Earned (+â‚¹${p.serviceCommission.toLocaleString('en-IN')})</span>` : 
+              `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px]"><i class="fa-solid fa-check mr-1"></i>${servRate}% Earned (+₹${p.serviceCommission.toLocaleString('en-IN')})</span>` : 
               `<span class="text-gray-400 font-mono text-[10px]">${servPercent}%</span>`
             }
           </div>
@@ -2587,11 +2581,11 @@ function renderIncentivesView() {
         <div class="space-y-1.5 text-xs pt-2 border-t border-[#181826]">
           <div class="flex items-center justify-between">
             <span class="text-gray-300">
-              Product Sales: <strong class="text-white font-mono">â‚¹${p.totalProductsSold.toLocaleString('en-IN')}</strong>
+              Product Sales: <strong class="text-white font-mono">₹${p.totalProductsSold.toLocaleString('en-IN')}</strong>
             </span>
             ${p.productCommission > 0 ? 
-              `<span class="px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-400 font-bold text-[10px]">Commission: +â‚¹${p.productCommission.toLocaleString('en-IN')}</span>` : 
-              `<span class="text-gray-500 text-[10px] font-mono">Below â‚¹${t1Min.toLocaleString('en-IN')}</span>`
+              `<span class="px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-400 font-bold text-[10px]">Commission: +₹${p.productCommission.toLocaleString('en-IN')}</span>` : 
+              `<span class="text-gray-500 text-[10px] font-mono">Below ₹${t1Min.toLocaleString('en-IN')}</span>`
             }
           </div>
           <span class="text-[10px] text-gray-500 block">Rule: ${prodTierLabel}</span>
@@ -2625,10 +2619,10 @@ function openQuickSalesModal(staffId) {
   const currentServ = currentRecord.servicesDone || 0;
   const currentProd = currentRecord.productsSold || 0;
 
-  const servPrompt = prompt(`Enter Service Revenue for ${staff.name} on ${selectedDateStr} (in â‚¹):\n(Currently: â‚¹${currentServ})`, currentServ);
+  const servPrompt = prompt(`Enter Service Revenue for ${staff.name} on ${selectedDateStr} (in ₹):\n(Currently: ₹${currentServ})`, currentServ);
   if (servPrompt === null) return;
 
-  const prodPrompt = prompt(`Enter Retail Products Sold by ${staff.name} on ${selectedDateStr} (in â‚¹):\n(Currently: â‚¹${currentProd})`, currentProd);
+  const prodPrompt = prompt(`Enter Retail Products Sold by ${staff.name} on ${selectedDateStr} (in ₹):\n(Currently: ₹${currentProd})`, currentProd);
   if (prodPrompt === null) return;
 
   const newServ = Math.max(0, parseFloat(servPrompt) || 0);
@@ -2651,8 +2645,9 @@ function openQuickSalesModal(staffId) {
   saveAttendanceData();
   renderIncentivesView();
   renderDailyAttendance();
-  showToast(`Updated ${staff.name}: Services â‚¹${newServ.toLocaleString('en-IN')}, Products â‚¹${newProd.toLocaleString('en-IN')}`);
+  showToast(`✓ Sales updated for ${staff.name}: Services ₹${newServ.toLocaleString('en-IN')}, Retail ₹${newProd.toLocaleString('en-IN')}`);
 }
+
 
 // ==========================================
 // 8. VIEW 4: SCHEDULE ROSTER IMAGE SCANNER (MULTI-IMAGE GALLERY & PRECISE PARSER)
@@ -2950,7 +2945,7 @@ NOTE: ANY LEAVE SAME DAY INFORMATION DOUBLE SALARY CUT`;
 
 /**
  * Strict Shift Extractor:
- * 1. WEEK OFF / DAY OFF: strictly mapped to 'Weekly Off' (entitled regular weekly off, â‚¹0 salary cut).
+ * 1. WEEK OFF / DAY OFF: strictly mapped to 'Weekly Off' (entitled regular weekly off, ₹0 salary cut).
  *    Recognizes: DAY OFF, WEEK OFF, WEEKLY OFF, D.OFF, W.OFF, D/O, W/O, DO, WO, DAY-OFF, WEEK-OFF, OFF.
  * 2. LEAVE: strictly mapped to 'Leave' (unpaid leave, triggers daily salary deduction).
  *    Recognizes: LEAVE, EAVE, WEAVE, WEAV, LEAV, ABSENT, CASUAL LEAVE, SICK LEAVE, LV, LVE, CL, SL, PL, ABS.
@@ -3059,7 +3054,7 @@ function extractShiftFromContext(line, nextLine = '', isManager = false) {
     };
   }
 
-  // Kalyan (Manager) standard scheduled shift: 12:00 PM â€“ 9:00 PM
+  // Kalyan (Manager) standard scheduled shift: 12:00 PM - 9:00 PM
   if (isManager) {
     return { status: 'Present', inH: 12, inM: 0, inAmpm: 'PM', outH: 9, outM: 0 };
   }
@@ -3451,7 +3446,7 @@ function renderParsedRosterList() {
              </span>` : 
             (isOff ? 
               `<span class="px-3 py-1.5 rounded-xl bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/40 flex items-center gap-1.5">
-                <i class="fa-solid fa-mug-hot text-xs"></i> DAY OFF (â‚¹0 CUT)
+                <i class="fa-solid fa-mug-hot text-xs"></i> DAY OFF (₹0 CUT)
                </span>` : 
               `<span class="px-3 py-1.5 rounded-xl bg-rose-500/20 text-rose-400 font-bold border border-rose-500/40 flex items-center gap-1.5">
                 <i class="fa-solid fa-user-xmark text-xs"></i> LEAVE (SALARY CUT)
@@ -3746,14 +3741,14 @@ function renderAdminView() {
         <!-- Row 1: Fixed Pay & Allowance -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
-            <label class="text-[10px] text-gray-400 uppercase font-semibold block mb-1">Base Salary (â‚¹)</label>
+            <label class="text-[10px] text-gray-400 uppercase font-semibold block mb-1">Base Salary (₹)</label>
             <input type="number" id="admin_salary_${staff.id}" value="${staff.baseSalary}" 
               onfocus="this.select()"
               class="w-full bg-[#181828] border border-[#26263a] rounded-xl px-2.5 py-1.5 text-white font-mono font-bold focus:border-[#ff2a85]">
           </div>
 
           <div>
-            <label class="text-[10px] text-gray-400 uppercase font-semibold block mb-1">Food Allowance (â‚¹)</label>
+            <label class="text-[10px] text-gray-400 uppercase font-semibold block mb-1">Food Allowance (₹)</label>
             <input type="number" id="admin_food_${staff.id}" value="${staff.foodAllowance || 0}" 
               onfocus="this.select()"
               class="w-full bg-[#181828] border border-[#26263a] rounded-xl px-2.5 py-1.5 text-emerald-400 font-mono font-bold focus:border-[#ff2a85]">
@@ -3776,7 +3771,7 @@ function renderAdminView() {
             </div>
 
             <div>
-              <label class="text-[10px] text-purple-400 uppercase font-semibold block mb-1">Service Target (â‚¹)</label>
+              <label class="text-[10px] text-purple-400 uppercase font-semibold block mb-1">Service Target (₹)</label>
               <input type="number" id="admin_serv_target_${staff.id}" value="${staff.serviceTarget || (staff.baseSalary * 5)}" 
                 onfocus="this.select()"
                 class="w-full bg-[#181828] border border-[#26263a] rounded-xl px-2.5 py-1.5 text-purple-300 font-mono font-bold focus:border-[#ff2a85]">
@@ -3797,7 +3792,7 @@ function renderAdminView() {
                   class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-pink-300 font-mono text-xs font-bold focus:border-[#ff2a85]">
               </div>
               <div>
-                <label class="text-[9px] text-gray-400 block mb-0.5">Tier 1 Min Sales (â‚¹)</label>
+                <label class="text-[9px] text-gray-400 block mb-0.5">Tier 1 Min Sales (₹)</label>
                 <input type="number" id="admin_prod_tier1_min_${staff.id}" value="${staff.productTier1Min || 8000}" min="0"
                   class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-white font-mono text-xs font-bold focus:border-[#ff2a85]">
               </div>
@@ -3807,7 +3802,7 @@ function renderAdminView() {
                   class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-pink-300 font-mono text-xs font-bold focus:border-[#ff2a85]">
               </div>
               <div>
-                <label class="text-[9px] text-gray-400 block mb-0.5">Tier 2 Min Sales (â‚¹)</label>
+                <label class="text-[9px] text-gray-400 block mb-0.5">Tier 2 Min Sales (₹)</label>
                 <input type="number" id="admin_prod_tier2_min_${staff.id}" value="${staff.productTier2Min || 15000}" min="0"
                   class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-white font-mono text-xs font-bold focus:border-[#ff2a85]">
               </div>
@@ -3998,11 +3993,11 @@ function resetAllSalesAndIncentivesToZero(buttonElement) {
   renderDailyAttendance();
   renderMonthlyPayroll();
   renderIncentivesView();
-  showToast('âœ“ All sales and incentives have been reset to â‚¹0!');
+  showToast('✓ All sales and incentives have been reset to ₹0!');
 
   if (buttonElement && buttonElement.innerHTML) {
     const originalText = buttonElement.innerHTML;
-    buttonElement.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> <span class="text-emerald-300 font-bold">Reset to â‚¹0 Done!</span>';
+    buttonElement.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> <span class="text-emerald-300 font-bold">Reset to ₹0 Done!</span>';
     setTimeout(() => {
       buttonElement.innerHTML = originalText;
     }, 2500);
@@ -4015,7 +4010,7 @@ function clearAllAttendanceDataToZero(buttonElement) {
   renderDailyAttendance();
   renderMonthlyPayroll();
   renderIncentivesView();
-  showToast('âœ“ All attendance and sales data cleared to a clean 0 slate!');
+  showToast('✓ All attendance and sales data cleared to a clean 0 slate!');
 
   if (buttonElement && buttonElement.innerHTML) {
     const originalText = buttonElement.innerHTML;
@@ -4278,7 +4273,7 @@ function markAppAsInstalled() {
   const installBtn = document.getElementById('installPwaBtn');
   if (installBtn) {
     installBtn.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i> <span>Installed</span>';
-    installBtn.title = 'âœ“ Green Trends App is installed on your Home Screen';
+    installBtn.title = '✓ Green Trends App is installed on your Home Screen';
     installBtn.classList.remove('from-[#ff2a85]/20', 'to-purple-500/20', 'border-[#ff2a85]/40', 'text-[#ff7eb3]');
     installBtn.classList.add('bg-emerald-500/15', 'border-emerald-500/35', 'text-emerald-400');
   }
@@ -4300,7 +4295,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
   window.deferredInstallPrompt = null;
-  showToast('ðŸŽ‰ Green Trends App successfully installed on your Home Screen!');
+  showToast('🎉 Green Trends App successfully installed on your Home Screen!');
   markAppAsInstalled();
 });
 
@@ -4313,7 +4308,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 async function promptPwaInstall() {
   if (checkIsStandalone()) {
-    showToast('âœ“ Green Trends is already installed and running from your Home Screen!');
+    showToast('✓ Green Trends is already installed and running from your Home Screen!');
     return;
   }
 
@@ -4324,7 +4319,7 @@ async function promptPwaInstall() {
       promptEvt.prompt();
       const choiceResult = await promptEvt.userChoice;
       if (choiceResult && choiceResult.outcome === 'accepted') {
-        showToast('ðŸŽ‰ Green Trends App added to your Home Screen!');
+        showToast('🎉 Green Trends App added to your Home Screen!');
         deferredInstallPrompt = null;
         window.deferredInstallPrompt = null;
         markAppAsInstalled();
@@ -4367,11 +4362,11 @@ function openPwaInstallHelpModal() {
   if (isIOS) {
     if (bIos) bIos.classList.remove('hidden');
     if (stepIos) stepIos.classList.add('border-[#ff2a85]', 'bg-[#ff2a85]/10');
-    if (directBtnText) directBtnText.innerText = 'Got It (Share âž” Add)';
+    if (directBtnText) directBtnText.innerText = 'Got It (Share ➔ Add)';
   } else if (isAndroid) {
     if (bAndroid) bAndroid.classList.remove('hidden');
     if (stepAndroid) stepAndroid.classList.add('border-emerald-500', 'bg-emerald-500/10');
-    if (directBtnText) directBtnText.innerText = hasPrompt ? 'Install Now' : 'Got It (Menu âž” Install)';
+    if (directBtnText) directBtnText.innerText = hasPrompt ? 'Install Now' : 'Got It (Menu ➔ Install)';
   } else {
     if (bDesktop) bDesktop.classList.remove('hidden');
     if (stepDesktop) stepDesktop.classList.add('border-indigo-500', 'bg-indigo-500/10');
@@ -4395,7 +4390,7 @@ function triggerNativeInstall() {
     if (promptEvt.userChoice) {
       promptEvt.userChoice.then((choiceResult) => {
         if (choiceResult && choiceResult.outcome === 'accepted') {
-          showToast('ðŸŽ‰ Green Trends App added to your Home Screen!');
+          showToast('🎉 Green Trends App added to your Home Screen!');
           markAppAsInstalled();
         }
         deferredInstallPrompt = null;
@@ -4405,9 +4400,9 @@ function triggerNativeInstall() {
   } else {
     const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
     if (isIOS) {
-      showToast('Tap Share [âŽ‹] below in Safari, then select "Add to Home Screen" âž•');
+      showToast('Tap Share [⎋] below in Safari, then select "Add to Home Screen" ➔');
     } else {
-      showToast('Tap browser menu (â‹®) âž” "Install app" or "Add to Home screen" ðŸ“²');
+      showToast('Tap browser menu (⋮) ➔ "Install app" or "Add to Home screen" 📱');
     }
   }
 }
@@ -4474,7 +4469,7 @@ function renderPettyCashLedger() {
           <i class="fa-solid fa-receipt text-amber-400"></i>
         </div>
         <div class="mt-2">
-          <span class="text-xl font-black font-heading text-white">â‚¹${totalAmount.toLocaleString('en-IN')}</span>
+          <span class="text-xl font-black font-heading text-white">₹${totalAmount.toLocaleString('en-IN')}</span>
           <span class="text-[10px] text-amber-400 block mt-0.5 font-mono">${filtered.length} entries for ${targetMonth}</span>
         </div>
       </div>
@@ -4485,7 +4480,7 @@ function renderPettyCashLedger() {
           <i class="fa-solid fa-store text-emerald-400"></i>
         </div>
         <div class="mt-2">
-          <span class="text-xl font-black font-heading text-emerald-400">â‚¹${salonAccountTotal.toLocaleString('en-IN')}</span>
+          <span class="text-xl font-black font-heading text-emerald-400">₹${salonAccountTotal.toLocaleString('en-IN')}</span>
           <span class="text-[10px] text-gray-400 block mt-0.5 font-mono">Cash Drawer & Branch UPI</span>
         </div>
       </div>
@@ -4496,7 +4491,7 @@ function renderPettyCashLedger() {
           <i class="fa-solid fa-crown text-amber-400"></i>
         </div>
         <div class="mt-2">
-          <span class="text-xl font-black font-heading text-amber-300">â‚¹${ownerAccountTotal.toLocaleString('en-IN')}</span>
+          <span class="text-xl font-black font-heading text-amber-300">₹${ownerAccountTotal.toLocaleString('en-IN')}</span>
           <span class="text-[10px] text-gray-400 block mt-0.5 font-mono">Direct Owner Transfers</span>
         </div>
       </div>
@@ -4508,7 +4503,7 @@ function renderPettyCashLedger() {
         </div>
         <div class="mt-2">
           <span class="text-sm font-black font-heading text-sky-400 truncate block">${topCat}</span>
-          <span class="text-[10px] text-gray-400 block mt-0.5 font-mono">â‚¹${topCatAmt.toLocaleString('en-IN')}</span>
+          <span class="text-[10px] text-gray-400 block mt-0.5 font-mono">₹${topCatAmt.toLocaleString('en-IN')}</span>
         </div>
       </div>
     `;
@@ -4549,9 +4544,9 @@ function renderPettyCashLedger() {
       <tr class="hover:bg-[#141424] transition-colors">
         <td class="py-3 px-3 font-mono font-medium text-gray-300">${exp.date}</td>
         <td class="py-3 px-3">${getCatBadge(exp.category)}</td>
-        <td class="py-3 px-3 text-white max-w-xs truncate" title="${exp.note || ''}">${exp.note || 'â€”'}</td>
+        <td class="py-3 px-3 text-white max-w-xs truncate" title="${exp.note || ''}">${exp.note || '--'}</td>
         <td class="py-3 px-3">${getPaidByBadge(exp.paidBy)}</td>
-        <td class="py-3 px-3 text-right font-mono font-bold text-amber-400 text-sm">â‚¹${Number(exp.amount || 0).toLocaleString('en-IN')}</td>
+        <td class="py-3 px-3 text-right font-mono font-bold text-amber-400 text-sm">₹${Number(exp.amount || 0).toLocaleString('en-IN')}</td>
         <td class="py-3 px-3 text-center">
           <button type="button" onclick="deleteSalonExpense('${exp.id}')" class="w-7 h-7 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white transition-all flex items-center justify-center cursor-pointer mx-auto" title="Delete Expense">
             <i class="fa-solid fa-trash-can text-xs"></i>
@@ -4569,7 +4564,7 @@ function renderPettyCashLedger() {
           Total Operational Expenses for ${targetMonth} (${filtered.length} entries)
         </td>
         <td class="py-3.5 px-3 text-right text-base text-amber-400 font-mono">
-          â‚¹${totalAmount.toLocaleString('en-IN')}
+          ₹${totalAmount.toLocaleString('en-IN')}
         </td>
         <td></td>
       </tr>
@@ -4615,7 +4610,7 @@ function submitAddExpense(e) {
     return;
   }
   if (amount <= 0) {
-    alert("Please enter a valid amount greater than â‚¹0.");
+    alert("Please enter a valid amount greater than ₹0.");
     return;
   }
 
@@ -4635,13 +4630,13 @@ function submitAddExpense(e) {
   saveSalonExpenses();
   renderPettyCashLedger();
   closeAddExpenseModal();
-  showToast(`âœ“ Added â‚¹${amount.toLocaleString('en-IN')} expense via ${finalPaidBy}`);
+  showToast(`✓ Added ₹${amount.toLocaleString('en-IN')} expense via ${finalPaidBy}`);
 }
 
 function deleteSalonExpense(id) {
   const exp = salonExpenses.find(e => e.id === id);
   if (!exp) return;
-  if (!confirm(`Delete expense of â‚¹${Number(exp.amount).toLocaleString('en-IN')} for "${exp.category}"?`)) return;
+  if (!confirm(`Delete expense of ₹${Number(exp.amount).toLocaleString('en-IN')} for "${exp.category}"?`)) return;
 
   salonExpenses = salonExpenses.filter(e => e.id !== id);
   saveSalonExpenses();
@@ -4746,7 +4741,7 @@ function renderKioskView() {
     if (isPresent) {
       if ((rec.otHours || 0) > 0) {
         statusPill = `<span class="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-bold flex items-center gap-1">
-          <i class="fa-solid fa-fire text-amber-400"></i> ${rec.otHours}h OT (+â‚¹${rec.otPay || 0})
+          <i class="fa-solid fa-fire text-amber-400"></i> ${rec.otHours}h OT (+₹${rec.otPay || 0})
         </span>`;
         cardBorder = 'border-amber-500/40';
         glow = 'shadow-amber-500/10';
@@ -4794,13 +4789,13 @@ function renderKioskView() {
             <span class="text-gray-400 flex items-center gap-1.5">
               <i class="fa-solid fa-arrow-right-to-bracket text-emerald-400"></i> Check In:
             </span>
-            <span class="font-bold text-white">${isPresent ? inTimeFormatted : 'â€”'}</span>
+            <span class="font-bold text-white">${isPresent ? inTimeFormatted : '--'}</span>
           </div>
           <div class="flex items-center justify-between text-xs font-mono">
             <span class="text-gray-400 flex items-center gap-1.5">
               <i class="fa-solid fa-arrow-right-from-bracket text-rose-400"></i> Check Out:
             </span>
-            <span class="font-bold text-white">${isPresent ? outTimeFormatted : 'â€”'}</span>
+            <span class="font-bold text-white">${isPresent ? outTimeFormatted : '--'}</span>
           </div>
           <div class="pt-1 border-t border-[#1c1c30] flex items-center justify-between text-[11px]">
             <span class="text-gray-400 font-medium">Shift Duration:</span>
@@ -4902,7 +4897,7 @@ function kioskClockIn(staffId) {
     staff ? staff.name : 'Stylist',
     'CHECK-IN CONFIRMED',
     `Clocked in at ${formattedTime}`,
-    'Have a fabulous, productive shift at Green Trends Kothapet! âœ¨',
+    'Have a fabulous, productive shift at Green Trends Kothapet! ✨',
     'check'
   );
 }
@@ -4947,11 +4942,11 @@ function kioskClockOut(staffId) {
     rec.shortfallHours = shiftCalc.shortfallHours;
     rec.otPay = shiftCalc.otPay;
     if (rec.otHours > 0) {
-      summaryMsg = `ðŸ”¥ +${rec.otHours}h Overtime earned (+â‚¹${rec.otPay})! Outstanding work!`;
+      summaryMsg = `💰 +${rec.otHours}h Overtime earned (+₹${rec.otPay})! Outstanding work!`;
     } else if (rec.shortfallHours > 0) {
       summaryMsg = `Shift logged: ${shiftCalc.formattedDuration} (${rec.shortfallHours}h shortfall from 9h standard).`;
     } else {
-      summaryMsg = `Standard 9-hour shift completed (${shiftCalc.formattedDuration})! Great work! ðŸ‘`;
+      summaryMsg = `Standard 9-hour shift completed (${shiftCalc.formattedDuration})! Great work! 🌟`;
     }
   }
 
@@ -5116,6 +5111,5 @@ window.openQuickAddStaffToRoster = openQuickAddStaffToRoster;
 window.closeQuickAddStaffModal = closeQuickAddStaffModal;
 window.applyRosterToAttendance = applyRosterToAttendance;
 window.loadSampleUploadedRoster = loadSampleUploadedRoster;
-
 
 
