@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Green Trends Kothapet - Staff & Payroll Management System</title>
@@ -22,7 +23,8 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = {
+    if (typeof tailwind !== 'undefined') {
+      tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
@@ -46,6 +48,7 @@
           }
         }
       }
+    };
     }
   </script>
   
@@ -153,6 +156,27 @@
           <span>Sign In to Portal</span>
           <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
         </button>
+
+        <!-- Quick 1-Tap Sign In Options -->
+        <div class="pt-3 border-t border-[#1d1d2d] space-y-2">
+          <p class="text-[11px] text-gray-400 text-center font-medium">Quick 1-Tap Access (No Typing Required):</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="quickLogin('owner')" 
+              class="py-2.5 px-3 rounded-xl bg-[#1a1429] hover:bg-[#251d3b] border border-purple-500/30 text-purple-300 hover:text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+              <i class="fa-solid fa-crown text-amber-400 text-xs"></i>
+              <span>Owner Access</span>
+            </button>
+            <button type="button" onclick="quickLogin('manager')" 
+              class="py-2.5 px-3 rounded-xl bg-[#0f1f1d] hover:bg-[#152e2a] border border-emerald-500/30 text-emerald-300 hover:text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+              <i class="fa-solid fa-scissors text-emerald-400 text-xs"></i>
+              <span>Manager Access</span>
+            </button>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-gray-500 pt-1">
+            <span title="Owner: kancherlavatsalsai@gmail.com / Vinayaka@9">🔑 Default: Vinayaka@9</span>
+            <button type="button" onclick="resetLoginCredentials()" class="hover:text-rose-400 underline transition-colors cursor-pointer">Reset Login</button>
+          </div>
+        </div>
       </form>
     </div>
   </div>
