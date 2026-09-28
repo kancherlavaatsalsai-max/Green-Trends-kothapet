@@ -338,35 +338,6 @@
         </div>
       </div>
 
-            <!-- Official Salon Attendance & Weekend Double Salary Cut Policy Banner -->
-      <div class="bg-gradient-to-r from-[#1c0f20] via-[#120e24] to-[#0c1422] border border-[#ff2a85]/40 p-4 sm:p-5 rounded-3xl shadow-xl">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div class="flex items-start sm:items-center gap-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-[#ff2a85]/20 border border-[#ff2a85]/40 flex items-center justify-center shrink-0 text-[#ff7eb3] text-xl shadow-md">
-              <i class="fa-solid fa-scale-balanced"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <h2 class="text-sm sm:text-base font-syne font-bold text-white">Green Trends Kothapet Attendance & Leave Policy</h2>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">1 Week Off / Week</span>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">Sat & Sun 2x Cut</span>
-              </div>
-              <p class="text-xs text-gray-300 mt-1 leading-relaxed">
-                <strong class="text-white">Week Off:</strong> Exactly 1 day off per week allowed strictly between <span class="text-emerald-400 font-semibold">Monday to Friday</span> • 
-                <strong class="text-white">Weekends:</strong> <span class="text-amber-300 font-semibold">Saturday & Sunday</span> are mandatory full salon presence — absolutely <span class="text-rose-400 font-bold">NO Week Off</span> allowed! • 
-                <strong class="text-white">Salary Cut:</strong> Absence on Saturday or Sunday is marked as <span class="text-rose-400 font-bold">Leave</span> with mandatory <span class="text-rose-300 font-black underline">DOUBLE SALARY CUT (2x Daily Pay)</span>. Same-day leaves without prior notice also incur double cut.
-              </p>
-            </div>
-          </div>
-          <div class="shrink-0 flex items-center gap-2">
-            <div class="px-3.5 py-2 rounded-2xl bg-black/50 border border-white/10 text-right">
-              <span class="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">Weekend Rule</span>
-              <strong class="text-xs font-mono text-rose-400 font-bold">2× Daily Salary Cut</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Quick KPI Metric Cards - Crisp Typography, Zero Distortion -->
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
         <!-- Present Card -->
@@ -569,33 +540,6 @@
         </div>
       </div>
 
-            <!-- Official Attendance & Weekend Double Salary Cut Policy Callout -->
-      <div class="bg-gradient-to-r from-[#1c0f20] via-[#120e24] to-[#0c1422] border border-[#ff2a85]/40 p-4 sm:p-5 rounded-3xl shadow-xl">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div class="flex items-start sm:items-center gap-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-[#ff2a85]/20 border border-[#ff2a85]/40 flex items-center justify-center shrink-0 text-[#ff7eb3] text-xl shadow-md">
-              <i class="fa-solid fa-gavel"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <h3 class="text-sm sm:text-base font-syne font-bold text-white">Payroll Attendance Policy Rules</h3>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">Double Cut Applied</span>
-              </div>
-              <p class="text-xs text-gray-300 mt-1 leading-relaxed">
-                • <strong class="text-white">Week Offs:</strong> Entitled to 1 day off per week strictly from <span class="text-emerald-400 font-semibold">Monday to Friday</span>. Excess weekday offs convert to unpaid leave.
-                <br>• <strong class="text-white">Saturday & Sunday Absences:</strong> Strictly marked as <span class="text-rose-400 font-bold">Leave</span>. Deducted at <span class="text-rose-300 font-black underline">DOUBLE SALARY (2x Daily Pay)</span>.
-              </p>
-            </div>
-          </div>
-          <div class="shrink-0 flex items-center gap-2">
-            <div class="px-3.5 py-2 rounded-2xl bg-black/50 border border-white/10 text-right">
-              <span class="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">Saturday & Sunday</span>
-              <strong class="text-xs font-mono text-rose-400 font-bold">2x Pay Deduction</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Master Payroll Table Card -->
       <div class="bg-[#0d0d15] rounded-3xl border border-[#1f1f30] overflow-hidden shadow-2xl">
         <div class="p-5 border-b border-[#1f1f30] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -603,7 +547,7 @@
             <h2 class="font-syne font-bold text-lg text-white">Staff Salary Breakdown</h2>
             <p class="text-xs text-gray-400 mt-0.5">Kalyan: 1% salon revenue | Stylists: 5% service commission & tiered product % | Mid-month advances deducted from net.</p>
           </div>
-          <span class="text-xs text-gray-400">Total Staff: <strong class="text-white">13 Team Members</strong></span>
+          <span class="text-xs text-gray-400">Total Staff: <strong class="text-white">8 Members</strong></span>
         </div>
 
         <!-- Mobile Horizontal Swipe Guidance Indicator -->
@@ -625,8 +569,8 @@
                 <th class="py-3 px-2">Food</th>
                 <th class="py-3 px-2">Per Day</th>
                 <th class="py-3 px-2 text-center">Attd (P/WO)</th>
-                <th class="py-3 px-2 text-center">Leaves <span class="text-[9px] text-rose-400 block font-normal">(Sat/Sun 2x Cut)</span></th>
-                <th class="py-3 px-2">Leave Cut (₹)</th>
+                <th class="py-3 px-2 text-center">Leaves (Cut)</th>
+                <th class="py-3 px-2">Leave Cut</th>
                 <th class="py-3 px-2 text-center">Net OT</th>
                 <th class="py-3 px-2">OT Pay</th>
                 <th class="py-3 px-2">Incentives</th>
