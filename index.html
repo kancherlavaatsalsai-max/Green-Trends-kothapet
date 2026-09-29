@@ -283,14 +283,8 @@
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#080808] p-5 rounded-3xl border border-[#D0DAE2]/12 shadow-2xl">
         <div>
           <h1 class="text-2xl font-syne font-extrabold text-white flex items-center gap-3">
-            <span>Daily Attendance & Timesheet</span>
-            <span class="text-xs font-sans font-bold px-3 py-1 rounded-full bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/25">
-              9-Hr Shift Standard
-            </span>
+            <span>Daily Attendance</span>
           </h1>
-          <p class="text-xs text-gray-400 mt-1 font-medium">
-            Daily check-in (AM/PM) and check-out (Always PM). Shortfall from 9 hours deducts from monthly OT.
-          </p>
         </div>
 
         <div class="flex flex-wrap items-center gap-2.5">
@@ -414,18 +408,6 @@
         <!-- Rendered dynamically by JS -->
       </div>
 
-      <!-- Bottom Save / Confirmation Floating Bar (Clearance above mobile nav) -->
-      <div class="sticky bottom-20 md:bottom-6 z-30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#0e0e18]/95 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl border border-[#222236] shadow-2xl">
-        <div class="flex items-center gap-2 text-xs text-gray-300">
-          <i class="fa-solid fa-cloud-arrow-up text-[#00FFFF] shrink-0"></i>
-          <span class="text-[11px] sm:text-xs">All times and attendance changes save automatically.</span>
-        </div>
-        <button onclick="saveAttendanceToast()" 
-          class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-[#00FFFF] to-[#4BA2E2] hover:brightness-110 text-black font-extrabold transition-all shadow-lg shadow-[#00FFFF]/20 flex items-center justify-center gap-2 cursor-pointer">
-          <i class="fa-solid fa-floppy-disk"></i>
-          <span>Save Day Record</span>
-        </button>
-      </div>
     </section>
 
     <!-- ========================================== -->
@@ -441,7 +423,7 @@
 
         <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           <!-- Left: Title, Live Digital Clock & Date -->
-          <div class="space-y-2">
+          <div id="kioskClockSection" class="space-y-2">
             <div class="flex items-center gap-2">
               <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold font-mono uppercase tracking-wider flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
@@ -456,10 +438,6 @@
                 --:--:-- --
               </div>
             </div>
-
-            <p class="text-xs text-gray-400 font-medium">
-              Stylists tap your card once to instantly record your shift check-in or check-out time.
-            </p>
           </div>
 
           <!-- Right: Kiosk Controls (Fullscreen toggle & Live Shift Summary) -->
@@ -476,6 +454,13 @@
           </div>
         </div>
       </div>
+
+      <!-- Exit Fullscreen Floating Button (Active when in fullscreen) -->
+      <button type="button" onclick="toggleKioskFullscreen()" id="kioskExitFullscreenBtn" 
+        class="hidden fixed top-4 right-4 z-50 px-4 py-2 rounded-2xl bg-black/90 hover:bg-black text-white border border-[#00FFFF]/50 backdrop-blur-md shadow-2xl flex items-center gap-2 text-xs font-bold cursor-pointer">
+        <i class="fa-solid fa-compress text-[#00FFFF]"></i>
+        <span>Exit Fullscreen</span>
+      </button>
 
       <!-- Kiosk Stylist Cards Grid (Big Touch Targets) -->
       <div id="kioskStaffGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -506,9 +491,6 @@
                 September 2026
               </span>
             </div>
-            <p class="text-xs text-gray-400 mt-1 font-medium">
-              Strict per-day salary (Base ÷ Month Days), shortfall OT deductions, and percentage commissions.
-            </p>
           </div>
         </div>
 
@@ -622,13 +604,66 @@
       
 
 
+      <!-- Incentives Header Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#080808] p-5 rounded-3xl border border-[#D0DAE2]/12 shadow-2xl">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-[#C084FC]/15 border border-[#C084FC]/30 text-[#C084FC] flex items-center justify-center text-base">
+            <i class="fa-solid fa-bullseye"></i>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold font-heading text-white">Monthly Incentives & Targets</h1>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button type="button" onclick="openMonthEndSalesModal()" 
+            class="px-4 py-2 rounded-xl text-xs font-bold bg-[#C084FC] hover:bg-[#a855f7] text-black font-extrabold transition-all shadow-lg shadow-[#C084FC]/25 flex items-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-pen-to-square"></i>
+            <span>Month-End Sales & Cards</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Live Salon Revenue & Incentives Summary Highlights -->
       <div id="incentivesSummaryHighlights" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Dynamically rendered by JS -->
       </div>
 
-      <!-- Live Stylist Leaderboard & Performance Badges Showcase -->
-      <div id="stylistLeaderboardContainer" class="bg-gradient-to-r from-[#0d0d18] via-[#090912] to-[#0d0d18] rounded-3xl border border-[#D0DAE2]/12 p-5 sm:p-6 shadow-2xl space-y-5">
+      <!-- Monthly Incentives & Membership Cards Breakdown Table -->
+      <div class="bg-[#080808] rounded-3xl border border-[#D0DAE2]/12 p-5 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-base font-bold font-heading text-white flex items-center gap-2">
+            <i class="fa-solid fa-table-list text-[#00FFFF]"></i>
+            <span>Stylist Incentives & Membership Cards</span>
+          </h2>
+        </div>
+        <div class="overflow-x-auto touch-scroll">
+          <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
+            <thead>
+              <tr class="bg-[#12121e] text-gray-400 border-b border-[#D0DAE2]/12 uppercase tracking-wider font-bold text-[11px]">
+                <th class="py-3 px-3">Stylist</th>
+                <th class="py-3 px-2">Role</th>
+                <th class="py-3 px-2 text-right">Service Sales (₹)</th>
+                <th class="py-3 px-2 text-right">Target (₹)</th>
+                <th class="py-3 px-2 text-center">Target %</th>
+                <th class="py-3 px-2 text-right">Service Comm (₹)</th>
+                <th class="py-3 px-2 text-right">Retail Products (₹)</th>
+                <th class="py-3 px-2 text-right">Retail Comm (₹)</th>
+                <th class="py-3 px-3 text-center text-[#00FFFF] font-bold">Membership Cards Sold</th>
+                <th class="py-3 px-3 text-right font-bold text-[#54E29C]">Total Incentive (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="incentivesTableBody" class="divide-y divide-[#171726] text-gray-200">
+              <!-- Rendered dynamically by JS -->
+            </tbody>
+            <tfoot id="incentivesTableFoot" class="bg-[#10101b] font-bold text-white border-t-2 border-[#242438]">
+              <!-- Totals row -->
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Live Stylist Leaderboard & Performance Badges Showcase (Only shown after sale of something is done) -->
+      <div id="stylistLeaderboardContainer" class="bg-gradient-to-r from-[#0d0d18] via-[#090912] to-[#0d0d18] rounded-3xl border border-[#D0DAE2]/12 p-5 sm:p-6 shadow-2xl space-y-5 hidden">
         <!-- Rendered dynamically by JS: Podium, rankings & awards -->
       </div>
 
@@ -637,8 +672,6 @@
         <!-- Rendered dynamically by JS -->
       </div>
     </section>
-
-
 
     <!-- ========================================== -->
     <!-- VIEW 6: SCHEDULE ROSTER SCANNER (ROSTER)   -->
@@ -651,10 +684,7 @@
             <i class="fa-solid fa-camera"></i>
           </div>
           <div>
-            <h1 class="text-xl font-bold font-heading text-white">Daily Roster Image Scanner</h1>
-            <p class="text-xs text-[#D0DAE2]/60 mt-0.5">
-              Paste an image directly with <kbd class="px-1.5 py-0.5 rounded bg-[#161616] text-[#00FFFF] font-mono text-[10px]">Ctrl + V</kbd> or upload schedule screenshot.
-            </p>
+            <h1 class="text-xl font-bold font-heading text-white">Daily Roster Scanner</h1>
           </div>
         </div>
 
@@ -686,7 +716,7 @@
                   0 Pics
                 </span>
               </h3>
-              <p class="text-[11px] text-gray-400 mt-0.5">Paste multiple screenshots (<kbd class="px-1.5 py-0.5 rounded bg-[#1c1c2e] text-[#00FFFF] font-mono text-[10px]">Ctrl+V</kbd>) - 1, 2, 3+ photos supported!</p>
+              <p class="text-[11px] text-gray-400 mt-0.5">Upload or paste schedule photos</p>
             </div>
             <button id="clearAllImagesBtn" onclick="clearAllRosterImages()" class="hidden text-xs text-rose-400 hover:text-rose-300 font-bold transition-colors cursor-pointer">
               <i class="fa-solid fa-trash-can mr-1"></i>Clear All
@@ -848,8 +878,7 @@
         <div class="lg:col-span-2 bg-[#080808] rounded-3xl border border-[#D0DAE2]/12 p-6 shadow-2xl space-y-4">
           <div class="flex items-center justify-between border-b border-[#D0DAE2]/12 pb-4">
             <div>
-              <h2 class="font-syne font-bold text-lg text-white">Staff Roster & Commission Rules</h2>
-              <p class="text-xs text-gray-400">Configure base salary, food allowance, and individual targets/rates.</p>
+              <h2 class="font-syne font-bold text-lg text-white">Staff Directory & Targets</h2>
             </div>
             <button onclick="saveAllStaffEdits()" class="px-4 py-2 rounded-xl text-xs font-bold bg-[#54E29C] hover:bg-[#46cf8c] text-black font-extrabold transition-all shadow-md shadow-[#54E29C]/20">
               Save All Changes
@@ -873,10 +902,6 @@
               </h2>
               <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/20">Granular</span>
             </div>
-
-            <p class="text-xs text-[#D0DAE2]/70 leading-relaxed">
-              Select specific dates to clear. <strong class="text-white">Only selected dates will be reset</strong> — all other dates and history remain untouched.
-            </p>
 
             <!-- Date Selectors -->
             <div class="grid grid-cols-2 gap-2 text-xs pt-1">
@@ -933,7 +958,6 @@
                 <label class="block text-gray-400 mb-1">Monthly Salon Service Revenue Target (₹)</label>
                 <input type="number" id="adminSalonTarget" value="600000" 
                   class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-mono font-bold focus:outline-none focus:border-[#00FFFF]">
-                <span class="text-[10px] text-gray-500">Manager gets 1% on total salon service revenue when this target is reached.</span>
               </div>
 
               <div>
@@ -961,14 +985,12 @@
                 <label class="block text-gray-400 mb-1">Standard Daily Shift (Hours)</label>
                 <input type="number" id="adminShiftHours" value="9" min="1" max="18" 
                   class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
-                <span class="text-[10px] text-gray-500">Shortfall under 9h cuts from earned OT hours!</span>
               </div>
 
               <div>
                 <label class="block text-gray-400 mb-1">OT Grace Threshold (Minutes)</label>
                 <input type="number" id="adminOtThreshold" value="45" min="0" max="120" 
                   class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
-                <span class="text-[10px] text-gray-500">OT starts adding ONLY after 45 extra minutes</span>
               </div>
 
               <div>
@@ -984,7 +1006,7 @@
             </div>
           </div>
 
-          <!-- Firebase Real-Time Cloud Sync (100% Free) -->
+          <!-- Firebase Real-Time Cloud Sync -->
           <div class="bg-[#080808] rounded-3xl border border-[#D0DAE2]/15 p-6 shadow-2xl space-y-3.5 relative overflow-hidden">
             <div class="flex items-center justify-between">
               <h2 class="font-syne font-bold text-base text-white flex items-center gap-2">
@@ -996,10 +1018,6 @@
                 <span id="cloudStatusTextAdmin">Local Storage</span>
               </span>
             </div>
-
-            <p class="text-[11px] text-gray-400 leading-relaxed">
-              100% Free automatic real-time sync with Google Firebase. Syncs attendance, OT, and sales between your phone, tablet, and laptop.
-            </p>
 
             <!-- Unconnected Setup View -->
             <div id="firebaseSetupSection" class="space-y-3 pt-1">
@@ -1406,6 +1424,34 @@ const firebaseConfig = {
       <div class="flex items-center justify-end gap-3 pt-4 border-t border-[#D0DAE2]/12 mt-4">
         <button type="button" onclick="closeQuickAddStaffModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-[#141420] text-gray-400 hover:text-white">
           Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: MONTH-END SALES & MEMBERSHIP CARDS  -->
+  <!-- ========================================== -->
+  <div id="monthEndSalesModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="relative w-full max-w-2xl bg-[#0c0c14] border border-[#222236] rounded-3xl p-6 shadow-2xl text-white">
+      <div class="flex items-center justify-between pb-3 border-b border-[#D0DAE2]/12 mb-4">
+        <div>
+          <h3 class="font-syne font-bold text-lg text-white">Month-End Sales & Membership Cards</h3>
+          <span id="monthEndModalMonth" class="text-xs text-[#00FFFF] font-bold font-mono"></span>
+        </div>
+        <button type="button" onclick="closeMonthEndSalesModal()" class="w-8 h-8 rounded-full bg-[#171726] text-gray-400 hover:text-white flex items-center justify-center cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="monthEndSalesStaffList" class="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="flex items-center justify-between pt-4 border-t border-[#D0DAE2]/12 mt-4 text-xs">
+        <span class="text-gray-400 font-mono">Card Price: ₹95 (No stylist incentive)</span>
+        <button type="button" onclick="closeMonthEndSalesModal()" class="px-5 py-2.5 rounded-xl font-bold bg-[#54E29C] hover:bg-[#46cf8c] text-black cursor-pointer">
+          Save & Done
         </button>
       </div>
     </div>

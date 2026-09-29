@@ -14,6 +14,19 @@
 // 1. DEFAULT DATA CONFIGURATION
 // ==========================================
 
+/**
+ * Salon Salary Target Formula:
+ * - Base Salary * 5.4 times if staff receives food allowance
+ * - Base Salary * 5.0 times if no food allowance
+ * - Not applicable to Manager and House Keeping
+ */
+function calculateStaffTarget(baseSalary, foodAllowance, isManager, isHousekeeping) {
+  if (isManager || isHousekeeping) return 0;
+  const salary = Number(baseSalary) || 0;
+  const food = Number(foodAllowance) || 0;
+  return food > 0 ? Math.round(salary * 5.4) : Math.round(salary * 5);
+}
+
 const DEFAULT_STAFF = [
   {
     id: 'staff_1',
@@ -35,7 +48,7 @@ const DEFAULT_STAFF = [
     foodAllowance: 1500,
     isManager: false,
     isHousekeeping: false,
-    serviceTarget: 125000, // 5 * 25,000
+    serviceTarget: 135000, // 5.4 * 25,000 (Food allowance active)
     serviceCommissionRate: 5, // 5%
     productTier1Min: 8000,
     productTier1Rate: 5, // 5% for 8k-15k
@@ -83,7 +96,7 @@ const DEFAULT_STAFF = [
     foodAllowance: 0,
     isManager: false,
     isHousekeeping: false,
-    serviceTarget: 90000, // 5 * 18,000
+    serviceTarget: 90000, // 5 * 18,000 (No food allowance)
     serviceCommissionRate: 5,
     productTier1Min: 8000,
     productTier1Rate: 5,
@@ -115,7 +128,7 @@ const DEFAULT_STAFF = [
     foodAllowance: 0,
     isManager: false,
     isHousekeeping: false,
-    serviceTarget: 115000, // 5 * 23,000
+    serviceTarget: 115000, // 5 * 23,000 (No food allowance)
     serviceCommissionRate: 5,
     productTier1Min: 15000,
     productTier1Rate: 5,
@@ -1230,6 +1243,7 @@ function calculateStaffMonthPayroll(staff, year, month) {
   let totalShortfallHours = 0;
   let totalServicesDone = 0;
   let totalProductsSold = 0;
+  let totalMembershipCardsSold = 0;
 
   // Track weekly offs per Monday-Sunday calendar week
   // Salon Policy: Strictly 1 week off allowed per week, Monday to Friday ONLY!
@@ -1251,8 +1265,12 @@ function calculateStaffMonthPayroll(staff, year, month) {
           totalGrossOtHours += (dayRecord.otHours || 0);
           totalShortfallHours += (dayRecord.shortfallHours || 0);
         }
-        totalServicesDone += Number(dayRecord.servicesDone || 0);
-        totalProductsSold += Number(dayRecord.productsSold || 0);
+        // Track attendance details
+      }
+      totalServicesDone += Number(dayRecord.servicesDone || 0);
+      totalProductsSold += Number(dayRecord.productsSold || 0);
+      totalMembershipCardsSold += Number(dayRecord.membershipCardsSold || 0);
+      if (dayRecord.status === 'Present') {
       } else if (dayRecord.status === 'Weekly Off') {
         if (isWeekend) {
           // Weekend week off is STRICTLY prohibited by salon policy:
@@ -1302,13 +1320,15 @@ function calculateStaffMonthPayroll(staff, year, month) {
   if (staff.isManager) {
     const totalSalonServices = calculateTotalSalonServiceRevenue(year, month);
     const target = salonRules.salonMonthlyServiceTarget || 600000;
+    // Manager receives 1% on total salon service revenue ONLY when full salon target is reached
     if (totalSalonServices >= target) {
-      serviceCommission = Math.round(totalSalonServices * ((staff.managerCommissionRate || 1) / 100));
+      serviceCommission = Math.round(totalSalonServices * ((staff.managerCommissionRate || salonRules.managerCommissionRate || 1) / 100));
     }
     productCommission = 0;
   } else if (!staff.isHousekeeping) {
-    const target = staff.serviceTarget || (staff.baseSalary * 5);
-    if (totalServicesDone >= target) {
+    // Stylist target formula: baseSalary * 5.4 with food allowance, baseSalary * 5 without
+    const target = staff.serviceTarget || calculateStaffTarget(staff.baseSalary, staff.foodAllowance, staff.isManager, staff.isHousekeeping);
+    if (target > 0 && totalServicesDone >= target) {
       serviceCommission = Math.round(totalServicesDone * ((staff.serviceCommissionRate || 5) / 100));
     }
 
@@ -1319,6 +1339,8 @@ function calculateStaffMonthPayroll(staff, year, month) {
     }
   }
 
+  // Explicit rule: Membership cards are sold at ₹95 each, but NO incentive is added to staff payout
+  const membershipCardRevenue = totalMembershipCardsSold * 95;
   const totalIncentives = serviceCommission + productCommission;
   const foodAllowance = staff.foodAllowance || 0;
 
@@ -1348,6 +1370,8 @@ function calculateStaffMonthPayroll(staff, year, month) {
     netOtPay,
     totalServicesDone,
     totalProductsSold,
+    totalMembershipCardsSold,
+    membershipCardRevenue,
     serviceCommission,
     productCommission,
     totalIncentives,
@@ -1458,6 +1482,8 @@ function renderDailyAttendance() {
   const dateKey = selectedDateStr;
   const isWeekend = isWeekendDay(dateKey);
   const dayName = getDayOfWeekName(dateKey);
+  const [attYear, attMonth, attDay] = dateKey.split('-').map(Number);
+  const isEndOfMonth = (attDay === getDaysInMonth(attYear, attMonth));
 
   let presentCount = 0;
   let weeklyOffCount = 0;
@@ -1643,17 +1669,17 @@ function renderDailyAttendance() {
         ${staff.isHousekeeping ? `
         <div class="flex flex-wrap items-center justify-between gap-4 pt-1 bg-[#090912] p-3.5 rounded-2xl border border-[#1b1b2a]">
           <div class="flex items-center gap-3">
-            <span class="px-3.5 py-1.5 rounded-xl bg-purple-500/15 text-purple-300 font-bold border border-purple-500/30 flex items-center gap-2 text-xs font-mono">
-              <i class="fa-solid fa-clock-rotate-left text-xs"></i>
-              Fixed Daily Schedule: 9:00 AM – 9:00 PM (12 Hours)
+            <span class="px-3.5 py-1.5 rounded-xl bg-[#C084FC]/15 text-[#C084FC] font-bold border border-[#C084FC]/30 flex items-center gap-2 text-xs font-mono">
+              <i class="fa-solid fa-clock text-xs"></i>
+              9:00 AM – 9:00 PM
             </span>
             <span class="text-xs text-gray-300 font-medium">
-              ${isPresent ? '🟢 Working Standard 12h' : (isOff ? '☕ Weekly Off (Sundays)' : '❌ Full Day Leave (Salary Cut)')}
+              ${isPresent ? '🟢 Present' : (isOff ? '☕ Weekly Off' : '❌ Leave')}
             </span>
           </div>
           <div class="flex items-center gap-2 text-[11px] text-gray-400">
             <i class="fa-solid fa-broom text-[#60A5FA]"></i>
-            <span>House Keeping Staff • ₹${staff.baseSalary.toLocaleString('en-IN')}/mo • Excluded from Roster Scanner</span>
+            <span>House Keeping</span>
           </div>
         </div>
         ` : `
@@ -1741,23 +1767,33 @@ function renderDailyAttendance() {
             </div>
           </div>
 
-          <!-- Right: Daily Services & Products Inputs (Fixed spacing, totally contained!) -->
-          <div class="flex items-center gap-3 ${isPresent ? '' : 'opacity-35'}">
+          <!-- Month-End Sales & Membership Cards Inputs (Only asked at the end of the month on that day) -->
+          ${isEndOfMonth ? `
+          <div class="flex flex-wrap items-center gap-2.5 ${isPresent ? '' : 'opacity-35'} p-2 rounded-2xl bg-[#090912] border border-[#222238]">
             <div>
-              <label class="text-[10px] uppercase font-bold text-purple-400 block mb-1">Services (₹)</label>
-              <input type="number" min="0" placeholder="0" value="${record.servicesDone || ''}" 
+              <label class="text-[9px] uppercase font-bold text-purple-400 block mb-0.5">Services (₹)</label>
+              <input type="number" min="0" placeholder="0" value="${record.servicesDone || ''}"
                 onfocus="this.select()" onclick="this.select()"
                 onchange="updateStaffSales('${staff.id}', 'servicesDone', this.value)"
-                class="w-28 bg-[#08080f] border border-[#202032] text-white text-xs font-bold rounded-2xl px-3 py-2.5 focus:border-[#00FFFF]">
+                class="w-24 bg-[#08080f] border border-[#202032] text-white text-xs font-bold rounded-xl px-2.5 py-1.5 focus:border-[#00FFFF]">
             </div>
             <div>
-              <label class="text-[10px] uppercase font-bold text-[#C084FC] block mb-1">Products (₹)</label>
-              <input type="number" min="0" placeholder="0" value="${record.productsSold || ''}" 
+              <label class="text-[9px] uppercase font-bold text-[#C084FC] block mb-0.5">Products (₹)</label>
+              <input type="number" min="0" placeholder="0" value="${record.productsSold || ''}"
                 onfocus="this.select()" onclick="this.select()"
                 onchange="updateStaffSales('${staff.id}', 'productsSold', this.value)"
-                class="w-28 bg-[#08080f] border border-[#202032] text-white text-xs font-bold rounded-2xl px-3 py-2.5 focus:border-[#00FFFF]">
+                class="w-24 bg-[#08080f] border border-[#202032] text-white text-xs font-bold rounded-xl px-2.5 py-1.5 focus:border-[#00FFFF]">
+            </div>
+            <div>
+              <label class="text-[9px] uppercase font-bold text-[#00FFFF] block mb-0.5">Cards Sold</label>
+              <input type="number" min="0" placeholder="0" value="${record.membershipCardsSold || ''}"
+                onfocus="this.select()" onclick="this.select()"
+                onchange="updateStaffCardsSold('${staff.id}', this.value)"
+                class="w-20 bg-[#08080f] border border-[#202032] text-white text-xs font-bold rounded-xl px-2.5 py-1.5 focus:border-[#00FFFF]"
+                title="Sold @ ₹95 each (₹0 commission)">
             </div>
           </div>
+          ` : ''}
 
         </div>
         `}
@@ -1913,6 +1949,17 @@ function updateStaffSales(staffId, field, value) {
   saveAttendanceData();
   renderDailyAttendance();
 }
+
+function updateStaffCardsSold(staffId, value) {
+  const dateKey = selectedDateStr;
+  if (!attendanceData[dateKey]) attendanceData[dateKey] = {};
+  if (!attendanceData[dateKey][staffId]) attendanceData[dateKey][staffId] = {};
+
+  attendanceData[dateKey][staffId].membershipCardsSold = parseInt(value, 10) || 0;
+  saveAttendanceData();
+  renderDailyAttendance();
+}
+window.updateStaffCardsSold = updateStaffCardsSold;
 
 function bulkMarkAllPresent() {
   const dateKey = selectedDateStr;
@@ -2193,10 +2240,18 @@ function renderIncentivesView() {
   let maxRetailAmount = 0;
   let retailChampionStaffId = null;
 
+  let totalSalonCardsSold = 0;
+  let totalSalonCardsRevenue = 0;
+  let totalSalonRetailRevenue = 0;
+
   staffList.forEach(staff => {
-    if (staff.isManager || staff.isHousekeeping) return;
     const p = calculateStaffMonthPayroll(staff, year, month);
+    totalSalonCardsSold += (p.totalMembershipCardsSold || 0);
+    totalSalonCardsRevenue += (p.membershipCardRevenue || 0);
+
+    if (staff.isManager || staff.isHousekeeping) return;
     totalStylistCommissions += p.totalIncentives;
+    totalSalonRetailRevenue += p.totalProductsSold;
     if (p.totalIncentives > 0) activeCommissionEarners++;
 
     if (p.totalServicesDone > topServiceStylist.amount) {
@@ -2211,15 +2266,17 @@ function renderIncentivesView() {
       retailChampionStaffId = staff.id;
     }
 
-    const servTarget = staff.serviceTarget || (staff.baseSalary * 5);
-    const servPercent = Math.min(100, Math.round((p.totalServicesDone / servTarget) * 100));
-    const servAchieved = p.totalServicesDone >= servTarget;
+    const servTarget = staff.serviceTarget || calculateStaffTarget(staff.baseSalary, staff.foodAllowance, staff.isManager, staff.isHousekeeping);
+    const servPercent = servTarget > 0 ? Math.min(100, Math.round((p.totalServicesDone / servTarget) * 100)) : 0;
+    const servAchieved = servTarget > 0 && p.totalServicesDone >= servTarget;
 
     stylistStats.push({
       staff,
       payroll: p,
       servicesDone: p.totalServicesDone,
       productsSold: p.totalProductsSold,
+      cardsSold: p.totalMembershipCardsSold || 0,
+      cardsRevenue: p.membershipCardRevenue || 0,
       serviceCommission: p.serviceCommission,
       productCommission: p.productCommission,
       totalIncentives: p.totalIncentives,
@@ -2228,6 +2285,9 @@ function renderIncentivesView() {
       targetAchieved: servAchieved
     });
   });
+
+  // Check if any sale is done
+  const hasAnySales = (totalSalonRev > 0 || totalSalonRetailRevenue > 0 || totalSalonCardsSold > 0);
 
   // Rank stylists descending by services done, then products sold
   stylistStats.sort((a, b) => b.servicesDone - a.servicesDone || b.productsSold - a.productsSold);
@@ -2324,19 +2384,19 @@ function renderIncentivesView() {
         </div>
       </div>
 
-      <!-- Card 4: Top Product Seller -->
+      <!-- Card 4: Membership Cards Sold -->
       <div class="bg-[#0e0e18] p-4 rounded-2xl border border-[#232338] shadow-lg">
         <div class="flex items-center justify-between text-xs text-gray-400 font-semibold">
-          <span>Top Product Retailer</span>
-          <i class="fa-solid fa-bottle-droplet text-[#C084FC] text-xs"></i>
+          <span>Membership Cards</span>
+          <i class="fa-solid fa-id-card text-[#00FFFF] text-xs"></i>
         </div>
         <div class="mt-2">
           <div class="flex items-center justify-between">
-            <span class="text-base font-bold font-heading text-white truncate max-w-[160px]">${topProductStylist.name}</span>
-            <span class="text-xs font-mono font-bold text-[#C084FC] whitespace-nowrap">₹${topProductStylist.amount.toLocaleString('en-IN')}</span>
+            <span class="text-xl font-black font-heading text-[#00FFFF]">${totalSalonCardsSold} <span class="text-xs font-normal text-gray-400">cards</span></span>
+            <span class="text-xs font-mono font-bold text-white whitespace-nowrap">₹${totalSalonCardsRevenue.toLocaleString('en-IN')}</span>
           </div>
-          <span class="text-[10px] text-[#60A5FA] font-bold block mt-1 truncate">
-            ${topProductStylist.commission > 0 ? `+₹${topProductStylist.commission.toLocaleString('en-IN')} commission` : 'Below min tier'}
+          <span class="text-[10px] text-gray-400 block mt-1 truncate">
+            ₹95/card • No stylist incentive
           </span>
         </div>
       </div>
@@ -2345,6 +2405,10 @@ function renderIncentivesView() {
 
   // 2. Render Live Stylist Leaderboard & Podium Showcase
   if (leaderboardContainer) {
+    if (!hasAnySales) {
+      leaderboardContainer.classList.add('hidden');
+    } else {
+      leaderboardContainer.classList.remove('hidden');
     const top3 = stylistStats.slice(0, 3);
     const rest = stylistStats.slice(3);
 
@@ -2503,7 +2567,7 @@ function renderIncentivesView() {
               <h2 class="font-syne font-extrabold text-lg text-white">Live Stylist Leaderboard & Performance Badges</h2>
               <span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">RANKINGS</span>
             </div>
-            <p class="text-xs text-gray-400 mt-0.5">Top-earning stylists for <span class="text-white font-semibold">${selectedMonthStr}</span> ranked by service revenue & retail targets.</p>
+            
           </div>
         </div>
         <div class="flex items-center gap-2 bg-[#121220] px-3.5 py-1.5 rounded-2xl border border-[#202036]">
@@ -2521,6 +2585,78 @@ function renderIncentivesView() {
       <!-- Positions 4+ -->
       ${restHtml}
     `;
+    }
+  }
+
+  // 2b. Render Monthly Incentives & Membership Breakdown Table
+  const tableBody = document.getElementById('incentivesTableBody');
+  const tableFoot = document.getElementById('incentivesTableFoot');
+  if (tableBody) {
+    let tRows = '';
+    let totServSales = 0;
+    let totServTarget = 0;
+    let totServComm = 0;
+    let totProdSales = 0;
+    let totProdComm = 0;
+    let totCards = 0;
+    let totCardsRev = 0;
+    let totIncentives = 0;
+
+    stylistStats.forEach(item => {
+      const p = item.payroll;
+      totServSales += p.totalServicesDone;
+      totServTarget += item.target;
+      totServComm += p.serviceCommission;
+      totProdSales += p.totalProductsSold;
+      totProdComm += p.productCommission;
+      totCards += (p.totalMembershipCardsSold || 0);
+      totCardsRev += (p.membershipCardRevenue || 0);
+      totIncentives += p.totalIncentives;
+
+      tRows += `
+        <tr class="hover:bg-[#12121f] transition-colors">
+          <td class="py-3 px-3 font-bold text-white flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg bg-[#141424] border border-[#222238] text-xs font-mono flex items-center justify-center text-[#60A5FA]">
+              ${item.staff.name.substring(0, 2).toUpperCase()}
+            </span>
+            <span>${item.staff.name}</span>
+          </td>
+          <td class="py-3 px-2 text-gray-400 text-[11px]">${item.staff.role}</td>
+          <td class="py-3 px-2 text-right font-mono font-bold text-white">₹${p.totalServicesDone.toLocaleString('en-IN')}</td>
+          <td class="py-3 px-2 text-right font-mono text-gray-400">₹${item.target.toLocaleString('en-IN')}</td>
+          <td class="py-3 px-2 text-center">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${item.targetAchieved ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-gray-800 text-gray-400'}">
+              ${item.targetPercent}%
+            </span>
+          </td>
+          <td class="py-3 px-2 text-right font-mono text-emerald-400 font-bold">₹${p.serviceCommission.toLocaleString('en-IN')}</td>
+          <td class="py-3 px-2 text-right font-mono text-[#C084FC]">₹${p.totalProductsSold.toLocaleString('en-IN')}</td>
+          <td class="py-3 px-2 text-right font-mono text-[#C084FC] font-bold">₹${p.productCommission.toLocaleString('en-IN')}</td>
+          <td class="py-3 px-3 text-center font-mono font-bold text-[#00FFFF]">
+            ${p.totalMembershipCardsSold || 0} <span class="text-[10px] text-gray-400 font-normal">(@ ₹95 = ₹${((p.totalMembershipCardsSold || 0) * 95).toLocaleString('en-IN')})</span>
+          </td>
+          <td class="py-3 px-3 text-right font-mono font-extrabold text-[#54E29C] text-sm">₹${p.totalIncentives.toLocaleString('en-IN')}</td>
+        </tr>
+      `;
+    });
+
+    tableBody.innerHTML = tRows;
+
+    if (tableFoot) {
+      tableFoot.innerHTML = `
+        <tr class="border-t-2 border-[#242438]">
+          <td colspan="2" class="py-3 px-3 uppercase tracking-wider text-xs font-bold text-gray-300">Salon Totals</td>
+          <td class="py-3 px-2 text-right font-mono font-bold text-white">₹${totServSales.toLocaleString('en-IN')}</td>
+          <td class="py-3 px-2 text-right font-mono text-gray-400">₹${totServTarget.toLocaleString('en-IN')}</td>
+          <td class="py-3 px-2 text-center font-mono text-xs text-gray-300">${totServTarget > 0 ? Math.round((totServSales / totServTarget) * 100) : 0}%</td>
+          <td class="py-3 px-2 text-right font-mono font-bold text-emerald-400">₹${totServComm.toLocaleString('en-IN')}</td>
+          <td class="py-3 px-2 text-right font-mono font-bold text-[#C084FC]">₹${totProdSales.toLocaleString('en-IN')}</td>
+          <td class="py-3 px-2 text-right font-mono font-bold text-[#C084FC]">₹${totProdComm.toLocaleString('en-IN')}</td>
+          <td class="py-3 px-3 text-center font-mono font-bold text-[#00FFFF]">${totCards} <span class="text-[10px] text-gray-400 font-normal">(₹${totCardsRev.toLocaleString('en-IN')})</span></td>
+          <td class="py-3 px-3 text-right font-mono font-black text-[#54E29C] text-base">₹${totIncentives.toLocaleString('en-IN')}</td>
+        </tr>
+      `;
+    }
   }
 
   // 3. Render Individual Staff Progress Cards with Dynamic Badges
@@ -2566,7 +2702,7 @@ function renderIncentivesView() {
             <div class="w-full bg-[#131320] h-2.5 rounded-full overflow-hidden">
               <div class="h-full rounded-full transition-all duration-500 ${achieved ? 'bg-gradient-to-r from-purple-500 to-emerald-400' : 'bg-purple-500'}" style="width: ${targetPercent}%"></div>
             </div>
-            <p class="text-[10px] text-gray-500 italic mt-1">* Manager receives ${salonRules.managerCommissionRate || 1}% on total salon service revenue only; no product commission.</p>
+            
           </div>
         </div>
       `;
@@ -2608,7 +2744,7 @@ function renderIncentivesView() {
     const prodTierLabel = `${t1Rate}% above ₹${t1Min.toLocaleString('en-IN')}, ${t2Rate}% above ₹${t2Min.toLocaleString('en-IN')}`;
 
     const rankInfo = stylistRankMeta[staff.id];
-    const rankNum = rankInfo ? rankInfo.rank : null;
+    const rankNum = (hasAnySales && (p.totalServicesDone > 0 || p.totalProductsSold > 0)) && rankInfo ? rankInfo.rank : null;
     const rankBadgeClass = rankNum === 1 
       ? 'bg-amber-400/20 text-amber-300 border-amber-400/40' 
       : (rankNum === 2 
@@ -2673,17 +2809,15 @@ function renderIncentivesView() {
               `<span class="text-gray-500 text-[10px] font-mono">Below ₹${t1Min.toLocaleString('en-IN')}</span>`
             }
           </div>
-          <span class="text-[10px] text-gray-500 block">Rule: ${prodTierLabel}</span>
+          
         </div>
 
-        <!-- Quick Log Sales for This Staff Button -->
-        <div class="pt-2 border-t border-[#181826] flex items-center justify-between">
-          <span class="text-[10px] text-gray-500">Log daily billings for ${selectedDateStr}</span>
-          <button type="button" onclick="openQuickSalesModal('${staff.id}')" 
-            class="px-3 py-1.5 rounded-xl bg-[#171728] hover:bg-[#00FFFF] hover:text-black/20 text-gray-300 hover:text-[#60A5FA] border border-[#2b2b40] hover:border-[#C084FC]/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
-            <i class="fa-solid fa-plus-circle text-[#54E29C]"></i>
-            <span>Log Daily Sales</span>
-          </button>
+        <!-- Membership Cards Sold Row in Card -->
+        <div class="pt-2 border-t border-[#181826] flex items-center justify-between text-xs">
+          <span class="text-gray-300">
+            Membership Cards: <strong class="text-[#00FFFF] font-mono">${p.totalMembershipCardsSold || 0} sold</strong> (₹${((p.totalMembershipCardsSold || 0) * 95).toLocaleString('en-IN')})
+          </span>
+          <span class="text-[10px] text-gray-500 font-mono">₹95/card • ₹0 comm</span>
         </div>
 
       </div>
@@ -3172,7 +3306,7 @@ function parseRosterText(rawText) {
     let year = dateMatch[3];
     if (year.length === 2) year = '20' + year;
     const detectedDateStr = `${year}-${month}-${day}`;
-    
+
     const targetDateInput = document.getElementById('rosterTargetDate');
     if (targetDateInput) {
       targetDateInput.value = detectedDateStr;
@@ -3181,203 +3315,102 @@ function parseRosterText(rawText) {
 
   const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
-  let inMaleSection = false;
-  let inFemaleSection = false;
-  let arunaLineIdx = -1;
-  let reshmaLineIdx = -1;
-
-  const staffDefinitions = [
+  // Strict Name-First Definitions:
+  // Identify the NAME first with comprehensive fuzzy OCR regexes.
+  // 100% immune to vertical line swaps, reversed orders, or section numbers!
+  const staffPatterns = [
     {
       id: 'staff_1',
       name: 'KALYAN',
       isManager: true,
-      aliases: ['KALYAN', 'MANAGER', 'KALAYAN', 'KALYANI', 'KALY', 'KALYN', 'KLYAN', 'CALYAN', 'KALIYAN', 'KLYN', 'KA1YAN', 'KAIYAN', 'KALVAN', 'KALYAM', 'KALLAN', 'KALLIAN', 'BM', 'MGR', 'MNGR', 'SALON MANAGER', 'STORE MANAGER', 'BRANCH MANAGER'],
-      customMatcher: (line, upper, cleanUpper) => {
-        if (/(?:^|[^A-Z0-9])(?:K[A4@][L1|!I]{1,2}[YV]?[A4@][NM]I?|KALYAN|KA1YAN|KAIYAN|KALVAN|KALYN|KLYAN|KALYAM|KALYANI|CALYAN|KALIYAN|KLYN)(?:[^A-Z0-9]|$)/i.test(line)) {
-          return true;
-        }
-        if (/\b(MANAGER|BM|MGR|MNGR|BRANCH\s*MANAGER|STORE\s*MANAGER|SALON\s*MANAGER)\b/i.test(upper)) {
-          return true;
-        }
-        return false;
-      }
+      pattern: /\b(KALYAN|KALAYAN|KALYANI|CALYAN|KALIYAN|KA1YAN|KAIYAN|KALVAN|KALYN|KLYAN|KALYAM|KALLAN|KALLIAN|BM|MGR|MNGR|SALON\s*MANAGER|BRANCH\s*MANAGER|STORE\s*MANAGER)\b/i
     },
     {
       id: 'staff_12',
       name: 'VARSHA',
       isManager: true,
-      aliases: ['VARSHA', 'VARSHAA', 'WARSHA', 'VRSHA']
+      pattern: /\b(VARSHA|VARSHAA|WARSHA|VRSHA)\b/i
     },
     {
       id: 'staff_13',
       name: 'RAMESH',
       isManager: true,
-      aliases: ['RAMESH', 'RAMES', 'RAMESHWAR', 'ASST MANAGER', 'ASST MGR']
+      pattern: /\b(RAMESH|RAMES|RAMESHWAR|ASST\s*MANAGER|ASST\s*MGR)\b/i
     },
     {
       id: 'staff_4',
       name: 'SULEMAN',
-      gender: 'male',
-      sectionIndex: 1,
-      aliases: ['SULEMAN', 'SUEMAN', 'SULMAN', 'SULIMAN', 'SUMAN', 'SULEMAAN', 'SOLEMAN', 'SULAIMAN', 'SLMN', 'SULEM', 'SULI', 'SUL', 'SUEM', 'SULAMAN']
+      pattern: /\b(SULEMAN|SUEMAN|SULMAN|SULIMAN|SUMAN|SULEMAAN|SOLEMAN|SULAIMAN|SULAMAN|SLMN|SULEM|SULI)\b/i
     },
     {
       id: 'staff_2',
       name: 'ISLAM',
-      gender: 'male',
-      sectionIndex: 2,
-      aliases: ['ISLAM', 'STAM', '1SLAM', 'SLAM', 'ISLM', 'ISLAAM', 'ASLAM', 'ISLLAM', 'ISLAMM', 'I-SLAM', 'SLM', '1SLM', 'TSLAM']
+      pattern: /\b(ISLAM|1SLAM|SLAM|ISLM|ISLAAM|ASLAM|ISLLAM|ISLAMM|I-SLAM)\b/i
     },
     {
       id: 'staff_3',
       name: 'IQRAM',
-      gender: 'male',
-      sectionIndex: 3,
-      aliases: ['IQRAM', 'IKRAM', 'ILARAM', 'RAM', 'ORAM', 'QRAM', 'ILARA', 'IKRM', 'IQRAAM', 'IKRAAM', 'ICRAM', 'IQRM', '1QRAM', 'GRAM', 'IORAM']
-    },
-    {
-      id: 'staff_9',
-      name: 'KARTHIK',
-      gender: 'male',
-      sectionIndex: 4,
-      aliases: ['KARTHIK', 'KARTIK', 'KARTHICK', 'KARTHEEK', 'KARTHI']
-    },
-    {
-      id: 'staff_7',
-      name: 'Aruna',
-      gender: 'female',
-      sectionIndex: 1,
-      aliases: ['ARUNA', 'ARUN', 'AARUNA', 'ARU', 'ARUNAA', 'AURNA', 'ARONA', 'ARNA'],
-      customMatcher: (line, upper, cleanUpper, inMale, inFemale) => {
-        if (/\b(?:ARUNA|AARUNA|ARUN|ARUNAA|AURNA)\b/i.test(upper)) return true;
-        if (inFemale && /(?:^|[\s|(\[])1(?:[.\s|\-_)]|$)/.test(cleanUpper)) return true;
-        return false;
-      }
+      pattern: /\b(IQRAM|IKRAM|ILARAM|IKRM|IQRAAM|IKRAAM|ICRAM|IQRM|1QRAM|IORAM)\b/i
     },
     {
       id: 'staff_5',
       name: 'AFRIN',
-      gender: 'female',
-      sectionIndex: 2,
-      aliases: ['AFRIN', 'AFREEN', 'AFREN', 'ATRIN', 'ATREEN', 'ATREN', 'APRIN', 'APREN', 'APHRIN', 'APHREN', 'AFRIM', 'AFREEM', 'AFFRIN', 'AFFREN', 'AFEEM', 'AFEEN', 'AERIN', 'AARIN', 'AFRN', 'APRN', 'ARFIN', 'AFRI', 'RIN', 'AFFIN', 'AHREEN', 'AHREN', 'ADRIN', 'ADREEN', 'AMN', 'ARN'],
-      customMatcher: (line, upper, cleanUpper, inMale, inFemale) => {
-        if (/(?:^|[^A-Z0-9])(?:A[FPHTBD4@][R1|!IL]?[E3I1!]{1,2}[NM]A?|AFRIN|AFREEN|AFREN|ATRIN|ATREEN|ATREN|APRIN|APREN|APHRIN|APHREN|AFRIM|AFREEM|AFFRIN|AFFREN|AFEEM|AFEEN|AERIN|AARIN|AFRN|APRN|ARFIN|ARIN)(?:[^A-Z0-9]|$)/i.test(line)) {
-          return true;
-        }
-        if (inFemale) {
-          if (/(?:^|[\s|(\[])2(?:[.\s|\-_)]|$)/.test(cleanUpper)) {
-            return true;
-          }
-          if (/\b11(?::00)?\s*(?:TO|-|710|70)\s*8(?::00)?\b/i.test(upper)) {
-            return true;
-          }
-        }
-        return false;
-      }
+      pattern: /\b(AFRIN|AFREEN|AFREN|ATRIN|ATREEN|ATREN|APRIN|APREN|APHRIN|APHREN|AFRIM|AFREEM|AFFRIN|AFFREN|AFEEM|AFEEN|AERIN|AARIN|ARFIN)\b/i
     },
     {
       id: 'staff_6',
       name: 'RESHMA',
-      gender: 'female',
-      sectionIndex: 3,
-      aliases: ['RESHMA', 'RMESIMA', 'RMESAMA', 'RESHM', 'RISHMA', 'RESMA', 'RESHMAA', 'RESH', 'RSHMA', 'RESHMI', 'RESMHA', 'RSHM'],
-      customMatcher: (line, upper, cleanUpper, inMale, inFemale) => {
-        if (/\b(?:RESHMA|RMESIMA|RISHMA|RESMA|RESHM)\b/i.test(upper)) return true;
-        if (inFemale && /(?:^|[\s|(\[])3(?:[.\s|\-_)]|$)/.test(cleanUpper)) return true;
-        return false;
-      }
+      pattern: /\b(RESHMA|RMESIMA|RMESAMA|RISHMA|RESMA|RESHM|RESHMAA|RSHMA|RESHMI|RESMHA)\b/i
+    },
+    {
+      id: 'staff_7',
+      name: 'Aruna',
+      pattern: /\b(ARUNA|AARUNA|ARUN|ARUNAA|AURNA|ARONA|ARNA)\b/i
+    },
+    {
+      id: 'staff_9',
+      name: 'KARTHIK',
+      pattern: /\b(KARTHIK|KARTIK|KARTHICK|KARTHEEK|KARTHI)\b/i
     },
     {
       id: 'staff_10',
       name: 'BHARGAVI',
-      gender: 'female',
-      aliases: ['BHARGAVI', 'BHARGAWI', 'BHARGVI', 'BARGAVI', 'BHARG']
+      pattern: /\b(BHARGAVI|BHARGAWI|BHARGVI|BARGAVI|BHARG)\b/i
     },
     {
       id: 'staff_11',
       name: 'NAVANITHA',
-      gender: 'female',
-      aliases: ['NAVANITHA', 'NAVANITA', 'NAVANEETHA', 'NAVANEETA', 'NAVNEETHA', 'NAVANIT']
+      pattern: /\b(NAVANITHA|NAVANITA|NAVANEETHA|NAVANEETA|NAVNEETHA|NAVANIT)\b/i
     }
   ];
 
+  // Map each line to the staff member named on that line
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const upper = line.toUpperCase();
     const cleanLine = line.replace(/[^A-Za-z0-9:\s]/g, ' ').replace(/\s+/g, ' ').trim();
-    const cleanUpper = cleanLine.toUpperCase();
 
-    // Check FEMALE FIRST because 'FEMALE' contains substring 'MALE'!
-    const isFemaleHeader = /\b(FEMALE|PEMALE|FEMAL|FMALE|LADIES|WOMEN|GIRLS|BEAUTICIAN|BEAUTICIANS|BEAUTY|SKIN|F\s*STAFF|F\s*TEAM)\b/i.test(upper) || /^(?:F|FEM|FM)[\s:|-]/i.test(upper);
-    const isMaleHeader = !isFemaleHeader && (/\b(MALE|MEN|BOYS|HAIR\s*STYLIST|HAIR|BARBER|M\s*STAFF|M\s*TEAM)\b/i.test(upper) || /^(?:M|ML)[\s:|-]/i.test(upper));
+    // Check if line matches any staff member by NAME FIRST
+    for (const sp of staffPatterns) {
+      if (parsedRosterBuffer[sp.id]) continue; // Already matched
 
-    if (isFemaleHeader) {
-      inFemaleSection = true;
-      inMaleSection = false;
-      continue;
-    } else if (isMaleHeader) {
-      inMaleSection = true;
-      inFemaleSection = false;
-      continue;
-    }
-
-    for (const staffDef of staffDefinitions) {
-      if (parsedRosterBuffer[staffDef.id]) continue;
-
-      let matched = false;
-
-      // 0. Custom matcher (highest priority for fuzzy OCR like Ka1yan or Atreen)
-      if (staffDef.customMatcher && staffDef.customMatcher(line, upper, cleanUpper, inMaleSection, inFemaleSection)) {
-        matched = true;
-      }
-
-      // 1. Alias matching (raw line and cleaned line)
-      if (!matched) {
-        for (const alias of staffDef.aliases) {
-          if (alias.length <= 4) {
-            const regex = new RegExp('(?:^|[\\s|0-9_.-])' + alias + '(?:[\\s|0-9_.-]|$)', 'i');
-            if (regex.test(line) || regex.test(cleanLine)) {
-              matched = true;
-              break;
-            }
-          } else {
-            if (upper.includes(alias) || cleanUpper.includes(alias)) {
-              matched = true;
-              break;
-            }
-          }
-        }
-      }
-
-      // 2. Section + index matching
-      if (!matched && staffDef.sectionIndex) {
-        if ((inMaleSection && staffDef.gender === 'male') || (inFemaleSection && staffDef.gender === 'female')) {
-          const indexRegex = new RegExp('(?:^|[\\s|(\\[])' + staffDef.sectionIndex + '[\\s|._)-]+', 'i');
-          if (indexRegex.test(line) || indexRegex.test(cleanLine)) {
-            matched = true;
-          }
-        }
-      }
-
-      if (matched) {
-        if (staffDef.id === 'staff_7') arunaLineIdx = i;
-        if (staffDef.id === 'staff_6') reshmaLineIdx = i;
-
-        const staffObj = staffList.find(s => s.id === staffDef.id);
+      if (sp.pattern.test(line) || sp.pattern.test(cleanLine)) {
+        const staffObj = staffList.find(s => s.id === sp.id);
         if (staffObj) {
-          // Lookahead to next line if next line does not match another staff member
+          // Check if timing is on this line or continuation line
           let nextLineText = '';
           if (i + 1 < lines.length) {
-            const nextL = lines[i + 1].toUpperCase();
-            const isNextStaff = staffDefinitions.some(sd => sd.aliases.some(a => nextL.includes(a)));
-            const isHeader = nextL.includes('MALE') || nextL.includes('FEMALE') || nextL.includes('NOTE') || nextL.includes('DATE');
+            const nextL = lines[i + 1];
+            const isNextStaff = staffPatterns.some(p => p.pattern.test(nextL));
+            const isHeader = /\b(MALE|FEMALE|MEN|WOMEN|STAFF|DATE|ROSTER)\b/i.test(nextL);
             if (!isNextStaff && !isHeader) {
-              nextLineText = lines[i + 1];
+              nextLineText = nextL;
             }
           }
 
-          const shift = extractShiftFromContext(line, nextLineText, staffDef.isManager);
-          parsedRosterBuffer[staffDef.id] = {
+          // Extract shift strictly from the line that belongs to this staff member
+          const shift = extractShiftFromContext(line, nextLineText, sp.isManager);
+          parsedRosterBuffer[sp.id] = {
             staff: staffObj,
             status: shift.status,
             inH: shift.inH,
@@ -3388,82 +3421,6 @@ function parseRosterText(rawText) {
           };
         }
         break;
-      }
-    }
-  }
-
-  // ==========================================
-  // MULTI-PASS SAFETY FALLBACK FOR KALYAN & AFRIN
-  // ==========================================
-
-  // 1. Safety Fallback for KALYAN (Manager)
-  if (!parsedRosterBuffer['staff_1']) {
-    const kalyanRegex = /(?:^|[^A-Z0-9])(?:K[A4@][L1|!I]{1,2}[YV]?[A4@][NM]I?|KALYAN|KA1YAN|KAIYAN|KALVAN|KALYN|KLYAN|KALYAM|KALYANI|CALYAN|KALIYAN|KLYN|BM|MANAGER|MGR|MNGR)(?:[^A-Z0-9]|$)/i;
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      if (kalyanRegex.test(line)) {
-        const nextLineText = (i + 1 < lines.length) ? lines[i + 1] : '';
-        const shift = extractShiftFromContext(line, nextLineText, true);
-        const staffObj = staffList.find(s => s.id === 'staff_1');
-        if (staffObj) {
-          parsedRosterBuffer['staff_1'] = {
-            staff: staffObj,
-            status: shift.status,
-            inH: shift.inH || 12,
-            inM: shift.inM || 0,
-            inAmpm: shift.inAmpm || 'PM',
-            outH: shift.outH || 9,
-            outM: shift.outM || 0
-          };
-          break;
-        }
-      }
-    }
-  }
-
-  // 2. Safety Fallback for AFRIN (Stylist #5)
-  if (!parsedRosterBuffer['staff_5']) {
-    const afrinRegex = /(?:^|[^A-Z0-9])(?:A[FPHTBD4@][R1|!IL]?[E3I1!]{1,2}[NM]A?|AFRIN|AFREEN|AFREN|ATRIN|ATREEN|ATREN|APRIN|APREN|APHRIN|APHREN|AFRIM|AFREEM|AFFRIN|AFFREN|AFEEM|AFEEN|AERIN|AARIN|AFRN|APRN|ARFIN|ARIN)(?:[^A-Z0-9]|$)/i;
-    
-    // Check line between Aruna and Reshma if available
-    let foundLineIdx = -1;
-    if (arunaLineIdx !== -1 && reshmaLineIdx !== -1 && reshmaLineIdx > arunaLineIdx + 1) {
-      foundLineIdx = arunaLineIdx + 1;
-    }
-
-    if (foundLineIdx === -1) {
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        const cleanL = line.replace(/[^A-Za-z0-9:\s]/g, ' ').toUpperCase();
-        if (afrinRegex.test(line) || (/(?:^|[\s|(\[])2(?:[.\s|\-_)]|$)/.test(cleanL) && (line.includes('11') || line.includes('8') || line.toUpperCase().includes('OFF') || line.toUpperCase().includes('LEAVE')))) {
-          foundLineIdx = i;
-          break;
-        }
-      }
-    }
-
-    if (foundLineIdx !== -1) {
-      const line = lines[foundLineIdx];
-      const nextLineText = (foundLineIdx + 1 < lines.length) ? lines[foundLineIdx + 1] : '';
-      const shift = extractShiftFromContext(line, nextLineText, false);
-      const staffObj = staffList.find(s => s.id === 'staff_5');
-      if (staffObj) {
-        let finalInH = shift.inH;
-        let finalOutH = shift.outH;
-        // Afrin standard scheduled shift is 11:00 AM - 8:00 PM if default 10-7 was applied without explicit 10
-        if (shift.status === 'Present' && shift.inH === 10 && shift.outH === 7 && !line.includes('10')) {
-          finalInH = 11;
-          finalOutH = 8;
-        }
-        parsedRosterBuffer['staff_5'] = {
-          staff: staffObj,
-          status: shift.status,
-          inH: finalInH,
-          inM: shift.inM,
-          inAmpm: shift.inAmpm,
-          outH: finalOutH,
-          outM: shift.outM
-        };
       }
     }
   }
@@ -3481,6 +3438,7 @@ function updateDetectedStaffStatus(staffId, newStatus) {
     showToast(`Updated ${parsedRosterBuffer[staffId].staff.name} to ${newStatus}`);
   }
 }
+window.updateDetectedStaffStatus = updateDetectedStaffStatus;
 
 function renderParsedRosterList() {
   const container = document.getElementById('parsedRosterList');
@@ -3851,24 +3809,24 @@ function renderAdminView() {
           </div>
 
           ${staff.isManager ? `
-            <div class="col-span-2 p-2.5 rounded-xl bg-[#090910] border border-[#1b1b2a] text-gray-400 text-[11px] flex items-center">
-              Manager earns ${salonRules.managerCommissionRate || 1}% on total salon service revenue when salon target is met.
+            <div class="col-span-2 p-2.5 rounded-xl bg-[#090910] border border-[#1b1b2a] text-[#C084FC] text-xs font-mono font-bold flex items-center">
+              Manager (1% salon target commission)
             </div>
           ` : (staff.isHousekeeping ? `
-            <div class="col-span-2 p-2.5 rounded-xl bg-[#090910] border border-[#1b1b2a] text-gray-400 text-[11px] flex items-center">
-              House Keeping has fixed salary. No OT or percentage commission rules apply.
+            <div class="col-span-2 p-2.5 rounded-xl bg-[#090910] border border-[#1b1b2a] text-gray-400 text-xs font-mono flex items-center">
+              House Keeping (Fixed monthly pay)
             </div>
           ` : `
             <div>
               <label class="text-[10px] text-purple-400 uppercase font-semibold block mb-1">Service Comm. (%)</label>
-              <input type="number" id="admin_serv_rate_${staff.id}" value="${staff.serviceCommissionRate || 5}" min="0" max="100" 
+              <input type="number" id="admin_serv_rate_${staff.id}" value="${staff.serviceCommissionRate || 5}" min="0" max="100"
                 onfocus="this.select()"
                 class="w-full bg-[#181828] border border-[#26263a] rounded-xl px-2.5 py-1.5 text-purple-300 font-mono font-bold focus:border-[#00FFFF]">
             </div>
 
             <div>
               <label class="text-[10px] text-purple-400 uppercase font-semibold block mb-1">Service Target (₹)</label>
-              <input type="number" id="admin_serv_target_${staff.id}" value="${staff.serviceTarget || (staff.baseSalary * 5)}" 
+              <input type="number" id="admin_serv_target_${staff.id}" value="${calculateStaffTarget(staff.baseSalary, staff.foodAllowance, staff.isManager, staff.isHousekeeping)}"
                 onfocus="this.select()"
                 class="w-full bg-[#181828] border border-[#26263a] rounded-xl px-2.5 py-1.5 text-purple-300 font-mono font-bold focus:border-[#00FFFF]">
             </div>
@@ -3912,6 +3870,24 @@ function renderAdminView() {
 
   container.innerHTML = html;
 }
+
+
+function autoUpdateStaffTarget(staffId) {
+  const roleEl = document.getElementById(`admin_role_${staffId}`);
+  const salaryEl = document.getElementById(`admin_salary_${staffId}`);
+  const foodEl = document.getElementById(`admin_food_${staffId}`);
+  const targetEl = document.getElementById(`admin_serv_target_${staffId}`);
+
+  if (!targetEl) return;
+  const role = roleEl ? roleEl.value : '';
+  const isMgr = (role === 'Manager');
+  const isHk = (role === 'House Keeping');
+  const sal = parseFloat(salaryEl ? salaryEl.value : 0) || 0;
+  const food = parseFloat(foodEl ? foodEl.value : 0) || 0;
+
+  targetEl.value = calculateStaffTarget(sal, food, isMgr, isHk);
+}
+window.autoUpdateStaffTarget = autoUpdateStaffTarget;
 
 function saveAllStaffEdits() {
   staffList.forEach(staff => {
@@ -4021,7 +3997,8 @@ function handleStaffFormSubmit(e) {
     foodAllowance: food,
     isManager: isManager,
     isHousekeeping: isHousekeeping,
-    serviceTarget: salary * 5,
+    serviceTarget: calculateStaffTarget(salary, food, isManager, isHousekeeping),
+    managerCommissionRate: isManager ? 1 : undefined,
     serviceCommissionRate: isManager ? 1 : 5,
     productTier1Min: 8000,
     productTier1Rate: 5,
@@ -5463,16 +5440,39 @@ function toggleKioskFullscreen() {
         console.log('Fullscreen error:', err.message);
       });
     }
+    document.body.classList.add('kiosk-fullscreen-active');
     const btn = document.getElementById('kioskFullscreenBtn');
     if (btn) btn.innerHTML = '<i class="fa-solid fa-compress text-purple-400"></i><span>Exit Fullscreen</span>';
   } else {
     if (document.exitFullscreen) {
-      document.exitFullscreen();
+      document.exitFullscreen().catch(() => {});
     }
+    document.body.classList.remove('kiosk-fullscreen-active');
     const btn = document.getElementById('kioskFullscreenBtn');
     if (btn) btn.innerHTML = '<i class="fa-solid fa-expand text-purple-400"></i><span>Fullscreen Kiosk</span>';
   }
 }
+
+function exitKioskFullscreen() {
+  if (document.fullscreenElement && document.exitFullscreen) {
+    document.exitFullscreen().catch(() => {});
+  }
+  document.body.classList.remove('kiosk-fullscreen-active');
+  const btn = document.getElementById('kioskFullscreenBtn');
+  if (btn) btn.innerHTML = '<i class="fa-solid fa-expand text-purple-400"></i><span>Fullscreen Kiosk</span>';
+}
+
+document.addEventListener('fullscreenchange', () => {
+  const isFs = !!document.fullscreenElement;
+  if (isFs) {
+    document.body.classList.add('kiosk-fullscreen-active');
+  } else {
+    document.body.classList.remove('kiosk-fullscreen-active');
+  }
+});
+
+window.exitKioskFullscreen = exitKioskFullscreen;
+window.toggleKioskFullscreen = toggleKioskFullscreen;
 
 // Global window attachments
 window.updateStaffAdvance = updateStaffAdvance;
@@ -5530,14 +5530,108 @@ window.navigateTo = navigateTo;
 window.shiftDate = shiftDate;
 window.setTodayDate = setTodayDate;
 window.onDateChanged = onDateChanged;
-window.setPayrollMonth = setPayrollMonth;
-window.shiftPayrollMonth = shiftPayrollMonth;
+window.onPayrollMonthChanged = onPayrollMonthChanged;
+window.setPayrollMonth = (val) => { selectedMonthStr = val; onPayrollMonthChanged(); };
+window.shiftPayrollMonth = (offset) => {
+  const [y, m] = selectedMonthStr.split('-').map(Number);
+  let newDate = new Date(y, m - 1 + offset, 1);
+  selectedMonthStr = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, '0')}`;
+  const el = document.getElementById('payrollMonthInput');
+  if (el) el.value = selectedMonthStr;
+  onPayrollMonthChanged();
+};
 window.exportPayrollCSV = exportPayrollCSV;
-window.exportAttendanceCSV = exportAttendanceCSV;
+window.exportAttendanceCSV = exportPayrollCSV;
 window.openPaySlipModal = openPaySlipModal;
 window.closePaySlipModal = closePaySlipModal;
 window.printPaySlip = printPaySlip;
 window.saveAllStaffEdits = saveAllStaffEdits;
 window.openAddStaffModal = openAddStaffModal;
-window.closeAddStaffModal = closeAddStaffModal;
-window.calculateStaffSalary = calculateStaffSalary;
+window.closeAddStaffModal = closeStaffModal;
+window.calculateStaffSalary = calculateStaffMonthPayroll;
+window.calculateStaffTarget = calculateStaffTarget;
+
+
+
+function openMonthEndSalesModal() {
+  const modal = document.getElementById('monthEndSalesModal');
+  const container = document.getElementById('monthEndSalesStaffList');
+  const monthLabel = document.getElementById('monthEndModalMonth');
+  if (!modal || !container) return;
+
+  const [yearStr, monthStr] = selectedMonthStr.split('-');
+  const year = parseInt(yearStr, 10);
+  const month = parseInt(monthStr, 10);
+  const daysInMonth = getDaysInMonth(year, month);
+  const lastDayStr = `${year}-${String(month).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
+
+  if (monthLabel) monthLabel.innerText = `${selectedMonthStr} (End Date: ${lastDayStr})`;
+
+  let html = '';
+  staffList.forEach(staff => {
+    if (staff.isHousekeeping) return;
+    const p = calculateStaffMonthPayroll(staff, year, month);
+
+    html += `
+      <div class="p-3.5 bg-[#11111c] rounded-2xl border border-[#202032] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div class="min-w-0">
+          <span class="font-bold text-white block text-sm">${staff.name}</span>
+          <span class="text-[10px] text-gray-400">${staff.role} • Target: ₹${(staff.serviceTarget || 0).toLocaleString('en-IN')}</span>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <div>
+            <label class="text-[9px] text-purple-400 block mb-0.5">Services (₹)</label>
+            <input type="number" min="0" value="${p.totalServicesDone || ''}"
+              onfocus="this.select()"
+              onchange="setStaffMonthEndSales('${staff.id}', 'servicesDone', this.value)"
+              class="w-24 bg-[#181828] border border-[#2a2a3e] rounded-xl px-2 py-1 text-white font-mono font-bold text-xs focus:border-[#00FFFF]">
+          </div>
+          <div>
+            <label class="text-[9px] text-[#C084FC] block mb-0.5">Products (₹)</label>
+            <input type="number" min="0" value="${p.totalProductsSold || ''}"
+              onfocus="this.select()"
+              onchange="setStaffMonthEndSales('${staff.id}', 'productsSold', this.value)"
+              class="w-24 bg-[#181828] border border-[#2a2a3e] rounded-xl px-2 py-1 text-white font-mono font-bold text-xs focus:border-[#00FFFF]">
+          </div>
+          <div>
+            <label class="text-[9px] text-[#00FFFF] block mb-0.5">Cards (Qty)</label>
+            <input type="number" min="0" value="${p.totalMembershipCardsSold || ''}"
+              onfocus="this.select()"
+              onchange="setStaffMonthEndSales('${staff.id}', 'membershipCardsSold', this.value)"
+              class="w-20 bg-[#181828] border border-[#2a2a3e] rounded-xl px-2 py-1 text-[#00FFFF] font-mono font-bold text-xs focus:border-[#00FFFF]">
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+  modal.classList.remove('hidden');
+}
+
+function closeMonthEndSalesModal() {
+  const modal = document.getElementById('monthEndSalesModal');
+  if (modal) modal.classList.add('hidden');
+  renderIncentivesView();
+  renderPayrollView();
+}
+
+function setStaffMonthEndSales(staffId, field, value) {
+  const [yearStr, monthStr] = selectedMonthStr.split('-');
+  const year = parseInt(yearStr, 10);
+  const month = parseInt(monthStr, 10);
+  const daysInMonth = getDaysInMonth(year, month);
+  const lastDayStr = `${year}-${String(month).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
+
+  if (!attendanceData[lastDayStr]) attendanceData[lastDayStr] = {};
+  if (!attendanceData[lastDayStr][staffId]) {
+    attendanceData[lastDayStr][staffId] = { status: 'Present', inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0 };
+  }
+
+  attendanceData[lastDayStr][staffId][field] = parseFloat(value) || 0;
+  saveAttendanceData();
+}
+
+window.openMonthEndSalesModal = openMonthEndSalesModal;
+window.closeMonthEndSalesModal = closeMonthEndSalesModal;
+window.setStaffMonthEndSales = setStaffMonthEndSales;
