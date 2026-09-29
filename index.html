@@ -8,7 +8,7 @@
   
   <!-- Progressive Web App (PWA) Meta & Manifest -->
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#07070d">
+  <meta name="theme-color" content="#000000">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -35,15 +35,26 @@
             mono: ['JetBrains Mono', 'monospace']
           },
           colors: {
+            gt: {
+              lavender: '#C084FC',
+              cyan: '#00FFFF',
+              sky: '#60A5FA',
+              mint: '#54E29C',
+              cerulean: '#4BA2E2',
+              platinum: '#D0DAE2',
+              bg: '#000000',
+              card: '#080808',
+              cardBorder: 'rgba(208, 218, 226, 0.12)'
+            },
             brand: {
-              pink: '#ff2a85',
-              pinkHover: '#ff4d9a',
-              pinkLight: '#ff7eb3',
-              pinkGlow: 'rgba(255, 42, 133, 0.35)',
-              dark: '#050508',
-              darkCard: '#0d0d15',
-              darkCardLight: '#141420',
-              darkBorder: '#1f1f30'
+              pink: '#00FFFF',
+              pinkHover: '#54E29C',
+              pinkLight: '#D0DAE2',
+              pinkGlow: 'rgba(0, 255, 255, 0.25)',
+              dark: '#000000',
+              darkCard: '#080808',
+              darkCardLight: '#101010',
+              darkBorder: 'rgba(208, 218, 226, 0.12)'
             }
           }
         }
@@ -65,37 +76,33 @@
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-[#050508] text-white min-h-screen font-sans antialiased selection:bg-[#ff2a85] selection:text-white overflow-x-hidden">
+<body class="bg-[#000000] text-[#D0DAE2] min-h-screen font-sans antialiased selection:bg-[#00FFFF] selection:text-black overflow-x-hidden">
 
   <!-- Ambient Glow Backgrounds -->
-  <div class="fixed top-0 left-1/3 w-[32rem] h-[32rem] bg-[#ff2a85]/10 rounded-full blur-[160px] pointer-events-none -z-10"></div>
-  <div class="fixed bottom-0 right-1/4 w-[36rem] h-[36rem] bg-[#ff2a85]/8 rounded-full blur-[180px] pointer-events-none -z-10"></div>
+  <div class="fixed top-0 left-1/3 w-[32rem] h-[32rem] bg-[#00FFFF]/4 rounded-full blur-[180px] pointer-events-none -z-10"></div>
+  <div class="fixed bottom-0 right-1/4 w-[36rem] h-[36rem] bg-[#54E29C]/4 rounded-full blur-[200px] pointer-events-none -z-10"></div>
 
   <!-- ========================================== -->
   <!-- AUTHENTICATION / LOGIN OVERLAY SCREEN     -->
   <!-- ========================================== -->
   <div id="loginOverlay" class="fixed inset-0 z-50 bg-[#040407]/95 backdrop-blur-2xl flex items-center justify-center p-4 min-h-screen overflow-hidden">
-    <div id="loginCard" class="w-full max-w-md bg-[#0b0b14] border border-[#ff2a85]/35 rounded-[32px] p-7 sm:p-9 shadow-2xl shadow-[#ff2a85]/15 relative overflow-hidden">
+    <div id="loginCard" class="w-full max-w-md bg-[#080808] border border-[#D0DAE2]/15 rounded-[28px] p-7 sm:p-9 shadow-2xl relative overflow-hidden">
       <!-- Glow background inside modal -->
-      <div class="absolute -top-24 -left-24 w-48 h-48 bg-[#ff2a85]/20 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-[#ff2a85]/15 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -top-24 -left-24 w-48 h-48 bg-[#00FFFF]/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-[#54E29C]/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <!-- Salon Logo & Header -->
+      <!-- Salon Logo & Header (Authentic Green Trends Kothapet Brand) -->
       <div class="flex flex-col items-center text-center relative z-10 mb-7">
-        <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-[#ff2a85] via-[#ff5c99] to-[#ff7eb3] p-0.5 shadow-xl shadow-[#ff2a85]/30 flex items-center justify-center mb-4">
-          <div class="w-full h-full bg-[#08080f] rounded-[22px] flex items-center justify-center">
-            <i class="fa-solid fa-scissors text-[#ff2a85] text-2xl"></i>
-          </div>
-        </div>
+        <img src="icon-192.png" alt="Green Trends Kothapet" class="w-16 h-16 rounded-2xl object-cover border border-[#54E29C]/40 shadow-xl mb-3">
         <div class="flex items-center gap-2">
-          <h1 class="font-syne font-extrabold text-2xl tracking-wider bg-gradient-to-r from-white via-pink-100 to-[#ff7eb3] bg-clip-text text-transparent">
+          <h1 class="font-heading font-extrabold text-2xl tracking-wider text-white">
             GREEN TRENDS
           </h1>
-          <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#ff2a85]/25 text-[#ff7eb3] border border-[#ff2a85]/40 tracking-wider">
+          <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#54E29C]/20 text-[#54E29C] border border-[#54E29C]/40 tracking-wider">
             KOTHAPET
           </span>
         </div>
-        <p class="text-xs text-gray-400 mt-1.5 font-medium">Salon Attendance & Payroll Portal</p>
+        <p class="text-xs text-[#D0DAE2]/70 mt-1.5 font-medium">Salon Attendance & Payroll Portal</p>
       </div>
 
       <!-- Login Form -->
@@ -116,7 +123,7 @@
               <i class="fa-solid fa-user"></i>
             </span>
             <input type="text" id="loginUsername" required autocomplete="username" placeholder="Enter username"
-              class="w-full bg-[#12121e] border border-[#232338] rounded-2xl pl-10 pr-4 py-3 text-white text-sm font-semibold placeholder-gray-500 focus:outline-none focus:border-[#ff2a85] focus:ring-1 focus:ring-[#ff2a85]/50 transition-all">
+              class="w-full bg-[#12121e] border border-[#232338] rounded-2xl pl-10 pr-4 py-3 text-white text-sm font-semibold placeholder-gray-500 focus:outline-none focus:border-[#00FFFF] focus:ring-1 focus:ring-[#00FFFF]/50 transition-all">
           </div>
         </div>
 
@@ -130,7 +137,7 @@
               <i class="fa-solid fa-lock"></i>
             </span>
             <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="Enter password"
-              class="w-full bg-[#12121e] border border-[#232338] rounded-2xl pl-10 pr-11 py-3 text-white text-sm font-semibold placeholder-gray-500 focus:outline-none focus:border-[#ff2a85] focus:ring-1 focus:ring-[#ff2a85]/50 transition-all">
+              class="w-full bg-[#12121e] border border-[#232338] rounded-2xl pl-10 pr-11 py-3 text-white text-sm font-semibold placeholder-gray-500 focus:outline-none focus:border-[#00FFFF] focus:ring-1 focus:ring-[#00FFFF]/50 transition-all">
             <button type="button" onclick="togglePasswordVisibility()" 
               class="absolute right-3.5 text-gray-500 hover:text-gray-300 transition-colors p-1" title="Show/Hide Password">
               <i id="passwordEyeIcon" class="fa-solid fa-eye-slash text-xs"></i>
@@ -142,7 +149,7 @@
         <div class="flex items-center justify-between text-xs pt-1">
           <label class="flex items-center gap-2 cursor-pointer select-none text-gray-400 hover:text-gray-300">
             <input type="checkbox" id="loginRememberMe" checked 
-              class="w-4 h-4 rounded-md bg-[#131320] border-[#292940] text-[#ff2a85] focus:ring-0 focus:ring-offset-0 cursor-pointer">
+              class="w-4 h-4 rounded-md bg-[#131320] border-[#292940] text-[#00FFFF] focus:ring-0 focus:ring-offset-0 cursor-pointer">
             <span>Remember me</span>
           </label>
           <span class="text-[11px] text-gray-500 flex items-center gap-1">
@@ -152,7 +159,7 @@
 
         <!-- Submit Button -->
         <button type="submit" id="loginSubmitBtn"
-          class="w-full py-3.5 mt-2 rounded-2xl font-syne font-bold text-sm bg-gradient-to-r from-[#ff2a85] via-[#ff4d9a] to-[#ff7eb3] hover:brightness-110 text-white shadow-xl shadow-[#ff2a85]/30 active:scale-[0.99] transition-all flex items-center justify-center gap-2">
+          class="w-full py-3.5 mt-2 rounded-xl font-heading font-bold text-sm bg-gradient-to-r from-[#00FFFF] to-[#4BA2E2] hover:brightness-110 text-black shadow-lg shadow-[#00FFFF]/20 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer">
           <span>Sign In to Portal</span>
           <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
         </button>
@@ -181,102 +188,98 @@
   </div>
 
   <!-- Top Navigation Header - Ultra-Luxury Design -->
-  <header class="sticky top-0 z-40 bg-[#07070d]/95 backdrop-blur-xl border-b border-[#1c1c2e] shadow-2xl shadow-black/80">
+  <header class="sticky top-0 z-40 bg-[#000000]/95 backdrop-blur-xl border-b border-[#D0DAE2]/12 shadow-xl shadow-black">
     <div class="w-full max-w-[1720px] mx-auto px-3 sm:px-5 lg:px-8 h-16 flex items-center justify-between gap-2 lg:gap-4">
       
-      <!-- Brand: strictly GREEN TRENDS KOTHAPET -->
-      <div class="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none shrink-0 group" onclick="navigateTo('attendance')">
-        <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#ff2a85] via-purple-600 to-indigo-600 p-0.5 shadow-lg shadow-[#ff2a85]/20 flex items-center justify-center group-hover:scale-105 transition-transform">
-          <div class="w-full h-full bg-[#080811] rounded-[14px] flex items-center justify-center">
-            <i class="fa-solid fa-scissors text-[#ff2a85] text-xs"></i>
-          </div>
-        </div>
+      <!-- Brand: strictly GREEN TRENDS KOTHAPET with authentic logo -->
+      <div class="flex items-center gap-2.5 cursor-pointer select-none shrink-0 group" onclick="navigateTo('attendance')">
+        <img src="icon-192.png" alt="Green Trends" class="w-8 h-8 rounded-lg object-cover border border-[#54E29C]/40 group-hover:scale-105 transition-transform">
         <div class="flex items-center gap-1.5 sm:gap-2">
-          <span class="font-syne font-black text-sm sm:text-base tracking-wider text-white">GREEN TRENDS</span>
-          <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#ff2a85]/20 text-[#ff7eb3] border border-[#ff2a85]/35 tracking-widest uppercase">
+          <span class="font-heading font-black text-sm sm:text-base tracking-wider text-white">GREEN TRENDS</span>
+          <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-[#54E29C]/20 text-[#54E29C] border border-[#54E29C]/35 tracking-widest uppercase">
             KOTHAPET
           </span>
         </div>
       </div>
 
-      <!-- Navigation Tabs (Sleek Luxury Tabs, Balanced 6 Modules) -->
-      <nav id="mainNav" class="hidden lg:flex items-center gap-1 bg-[#0c0c16]/95 p-1.5 rounded-2xl border border-[#222238] shadow-2xl shrink-0">
+      <!-- Navigation Tabs (Clean Minimalist Nav Bar) -->
+      <nav id="mainNav" class="hidden lg:flex items-center gap-1 bg-[#0a0a0a] p-1.5 rounded-xl border border-[#D0DAE2]/15 shrink-0">
         <button id="navBtn-attendance" onclick="navigateTo('attendance')" 
-          class="nav-tab active px-3 xl:px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
-          <i class="fa-solid fa-calendar-check text-[#ff2a85]"></i>
+          class="nav-tab active px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+          <i class="fa-solid fa-calendar-check"></i>
           <span>Attendance</span>
         </button>
 
         <button id="navBtn-kiosk" onclick="navigateTo('kiosk')" 
-          class="nav-tab px-3 xl:px-4 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Front Desk Stylist 1-Tap Self Check-In">
-          <i class="fa-solid fa-stopwatch text-emerald-400"></i>
+          class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold text-[#D0DAE2]/70 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Front Desk Stylist 1-Tap Self Check-In">
+          <i class="fa-solid fa-stopwatch text-[#54E29C]"></i>
           <span>Kiosk</span>
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-[#54E29C] animate-pulse"></span>
         </button>
 
         <button id="navBtn-payroll" onclick="navigateTo('payroll')" 
-          class="nav-tab px-3 xl:px-4 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
-          <i class="fa-solid fa-file-invoice-dollar text-[#ff2a85]"></i>
+          class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold text-[#D0DAE2]/70 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+          <i class="fa-solid fa-file-invoice-dollar text-[#60A5FA]"></i>
           <span>Payroll</span>
         </button>
 
         <button id="navBtn-incentives" onclick="navigateTo('incentives')" 
-          class="nav-tab px-3 xl:px-4 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
-          <i class="fa-solid fa-trophy text-[#ff2a85]"></i>
+          class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold text-[#D0DAE2]/70 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+          <i class="fa-solid fa-trophy text-[#C084FC]"></i>
           <span>Incentives</span>
         </button>
 
         <button id="navBtn-roster" onclick="navigateTo('roster')" 
-          class="nav-tab px-3 xl:px-4 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
-          <i class="fa-solid fa-camera text-[#ff2a85]"></i>
+          class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold text-[#D0DAE2]/70 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+          <i class="fa-solid fa-camera text-[#4BA2E2]"></i>
           <span>Roster</span>
         </button>
 
         <button id="navBtn-admin" onclick="navigateTo('admin')" 
-          class="nav-tab px-3 xl:px-4 py-1.5 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Salon Settings & Master Controls">
-          <i class="fa-solid fa-sliders text-[#ff2a85]"></i>
+          class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold text-[#D0DAE2]/70 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Salon Settings & Master Controls">
+          <i class="fa-solid fa-sliders text-[#D0DAE2]"></i>
           <span>Admin</span>
         </button>
       </nav>
 
-      <!-- Right Header: Compact Status, Install App & Integrated User Pill -->
-      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+      <!-- Right Header: Compact Status, Live Clock, Install App & User Pill -->
+      <div class="flex items-center gap-2 shrink-0">
         <!-- Quick Kiosk Button on tablets / mobile (< lg screens) -->
         <button type="button" onclick="navigateTo('kiosk')" 
-          class="flex lg:hidden items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 text-xs font-bold transition-all cursor-pointer">
-          <i class="fa-solid fa-stopwatch text-emerald-400"></i>
+          class="flex lg:hidden items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#54E29C]/15 hover:bg-[#54E29C]/25 border border-[#54E29C]/30 text-[#54E29C] text-xs font-bold transition-all cursor-pointer">
+          <i class="fa-solid fa-stopwatch text-[#54E29C]"></i>
           <span>Kiosk</span>
         </button>
 
-        <!-- Sleek Live Clock (Desktop screens >= 1440px) -->
-        <div class="hidden 2xl:flex items-center gap-1.5 bg-[#0d0d18] border border-[#242438] px-2.5 py-1.5 rounded-2xl shadow-xl shadow-black/40">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <!-- Live Clock -->
+        <div class="hidden 2xl:flex items-center gap-1.5 bg-[#0a0a0a] border border-[#D0DAE2]/15 px-2.5 py-1.5 rounded-xl">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#54E29C] animate-pulse"></span>
           <span id="liveTime" class="text-xs font-mono font-bold text-white tracking-wider tabular-nums">--:--</span>
         </div>
 
-        <!-- Compact Cloud Sync Status Badge (Quiet Indicator) -->
+        <!-- Cloud Sync Status Badge -->
         <button type="button" id="cloudSyncHeaderBadge" onclick="navigateTo('admin')" 
-          class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#0d0d18] border border-[#222238] text-[11px] font-mono font-bold transition-all hover:border-[#ff2a85]/50 cursor-pointer shrink-0" title="Cloud Sync Status">
-          <span id="cloudSyncHeaderDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span id="cloudSyncHeaderText" class="text-emerald-400 font-bold"><i class="fa-solid fa-cloud text-emerald-400 mr-1"></i>Live</span>
+          class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#0a0a0a] border border-[#D0DAE2]/15 text-[11px] font-mono font-bold transition-all hover:border-[#00FFFF]/50 cursor-pointer shrink-0" title="Cloud Sync Status">
+          <span id="cloudSyncHeaderDot" class="w-2 h-2 rounded-full bg-[#54E29C] animate-pulse"></span>
+          <span id="cloudSyncHeaderText" class="text-[#54E29C] font-bold"><i class="fa-solid fa-cloud text-[#54E29C] mr-1"></i>Live</span>
         </button>
 
-        <!-- Quick Install App / Mobile Mode -->
+        <!-- Install App / Mobile Mode -->
         <button type="button" id="installPwaBtn" onclick="promptPwaInstall()" 
-          class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#ff2a85]/20 to-purple-500/20 hover:from-[#ff2a85]/35 hover:to-purple-500/35 border border-[#ff2a85]/40 text-[#ff7eb3] hover:text-white text-xs font-bold transition-all shadow-sm cursor-pointer shrink-0" 
+          class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#111111] hover:bg-[#1a1a1a] border border-[#D0DAE2]/20 text-[#D0DAE2] hover:text-white text-xs font-semibold transition-all cursor-pointer shrink-0" 
           title="Install App / Add to Home Screen">
-          <i class="fa-solid fa-mobile-screen-button text-xs text-[#ff2a85]"></i>
+          <i class="fa-solid fa-mobile-screen-button text-xs text-[#00FFFF]"></i>
           <span class="hidden md:inline">Install</span>
         </button>
 
-        <!-- Combined Luxury User Badge & Quick Logout in One Pill (Never Clipped) -->
-        <div id="userHeaderBadge" class="hidden flex items-center bg-[#0d0d18] border border-[#222238] p-0.5 rounded-2xl shadow-lg shrink-0">
+        <!-- User Badge & Quick Logout in One Minimalist Pill -->
+        <div id="userHeaderBadge" class="hidden flex items-center bg-[#0a0a0a] border border-[#D0DAE2]/15 p-0.5 rounded-xl shrink-0">
           <div class="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 text-xs font-bold text-gray-200">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#54E29C] animate-pulse"></span>
             <span id="headerUserName">Manager</span>
           </div>
           <button type="button" onclick="logoutUser()" 
-            class="px-2 py-1 rounded-xl text-xs font-bold text-rose-400 hover:text-white hover:bg-rose-500/20 transition-all flex items-center gap-1 cursor-pointer" title="Sign Out">
+            class="px-2 py-1 rounded-lg text-xs font-semibold text-rose-400 hover:text-white hover:bg-rose-500/20 transition-all flex items-center gap-1 cursor-pointer" title="Sign Out">
             <i class="fa-solid fa-power-off text-[10px]"></i>
             <span class="hidden sm:inline text-xs font-semibold">Logout</span>
           </button>
@@ -297,11 +300,11 @@
     <section id="view-attendance" class="view-panel block space-y-6">
       
       <!-- Top Action & Date Bar -->
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#0d0d15] p-5 rounded-3xl border border-[#1f1f30] shadow-2xl">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#080808] p-5 rounded-3xl border border-[#D0DAE2]/12 shadow-2xl">
         <div>
           <h1 class="text-2xl font-syne font-extrabold text-white flex items-center gap-3">
             <span>Daily Attendance & Timesheet</span>
-            <span class="text-xs font-sans font-bold px-3 py-1 rounded-full bg-[#ff2a85]/15 text-[#ff7eb3] border border-[#ff2a85]/30">
+            <span class="text-xs font-sans font-bold px-3 py-1 rounded-full bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/25">
               9-Hr Shift Standard
             </span>
           </h1>
@@ -321,7 +324,7 @@
             </button>
             
             <button onclick="setTodayDate()" 
-              class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#ff2a85]/20 hover:bg-[#ff2a85]/30 text-[#ff7eb3] border border-[#ff2a85]/40 transition-all cursor-pointer shadow-sm" 
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#00FFFF]/15 hover:bg-[#00FFFF]/25 text-[#00FFFF] border border-[#00FFFF]/30 transition-all cursor-pointer shadow-sm" 
               title="Go to Today">
               Today
             </button>
@@ -342,7 +345,7 @@
           </div>
 
           <button onclick="bulkMarkAllPresent()" 
-            class="px-5 py-2.5 rounded-2xl text-xs font-bold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] hover:brightness-110 text-white shadow-xl shadow-[#ff2a85]/25 transition-all flex items-center gap-2 cursor-pointer">
+            class="px-5 py-2.5 rounded-2xl text-xs font-bold bg-[#54E29C] hover:bg-[#46cf8c] text-black font-extrabold shadow-lg shadow-[#54E29C]/20 transition-all flex items-center gap-2 cursor-pointer">
             <i class="fa-solid fa-check-double"></i>
             <span>Mark All Present</span>
           </button>
@@ -354,7 +357,7 @@
       <!-- Quick KPI Metric Cards - Crisp Typography, Zero Distortion -->
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
         <!-- Present Card -->
-        <div class="bg-[#0d0d18] p-4 rounded-2xl border border-[#222238] shadow-lg relative overflow-hidden">
+        <div class="bg-[#080808] p-4 rounded-2xl border border-[#D0DAE2]/12 shadow-lg relative overflow-hidden">
           <div class="flex items-center justify-between">
             <span class="text-xs text-gray-400 font-semibold tracking-wide">Present Today</span>
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-md shadow-emerald-400/50"></span>
@@ -366,7 +369,7 @@
         </div>
 
         <!-- Weekly Off Card -->
-        <div class="bg-[#0d0d18] p-4 rounded-2xl border border-[#222238] shadow-lg">
+        <div class="bg-[#080808] p-4 rounded-2xl border border-[#D0DAE2]/12 shadow-lg">
           <div class="flex items-center justify-between">
             <span class="text-xs text-gray-400 font-semibold tracking-wide">Weekly Off</span>
             <i class="fa-solid fa-mug-hot text-indigo-400 text-xs"></i>
@@ -378,7 +381,7 @@
         </div>
 
         <!-- Leaves Card -->
-        <div class="bg-[#0d0d18] p-4 rounded-2xl border border-[#222238] shadow-lg">
+        <div class="bg-[#080808] p-4 rounded-2xl border border-[#D0DAE2]/12 shadow-lg">
           <div class="flex items-center justify-between">
             <span class="text-xs text-gray-400 font-semibold tracking-wide">Leaves (Cut)</span>
             <i class="fa-solid fa-user-xmark text-rose-400 text-xs"></i>
@@ -390,19 +393,19 @@
         </div>
 
         <!-- Overtime Card -->
-        <div class="bg-[#0d0d18] p-4 rounded-2xl border border-[#222238] shadow-lg">
+        <div class="bg-[#080808] p-4 rounded-2xl border border-[#D0DAE2]/12 shadow-lg">
           <div class="flex items-center justify-between">
             <span class="text-xs text-gray-400 font-semibold tracking-wide">Today's OT</span>
-            <i class="fa-solid fa-clock text-[#ff2a85] text-xs"></i>
+            <i class="fa-solid fa-clock text-[#60A5FA] text-xs"></i>
           </div>
           <div class="mt-2.5">
-            <span id="kpiOvertimePay" class="text-2xl font-black font-heading text-[#ff7eb3] tracking-tight">₹0</span>
+            <span id="kpiOvertimePay" class="text-2xl font-black font-heading text-[#60A5FA] tracking-tight">₹0</span>
             <span id="kpiOvertimeHours" class="text-[10px] text-gray-500 block font-mono font-medium">0 hrs logged</span>
           </div>
         </div>
 
         <!-- Services Done Card -->
-        <div class="bg-[#0d0d18] p-4 rounded-2xl border border-[#222238] shadow-lg">
+        <div class="bg-[#080808] p-4 rounded-2xl border border-[#D0DAE2]/12 shadow-lg">
           <div class="flex items-center justify-between">
             <span class="text-xs text-gray-400 font-semibold tracking-wide">Services Logged</span>
             <i class="fa-solid fa-spa text-purple-400 text-xs"></i>
@@ -414,13 +417,13 @@
         </div>
 
         <!-- Products Sold Card -->
-        <div class="bg-[#0d0d18] p-4 rounded-2xl border border-[#222238] shadow-lg">
+        <div class="bg-[#080808] p-4 rounded-2xl border border-[#D0DAE2]/12 shadow-lg">
           <div class="flex items-center justify-between">
             <span class="text-xs text-gray-400 font-semibold tracking-wide">Products Sold</span>
-            <i class="fa-solid fa-bag-shopping text-pink-400 text-xs"></i>
+            <i class="fa-solid fa-bag-shopping text-[#C084FC] text-xs"></i>
           </div>
           <div class="mt-2.5">
-            <span id="kpiProductsTotal" class="text-2xl font-black font-heading text-pink-400 tracking-tight">₹0</span>
+            <span id="kpiProductsTotal" class="text-2xl font-black font-heading text-[#C084FC] tracking-tight">₹0</span>
             <span class="text-[10px] text-gray-500 block font-medium">Daily Total</span>
           </div>
         </div>
@@ -434,11 +437,11 @@
       <!-- Bottom Save / Confirmation Floating Bar (Clearance above mobile nav) -->
       <div class="sticky bottom-20 md:bottom-6 z-30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#0e0e18]/95 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl border border-[#222236] shadow-2xl">
         <div class="flex items-center gap-2 text-xs text-gray-300">
-          <i class="fa-solid fa-cloud-arrow-up text-[#ff2a85] shrink-0"></i>
+          <i class="fa-solid fa-cloud-arrow-up text-[#00FFFF] shrink-0"></i>
           <span class="text-[11px] sm:text-xs">All times and attendance changes save automatically.</span>
         </div>
         <button onclick="saveAttendanceToast()" 
-          class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] hover:brightness-110 text-white transition-all shadow-lg shadow-[#ff2a85]/30 flex items-center justify-center gap-2 cursor-pointer">
+          class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-[#00FFFF] to-[#4BA2E2] hover:brightness-110 text-black font-extrabold transition-all shadow-lg shadow-[#00FFFF]/20 flex items-center justify-center gap-2 cursor-pointer">
           <i class="fa-solid fa-floppy-disk"></i>
           <span>Save Day Record</span>
         </button>
@@ -453,7 +456,7 @@
       <!-- Kiosk Hero Header Banner -->
       <div class="bg-gradient-to-r from-[#0e0e1a] via-[#120f20] to-[#0e0e1a] p-5 sm:p-7 rounded-3xl border border-[#2b2040] shadow-2xl relative overflow-hidden">
         <!-- Background Ambient Glow -->
-        <div class="absolute -right-20 -top-20 w-72 h-72 bg-[#ff2a85]/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -right-20 -top-20 w-72 h-72 bg-[#00FFFF]/5 rounded-full blur-3xl pointer-events-none"></div>
         <div class="absolute -left-20 -bottom-20 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
@@ -469,7 +472,7 @@
             </div>
 
             <div class="flex items-baseline gap-3">
-              <div class="text-3xl sm:text-5xl font-black font-mono text-white tracking-wider tabular-nums text-transparent bg-clip-text bg-gradient-to-r from-white via-pink-100 to-[#ff7eb3]" id="kioskDigitalClock">
+              <div class="text-3xl sm:text-5xl font-black font-mono text-white tracking-wider tabular-nums text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-[#00FFFF]" id="kioskDigitalClock">
                 --:--:-- --
               </div>
             </div>
@@ -507,11 +510,11 @@
     <section id="view-payroll" class="view-panel hidden space-y-6">
       
       <!-- Payroll Month Selector Bar - Ultra-Luxe Design (Image 2 Fix) -->
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5 bg-gradient-to-r from-[#0d0d18] via-[#090912] to-[#0d0d18] p-6 rounded-3xl border border-[#222238] shadow-2xl shadow-black/80">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5 bg-gradient-to-r from-[#0d0d18] via-[#090912] to-[#0d0d18] p-6 rounded-3xl border border-[#D0DAE2]/12 shadow-2xl shadow-black/80">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#ff2a85] to-[#ff7eb3] p-0.5 shadow-lg shadow-[#ff2a85]/30 flex-shrink-0">
+          <div class="w-12 h-12 rounded-2xl bg-[#60A5FA]/20 border border-[#60A5FA]/30 p-0.5 flex-shrink-0">
             <div class="w-full h-full bg-[#090912] rounded-[14px] flex items-center justify-center">
-              <i class="fa-solid fa-file-invoice-dollar text-[#ff7eb3] text-xl"></i>
+              <i class="fa-solid fa-file-invoice-dollar text-[#60A5FA] text-xl"></i>
             </div>
           </div>
           <div>
@@ -519,7 +522,7 @@
               <h1 class="text-2xl font-black font-heading text-white tracking-tight">
                 Monthly Payroll & Salary Sheet
               </h1>
-              <span id="payrollMonthBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] border border-[#ff2a85]/40 tracking-wide uppercase">
+              <span id="payrollMonthBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-[#60A5FA]/15 text-[#60A5FA] border border-[#60A5FA]/30 tracking-wide uppercase">
                 September 2026
               </span>
             </div>
@@ -531,8 +534,8 @@
 
         <div class="flex flex-wrap items-center gap-3">
           <!-- Month Selector -->
-          <div class="flex items-center bg-[#131322] rounded-2xl border border-[#26263e] hover:border-[#ff2a85]/50 px-4 py-2.5 shadow-inner transition-all">
-            <i class="fa-regular fa-calendar text-[#ff7eb3] mr-2 text-xs"></i>
+          <div class="flex items-center bg-[#131322] rounded-2xl border border-[#26263e] hover:border-[#00FFFF]/50 px-4 py-2.5 shadow-inner transition-all">
+            <i class="fa-regular fa-calendar text-[#60A5FA] mr-2 text-xs"></i>
             <input type="month" id="selectedMonthInput" onchange="onPayrollMonthChanged()" 
               class="bg-transparent text-white text-xs font-bold focus:outline-none cursor-pointer font-mono tracking-wide">
           </div>
@@ -546,7 +549,7 @@
 
           <!-- Export CSV -->
           <button onclick="exportPayrollCSV()" 
-            class="px-5 py-2.5 rounded-2xl text-xs font-extrabold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] hover:brightness-110 text-white shadow-lg shadow-[#ff2a85]/30 transition-all flex items-center gap-2 cursor-pointer">
+            class="px-5 py-2.5 rounded-2xl text-xs font-extrabold bg-[#60A5FA] hover:bg-[#4ba2e2] text-black font-extrabold shadow-md shadow-[#60A5FA]/20 transition-all flex items-center gap-2 cursor-pointer">
             <i class="fa-solid fa-file-csv"></i>
             <span>Export CSV</span>
           </button>
@@ -556,8 +559,8 @@
 
 
       <!-- Master Payroll Table Card -->
-      <div class="bg-[#0d0d15] rounded-3xl border border-[#1f1f30] overflow-hidden shadow-2xl">
-        <div class="p-5 border-b border-[#1f1f30] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="bg-[#080808] rounded-3xl border border-[#D0DAE2]/12 overflow-hidden shadow-2xl">
+        <div class="p-5 border-b border-[#D0DAE2]/12 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 class="font-syne font-bold text-lg text-white">Staff Salary Breakdown</h2>
             <p class="text-xs text-gray-400 mt-0.5">Manager Commission: 1% salon revenue | Stylists: 5% service commission & tiered product % | Mid-month advances deducted from net.</p>
@@ -566,9 +569,9 @@
         </div>
 
         <!-- Mobile Horizontal Swipe Guidance Indicator -->
-        <div class="md:hidden flex items-center justify-between px-4 py-2.5 bg-gradient-to-r from-[#ff2a85]/15 via-purple-500/10 to-[#ff2a85]/15 border-b border-[#1f1f30] text-[11px] text-[#ff7eb3] font-semibold">
+        <div class="md:hidden flex items-center justify-between px-4 py-2.5 bg-gradient-to-r from-[#00FFFF]/10 via-[#60A5FA]/10 to-[#00FFFF]/10 border-b border-[#D0DAE2]/12 text-[11px] text-[#C084FC] font-semibold">
           <span class="flex items-center gap-2">
-            <i class="fa-solid fa-arrows-left-right text-[#ff2a85] animate-pulse"></i>
+            <i class="fa-solid fa-arrows-left-right text-[#00FFFF] animate-pulse"></i>
             <span>Swipe horizontally to view all 13 columns</span>
           </span>
           <span class="text-gray-400 text-[10px] font-mono">Net Pay & Slip ➔</span>
@@ -578,7 +581,7 @@
         <div class="overflow-x-auto touch-scroll">
           <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
             <thead>
-              <tr class="bg-[#12121e] text-gray-400 border-b border-[#1f1f30] uppercase tracking-wider font-bold text-[11px]">
+              <tr class="bg-[#12121e] text-gray-400 border-b border-[#D0DAE2]/12 uppercase tracking-wider font-bold text-[11px]">
                 <th class="py-3 px-3 sticky-first-col">Staff Member</th>
                 <th class="py-3 px-2">Base Salary</th>
                 <th class="py-3 px-2">Food</th>
@@ -590,7 +593,7 @@
                 <th class="py-3 px-2 text-right">OT Pay</th>
                 <th class="py-3 px-2 text-right">Incentives</th>
                 <th class="py-3 px-2 text-center text-rose-300 font-bold">Advance</th>
-                <th class="py-3 px-3 font-bold text-[#ff7eb3] text-right">Net Payable</th>
+                <th class="py-3 px-3 font-bold text-[#C084FC] text-right">Net Payable</th>
                 <th class="py-3 px-3 text-center">Pay Slip</th>
               </tr>
             </thead>
@@ -606,27 +609,27 @@
 
       <!-- Monthly Summary Highlight Cards - Clean Crisp Typography -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-[#0d0d18] p-5 rounded-3xl border border-[#222238] shadow-lg">
+        <div class="bg-[#080808] p-5 rounded-3xl border border-[#D0DAE2]/12 shadow-lg">
           <span class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Total Gross Payroll</span>
           <div class="mt-2 text-2xl font-black font-heading text-white tracking-tight" id="summaryGrossBase">₹0</div>
           <span class="text-[11px] text-gray-500 mt-1 block">Base + Food Allowances</span>
         </div>
 
-        <div class="bg-[#0d0d18] p-5 rounded-3xl border border-[#222238] shadow-lg">
+        <div class="bg-[#080808] p-5 rounded-3xl border border-[#D0DAE2]/12 shadow-lg">
           <span class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Total Leave Deductions</span>
           <div class="mt-2 text-2xl font-black font-heading text-rose-400 tracking-tight" id="summaryDeductions">₹0</div>
           <span class="text-[11px] text-rose-400/80 mt-1 block font-medium">For unpaid leaves</span>
         </div>
 
-        <div class="bg-[#0d0d18] p-5 rounded-3xl border border-[#222238] shadow-lg">
+        <div class="bg-[#080808] p-5 rounded-3xl border border-[#D0DAE2]/12 shadow-lg">
           <span class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Net Overtime & Incentives</span>
-          <div class="mt-2 text-2xl font-black font-heading text-[#ff7eb3] tracking-tight" id="summaryAdditions">₹0</div>
+          <div class="mt-2 text-2xl font-black font-heading text-[#60A5FA] tracking-tight" id="summaryAdditions">₹0</div>
           <span class="text-[11px] text-gray-500 mt-1 block">OT (Shortfall Net) + Commissions</span>
         </div>
 
-        <div class="bg-gradient-to-br from-[#1a0b1c] to-[#0d0d18] p-5 rounded-3xl border border-[#ff2a85]/40 shadow-xl shadow-[#ff2a85]/10">
-          <span class="text-xs text-[#ff7eb3] uppercase tracking-wider font-bold">Total Net Salon Payout</span>
-          <div class="mt-2 text-3xl font-black font-heading text-[#ff2a85] tracking-tight" id="summaryNetPayout">₹0</div>
+        <div class="bg-gradient-to-br from-[#080808] to-[#000000] p-5 rounded-3xl border border-[#D0DAE2]/15 shadow-xl shadow-black">
+          <span class="text-xs text-[#C084FC] uppercase tracking-wider font-bold">Total Net Salon Payout</span>
+          <div class="mt-2 text-3xl font-black font-heading text-[#54E29C] tracking-tight" id="summaryNetPayout">₹0</div>
           <span class="text-[11px] text-gray-400 mt-1 block">Green Trends Kothapet monthly payout</span>
         </div>
       </div>
@@ -645,7 +648,7 @@
       </div>
 
       <!-- Live Stylist Leaderboard & Performance Badges Showcase -->
-      <div id="stylistLeaderboardContainer" class="bg-gradient-to-r from-[#0d0d18] via-[#090912] to-[#0d0d18] rounded-3xl border border-[#222238] p-5 sm:p-6 shadow-2xl space-y-5">
+      <div id="stylistLeaderboardContainer" class="bg-gradient-to-r from-[#0d0d18] via-[#090912] to-[#0d0d18] rounded-3xl border border-[#D0DAE2]/12 p-5 sm:p-6 shadow-2xl space-y-5">
         <!-- Rendered dynamically by JS: Podium, rankings & awards -->
       </div>
 
@@ -662,29 +665,29 @@
     <!-- ========================================== -->
     <section id="view-roster" class="view-panel hidden space-y-6">
       
-      <div class="bg-[#0d0d15] p-6 rounded-3xl border border-[#1f1f30] shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#ff2a85] to-[#ff7eb3] text-white flex items-center justify-center text-sm shadow-md shadow-[#ff2a85]/30">
-              <i class="fa-solid fa-camera"></i>
-            </span>
-            <h1 class="text-2xl font-syne font-extrabold text-white">Daily Roster Image Scanner</h1>
+      <div class="bg-[#080808] p-5 rounded-2xl border border-[#D0DAE2]/12 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-[#4BA2E2]/15 border border-[#4BA2E2]/30 text-[#4BA2E2] flex items-center justify-center text-base">
+            <i class="fa-solid fa-camera"></i>
           </div>
-          <p class="text-xs text-gray-400 mt-1 font-medium">
-            Paste an image directly with <strong class="text-white">Ctrl + V</strong> or upload the schedule screenshot. Strictly matches names in the roster.
-          </p>
+          <div>
+            <h1 class="text-xl font-bold font-heading text-white">Daily Roster Image Scanner</h1>
+            <p class="text-xs text-[#D0DAE2]/60 mt-0.5">
+              Paste an image directly with <kbd class="px-1.5 py-0.5 rounded bg-[#161616] text-[#00FFFF] font-mono text-[10px]">Ctrl + V</kbd> or upload schedule screenshot.
+            </p>
+          </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3">
-          <div class="flex items-center bg-[#131320] rounded-2xl border border-[#252538] px-3.5 py-2">
-            <span class="text-gray-400 text-xs font-semibold mr-2">Target Date:</span>
+        <div class="flex flex-wrap items-center gap-2.5">
+          <div class="flex items-center bg-[#111111] rounded-xl border border-[#D0DAE2]/15 px-3 py-1.5">
+            <span class="text-[#D0DAE2]/60 text-xs font-semibold mr-2">Target Date:</span>
             <input type="date" id="rosterTargetDate" class="bg-transparent text-white text-xs font-bold focus:outline-none cursor-pointer font-mono">
           </div>
 
           <button onclick="loadSampleUploadedRoster()" 
-            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-[#1b1526] hover:bg-[#281b3a] text-[#ff7eb3] border border-[#ff2a85]/40 transition-all flex items-center gap-2">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
-            <span>Load Sample Image (26-09-2026)</span>
+            class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#111111] hover:bg-[#1a1a1a] text-[#4BA2E2] border border-[#4BA2E2]/30 transition-all flex items-center gap-1.5 cursor-pointer">
+            <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+            <span>Load Sample (26-09-2026)</span>
           </button>
         </div>
       </div>
@@ -693,17 +696,17 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         <!-- Left Box: Multi-Image Paste (Ctrl+V) & File Upload Gallery -->
-        <div class="bg-[#0d0d18] rounded-3xl border border-[#222238] p-6 shadow-2xl space-y-4">
+        <div class="bg-[#080808] rounded-3xl border border-[#D0DAE2]/12 p-6 shadow-2xl space-y-4">
           
           <div class="flex items-center justify-between">
             <div>
               <h3 class="font-heading font-bold text-base text-white flex items-center gap-2">
                 <span>Roster Schedule Photos</span>
-                <span id="rosterImageCountBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] border border-[#ff2a85]/40 font-mono">
+                <span id="rosterImageCountBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#4BA2E2]/15 text-[#4BA2E2] border border-[#4BA2E2]/30 font-mono">
                   0 Pics
                 </span>
               </h3>
-              <p class="text-[11px] text-gray-400 mt-0.5">Paste multiple screenshots (<kbd class="px-1.5 py-0.5 rounded bg-[#1c1c2e] text-[#ff7eb3] font-mono text-[10px]">Ctrl+V</kbd>) - 1, 2, 3+ photos supported!</p>
+              <p class="text-[11px] text-gray-400 mt-0.5">Paste multiple screenshots (<kbd class="px-1.5 py-0.5 rounded bg-[#1c1c2e] text-[#00FFFF] font-mono text-[10px]">Ctrl+V</kbd>) - 1, 2, 3+ photos supported!</p>
             </div>
             <button id="clearAllImagesBtn" onclick="clearAllRosterImages()" class="hidden text-xs text-rose-400 hover:text-rose-300 font-bold transition-colors cursor-pointer">
               <i class="fa-solid fa-trash-can mr-1"></i>Clear All
@@ -715,15 +718,15 @@
 
           <!-- Drop & Paste Multi-Image Interactive Box -->
           <div id="dropZone"
-            class="border-2 border-dashed border-[#2b2b42] hover:border-[#ff2a85] rounded-3xl p-5 text-center transition-all bg-[#080811] hover:bg-[#0f0f1c] relative min-h-[180px] flex flex-col justify-center items-center">
+            class="border-2 border-dashed border-[#D0DAE2]/20 hover:border-[#00FFFF] rounded-2xl p-5 text-center transition-all bg-[#000000] hover:bg-[#050505] relative min-h-[180px] flex flex-col justify-center items-center">
             
             <!-- Default Prompt when 0 images -->
             <div id="uploadPrompt" onclick="document.getElementById('rosterFileInput').click()" class="space-y-3 py-4 cursor-pointer w-full">
-              <div class="w-16 h-16 rounded-2xl bg-[#ff2a85]/10 text-[#ff2a85] flex items-center justify-center mx-auto text-3xl group-hover:scale-110 transition-transform shadow-lg shadow-[#ff2a85]/20">
+              <div class="w-16 h-16 rounded-2xl bg-[#00FFFF]/10 text-[#00FFFF] flex items-center justify-center mx-auto text-3xl group-hover:scale-105 transition-transform">
                 <i class="fa-solid fa-images"></i>
               </div>
               <div>
-                <p class="text-sm font-bold text-white">Press <kbd class="px-2 py-0.5 rounded bg-[#1e1e32] border border-[#33334e] text-[#ff7eb3] font-mono">Ctrl + V</kbd> to Paste Any Schedule Pic</p>
+                <p class="text-sm font-bold text-white">Press <kbd class="px-2 py-0.5 rounded bg-[#1e1e32] border border-[#33334e] text-[#00FFFF] font-mono">Ctrl + V</kbd> to Paste Any Schedule Pic</p>
                 <p class="text-xs text-gray-400 mt-1.5">You can paste 1, 2, 3 or more photos! Click here to browse</p>
               </div>
             </div>
@@ -735,7 +738,7 @@
               </div>
               <div class="flex items-center justify-center gap-2 pt-2">
                 <button type="button" onclick="document.getElementById('rosterFileInput').click()" 
-                  class="text-xs font-bold text-[#ff7eb3] hover:text-white bg-[#151526] hover:bg-[#202038] border border-[#2b2b44] px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer">
+                  class="text-xs font-semibold text-[#00FFFF] hover:text-white bg-[#111111] hover:bg-[#1a1a1a] border border-[#D0DAE2]/15 px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer">
                   <i class="fa-solid fa-plus text-[10px]"></i> Add Another Pic
                 </button>
                 <span class="text-[11px] text-gray-500">or press <kbd class="text-gray-300 font-mono">Ctrl+V</kbd></span>
@@ -747,7 +750,7 @@
           <div class="flex items-center gap-3">
             <button type="button" onclick="pasteImageFromClipboard()" 
               class="flex-1 py-3 rounded-2xl text-xs font-bold bg-[#141424] hover:bg-[#1e1e36] text-white border border-[#26263e] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md">
-              <i class="fa-solid fa-paste text-[#ff2a85]"></i>
+              <i class="fa-solid fa-paste text-[#00FFFF]"></i>
               <span>Paste Image (Ctrl+V)</span>
             </button>
             <button type="button" onclick="document.getElementById('rosterFileInput').click()" 
@@ -761,23 +764,23 @@
           <div id="ocrProgressBox" class="hidden space-y-1.5 pt-2">
             <div class="flex items-center justify-between text-xs text-gray-300">
               <span id="ocrStatusText">Enhancing image contrast & reading schedule...</span>
-              <span id="ocrPercent" class="font-mono text-[#ff7eb3] font-bold">0%</span>
+              <span id="ocrPercent" class="font-mono text-[#00FFFF] font-bold">0%</span>
             </div>
             <div class="w-full bg-[#141422] h-2.5 rounded-full overflow-hidden">
-              <div id="ocrProgressBar" class="h-full bg-gradient-to-r from-purple-500 via-[#ff2a85] to-emerald-400 transition-all duration-300" style="width: 0%"></div>
+              <div id="ocrProgressBar" class="h-full bg-gradient-to-r from-[#00FFFF] to-[#54E29C] transition-all duration-300" style="width: 0%"></div>
             </div>
           </div>
 
           <!-- Main Scan Button -->
           <button id="scanRosterBtn" onclick="scanUploadedRoster()" 
-            class="w-full py-3.5 rounded-2xl text-xs font-extrabold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] hover:brightness-110 text-white shadow-xl shadow-[#ff2a85]/30 transition-all flex items-center justify-center gap-2 cursor-pointer">
+            class="w-full py-3.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-[#00FFFF] to-[#4BA2E2] hover:brightness-110 text-black shadow-lg shadow-[#00FFFF]/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
             <i class="fa-solid fa-bolt"></i>
             <span id="scanBtnLabel">Scan Schedule Image with AI</span>
           </button>
         </div>
 
         <!-- Right Box: Extracted Roster Preview (Strictly detected staff only) -->
-        <div class="bg-[#0d0d15] rounded-3xl border border-[#1f1f30] p-6 shadow-2xl flex flex-col justify-between space-y-4">
+        <div class="bg-[#080808] rounded-3xl border border-[#D0DAE2]/12 p-6 shadow-2xl flex flex-col justify-between space-y-4">
           <div>
             <div class="flex items-center justify-between border-b border-[#1b1b2a] pb-3">
               <div>
@@ -787,10 +790,10 @@
               <div class="flex items-center gap-2">
                 <button type="button" onclick="openQuickAddStaffToRoster()" 
                   class="px-2.5 py-1 rounded-xl bg-[#171728] hover:bg-[#222238] text-gray-300 hover:text-white border border-[#2b2b40] text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer" title="Manually add any staff to this roster">
-                  <i class="fa-solid fa-plus text-[#ff2a85] text-[10px]"></i>
+                  <i class="fa-solid fa-plus text-[#54E29C] text-[10px]"></i>
                   <span>Add Staff</span>
                 </button>
-                <span id="detectedCountBadge" class="px-3 py-1 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] font-bold font-mono text-xs">
+                <span id="detectedCountBadge" class="px-3 py-1 rounded-full bg-[#00FFFF]/15 text-[#00FFFF] font-bold font-mono text-xs">
                   0 Staff Found
                 </span>
               </div>
@@ -808,7 +811,7 @@
           <!-- Bottom Apply Button -->
           <div class="pt-3 border-t border-[#1a1a28]">
             <button onclick="applyRosterToAttendance()" 
-              class="w-full py-3.5 rounded-2xl text-xs font-extrabold bg-emerald-500 hover:bg-emerald-400 text-black shadow-xl shadow-emerald-500/20 transition-all flex items-center justify-center gap-2">
+              class="w-full py-3.5 rounded-2xl text-xs font-extrabold bg-[#54E29C] hover:bg-[#46cf8c] text-black font-extrabold shadow-lg shadow-[#54E29C]/20 transition-all flex items-center justify-center gap-2">
               <i class="fa-solid fa-check-double"></i>
               <span>Apply Detected Shifts to Attendance</span>
             </button>
@@ -829,29 +832,30 @@
     <!-- ========================================== -->
     <section id="view-admin" class="view-panel hidden space-y-6">
       
-      <!-- Admin Top Banner -->
-      <div class="bg-gradient-to-r from-[#170a1a] via-[#0d0d15] to-[#170a1a] p-6 rounded-3xl border border-[#ff2a85]/40 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="px-2.5 py-0.5 rounded-full bg-[#ff2a85] text-black font-extrabold text-[10px] tracking-wider uppercase">
-              CONFIDENTIAL ADMIN PORTAL
-            </span>
-            <h1 class="text-2xl font-syne font-extrabold text-white">Green Trends Owner Master Controls</h1>
+      <!-- Minimalist Admin Action Header -->
+      <div class="bg-[#080808] p-5 rounded-2xl border border-[#D0DAE2]/12 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-[#C084FC]/15 border border-[#C084FC]/30 flex items-center justify-center text-[#C084FC] text-base">
+            <i class="fa-solid fa-sliders"></i>
           </div>
-          <p class="text-xs text-gray-300 mt-1">
-            Configure base salaries, food allowances, Manager salon revenue target, individual percentage commissions, and OT settings.
-          </p>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl font-bold font-heading text-white">Admin Management</h1>
+              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#C084FC]/15 text-[#C084FC] border border-[#C084FC]/30 uppercase">Master</span>
+            </div>
+            <p class="text-xs text-[#D0DAE2]/60 mt-0.5">Staff salaries, roles, commission targets & selective data controls</p>
+          </div>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2.5">
           <button onclick="navigateTo('attendance')" 
-            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-[#161624] hover:bg-[#202034] text-white border border-[#252538] transition-all flex items-center gap-2">
-            <i class="fa-solid fa-arrow-left"></i>
-            <span>Return to Staff Portal</span>
+            class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#111111] hover:bg-[#181818] text-[#D0DAE2] border border-[#D0DAE2]/15 transition-all flex items-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-arrow-left text-xs"></i>
+            <span>Back to Portal</span>
           </button>
           <button onclick="openAddStaffModal()" 
-            class="px-5 py-2.5 rounded-2xl text-xs font-bold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] hover:brightness-110 text-white shadow-xl shadow-[#ff2a85]/30 transition-all flex items-center gap-2">
-            <i class="fa-solid fa-user-plus"></i>
+            class="px-4 py-2 rounded-xl text-xs font-bold bg-[#00FFFF] hover:bg-[#54E29C] text-black transition-all flex items-center gap-2 shadow-md shadow-[#00FFFF]/20 cursor-pointer">
+            <i class="fa-solid fa-user-plus text-xs"></i>
             <span>Add New Staff</span>
           </button>
         </div>
@@ -861,13 +865,13 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <!-- Left: Staff Salaries & Percentage Rules (2 cols) -->
-        <div class="lg:col-span-2 bg-[#0d0d15] rounded-3xl border border-[#1f1f30] p-6 shadow-2xl space-y-4">
-          <div class="flex items-center justify-between border-b border-[#1f1f30] pb-4">
+        <div class="lg:col-span-2 bg-[#080808] rounded-3xl border border-[#D0DAE2]/12 p-6 shadow-2xl space-y-4">
+          <div class="flex items-center justify-between border-b border-[#D0DAE2]/12 pb-4">
             <div>
               <h2 class="font-syne font-bold text-lg text-white">Staff Roster & Commission Rules</h2>
               <p class="text-xs text-gray-400">Configure base salary, food allowance, and individual targets/rates.</p>
             </div>
-            <button onclick="saveAllStaffEdits()" class="px-4 py-2 rounded-xl text-xs font-bold bg-[#ff2a85] hover:bg-[#ff4d9a] text-white transition-all shadow-lg shadow-[#ff2a85]/30">
+            <button onclick="saveAllStaffEdits()" class="px-4 py-2 rounded-xl text-xs font-bold bg-[#54E29C] hover:bg-[#46cf8c] text-black font-extrabold transition-all shadow-md shadow-[#54E29C]/20">
               Save All Changes
             </button>
           </div>
@@ -880,10 +884,67 @@
         <!-- Right: Salon Monthly Target & Rules (1 col) -->
         <div class="space-y-6">
           
+          <!-- Selective Attendance & Data Reset -->
+          <div class="bg-[#080808] rounded-2xl border border-[#D0DAE2]/12 p-5 shadow-xl space-y-3.5">
+            <div class="flex items-center justify-between border-b border-[#D0DAE2]/10 pb-3">
+              <h2 class="font-heading font-bold text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-calendar-minus text-[#00FFFF]"></i>
+                <span>Selective Date Reset</span>
+              </h2>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/20">Granular</span>
+            </div>
+
+            <p class="text-xs text-[#D0DAE2]/70 leading-relaxed">
+              Select specific dates to clear. <strong class="text-white">Only selected dates will be reset</strong> — all other dates and history remain untouched.
+            </p>
+
+            <!-- Date Selectors -->
+            <div class="grid grid-cols-2 gap-2 text-xs pt-1">
+              <div>
+                <label class="block text-[11px] text-[#D0DAE2]/60 font-semibold mb-1">From Date</label>
+                <input type="date" id="resetStartDate" class="w-full bg-[#111111] border border-[#D0DAE2]/15 rounded-xl px-2.5 py-1.5 text-white font-mono text-xs focus:border-[#00FFFF]">
+              </div>
+              <div>
+                <label class="block text-[11px] text-[#D0DAE2]/60 font-semibold mb-1">To Date</label>
+                <input type="date" id="resetEndDate" class="w-full bg-[#111111] border border-[#D0DAE2]/15 rounded-xl px-2.5 py-1.5 text-white font-mono text-xs focus:border-[#00FFFF]">
+              </div>
+            </div>
+
+            <!-- Quick Preset Buttons -->
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              <button type="button" onclick="setResetRangePreset('today')" class="px-2.5 py-1 rounded-lg bg-[#141414] hover:bg-[#1f1f1f] text-[11px] font-semibold text-[#D0DAE2] border border-[#D0DAE2]/10 transition-colors cursor-pointer">
+                Today
+              </button>
+              <button type="button" onclick="setResetRangePreset('yesterday')" class="px-2.5 py-1 rounded-lg bg-[#141414] hover:bg-[#1f1f1f] text-[11px] font-semibold text-[#D0DAE2] border border-[#D0DAE2]/10 transition-colors cursor-pointer">
+                Yesterday
+              </button>
+              <button type="button" onclick="setResetRangePreset('thisMonth')" class="px-2.5 py-1 rounded-lg bg-[#141414] hover:bg-[#1f1f1f] text-[11px] font-semibold text-[#D0DAE2] border border-[#D0DAE2]/10 transition-colors cursor-pointer">
+                This Month
+              </button>
+              <button type="button" onclick="setResetRangePreset('last7')" class="px-2.5 py-1 rounded-lg bg-[#141414] hover:bg-[#1f1f1f] text-[11px] font-semibold text-[#D0DAE2] border border-[#D0DAE2]/10 transition-colors cursor-pointer">
+                Last 7 Days
+              </button>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-2 pt-2">
+              <button type="button" onclick="resetAttendanceForSelectedDates(this)" 
+                class="w-full py-2.5 rounded-xl text-xs font-bold bg-[#00FFFF]/15 hover:bg-[#00FFFF]/25 text-[#00FFFF] border border-[#00FFFF]/35 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm">
+                <i class="fa-solid fa-calendar-xmark"></i>
+                <span>Reset Attendance on Selected Dates</span>
+              </button>
+              <button type="button" onclick="resetSalesForSelectedDates(this)" 
+                class="w-full py-2 rounded-xl text-xs font-semibold bg-[#60A5FA]/15 hover:bg-[#60A5FA]/25 text-[#60A5FA] border border-[#60A5FA]/30 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <i class="fa-solid fa-coins"></i>
+                <span>Reset Sales Only (₹0) on Selected Dates</span>
+              </button>
+            </div>
+          </div>
+
           <!-- Manager Salon Target Setting -->
-          <div class="bg-[#0d0d15] rounded-3xl border border-[#1f1f30] p-6 shadow-2xl space-y-4">
+          <div class="bg-[#080808] rounded-3xl border border-[#D0DAE2]/12 p-6 shadow-2xl space-y-4">
             <h2 class="font-syne font-bold text-base text-white flex items-center gap-2">
-              <i class="fa-solid fa-crown text-[#ff7eb3]"></i>
+              <i class="fa-solid fa-crown text-[#C084FC]"></i>
               <span>Manager Commission</span>
             </h2>
             
@@ -891,14 +952,14 @@
               <div>
                 <label class="block text-gray-400 mb-1">Monthly Salon Service Revenue Target (₹)</label>
                 <input type="number" id="adminSalonTarget" value="600000" 
-                  class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-mono font-bold focus:outline-none focus:border-[#ff2a85]">
+                  class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-mono font-bold focus:outline-none focus:border-[#00FFFF]">
                 <span class="text-[10px] text-gray-500">Manager gets 1% on total salon service revenue when this target is reached.</span>
               </div>
 
               <div>
                 <label class="block text-gray-400 mb-1">Manager Commission (%)</label>
                 <input type="number" id="adminManagerRate" value="1" min="0" max="10" 
-                  class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-mono font-bold focus:outline-none focus:border-[#ff2a85]">
+                  class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-mono font-bold focus:outline-none focus:border-[#00FFFF]">
               </div>
 
               <button onclick="saveSalonManagerTarget()" 
@@ -909,9 +970,9 @@
           </div>
 
           <!-- Shift & OT Settings -->
-          <div class="bg-[#0d0d15] rounded-3xl border border-[#1f1f30] p-6 shadow-2xl space-y-4">
+          <div class="bg-[#080808] rounded-3xl border border-[#D0DAE2]/12 p-6 shadow-2xl space-y-4">
             <h2 class="font-syne font-bold text-base text-white flex items-center gap-2">
-              <i class="fa-solid fa-clock text-[#ff2a85]"></i>
+              <i class="fa-solid fa-clock text-[#60A5FA]"></i>
               <span>Shift & Overtime Rules</span>
             </h2>
             
@@ -919,21 +980,21 @@
               <div>
                 <label class="block text-gray-400 mb-1">Standard Daily Shift (Hours)</label>
                 <input type="number" id="adminShiftHours" value="9" min="1" max="18" 
-                  class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+                  class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
                 <span class="text-[10px] text-gray-500">Shortfall under 9h cuts from earned OT hours!</span>
               </div>
 
               <div>
                 <label class="block text-gray-400 mb-1">OT Grace Threshold (Minutes)</label>
                 <input type="number" id="adminOtThreshold" value="45" min="0" max="120" 
-                  class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+                  class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
                 <span class="text-[10px] text-gray-500">OT starts adding ONLY after 45 extra minutes</span>
               </div>
 
               <div>
                 <label class="block text-gray-400 mb-1">Overtime Rate (₹ per Hour)</label>
                 <input type="number" id="adminOtRate" value="50" min="0" 
-                  class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+                  class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
               </div>
 
               <button onclick="saveAdminShiftRules()" 
@@ -944,10 +1005,10 @@
           </div>
 
           <!-- Firebase Real-Time Cloud Sync (100% Free) -->
-          <div class="bg-[#0d0d15] rounded-3xl border border-[#ff2a85]/40 p-6 shadow-2xl space-y-3.5 relative overflow-hidden">
+          <div class="bg-[#080808] rounded-3xl border border-[#D0DAE2]/15 p-6 shadow-2xl space-y-3.5 relative overflow-hidden">
             <div class="flex items-center justify-between">
               <h2 class="font-syne font-bold text-base text-white flex items-center gap-2">
-                <i class="fa-solid fa-cloud-bolt text-[#ff2a85]"></i>
+                <i class="fa-solid fa-cloud-bolt text-[#00FFFF]"></i>
                 <span>Firebase Cloud Sync</span>
               </h2>
               <span id="cloudStatusBadgeAdmin" class="text-[10px] font-bold font-mono px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center gap-1.5">
@@ -967,7 +1028,7 @@
                   <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-300">
                     Firebase Config Code
                   </label>
-                  <button type="button" onclick="openFirebaseHelpModal()" class="text-[11px] text-[#ff7eb3] hover:underline flex items-center gap-1">
+                  <button type="button" onclick="openFirebaseHelpModal()" class="text-[11px] text-[#C084FC] hover:underline flex items-center gap-1">
                     <i class="fa-solid fa-circle-question"></i>
                     <span>How to get free key?</span>
                   </button>
@@ -977,12 +1038,12 @@ const firebaseConfig = {
   apiKey: "AIzaSy...",
   projectId: "green-trends-kothapet",
   ...
-};' class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-mono text-[11px] focus:outline-none focus:border-[#ff2a85]"></textarea>
+};' class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-mono text-[11px] focus:outline-none focus:border-[#00FFFF]"></textarea>
               </div>
 
               <div class="flex items-center gap-2">
                 <button type="button" onclick="connectFirebaseCloud()" 
-                  class="flex-1 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] hover:brightness-110 text-white transition-all shadow-md shadow-[#ff2a85]/20 flex items-center justify-center gap-1.5 cursor-pointer">
+                  class="flex-1 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#00FFFF] to-[#4BA2E2] hover:brightness-110 text-black font-extrabold transition-all shadow-md shadow-[#00FFFF]/20 flex items-center justify-center gap-1.5 cursor-pointer">
                   <i class="fa-solid fa-bolt"></i>
                   <span>Connect & Push Local Data</span>
                 </button>
@@ -1004,7 +1065,7 @@ const firebaseConfig = {
               <div class="grid grid-cols-2 gap-2 text-xs">
                 <button type="button" onclick="pushLocalDataToFirestore(true)" 
                   class="py-2.5 px-2 rounded-xl font-bold bg-[#141424] hover:bg-[#202038] text-white border border-[#282844] flex items-center justify-center gap-1.5 cursor-pointer" title="Upload local attendance and staff to Cloud">
-                  <i class="fa-solid fa-cloud-arrow-up text-[#ff7eb3]"></i>
+                  <i class="fa-solid fa-cloud-arrow-up text-[#C084FC]"></i>
                   <span>Push to Cloud</span>
                 </button>
                 <button type="button" onclick="pullDataFromFirestore(true)" 
@@ -1022,7 +1083,7 @@ const firebaseConfig = {
           </div>
 
           <!-- Data Backup & Reset -->
-          <div class="bg-[#0d0d15] rounded-3xl border border-[#1f1f30] p-6 shadow-2xl space-y-3">
+          <div class="bg-[#080808] rounded-3xl border border-[#D0DAE2]/12 p-6 shadow-2xl space-y-3">
             <h2 class="font-syne font-bold text-base text-white flex items-center gap-2">
               <i class="fa-solid fa-database text-gray-400"></i>
               <span>Data Backup & Restore</span>
@@ -1044,7 +1105,7 @@ const firebaseConfig = {
 
               <button onclick="resetAllSalesAndIncentivesToZero(this)" 
                 class="w-full py-2.5 rounded-xl text-xs font-bold bg-purple-950/30 hover:bg-purple-900/50 text-purple-200 border border-purple-800/40 transition-all flex items-center justify-center gap-2 cursor-pointer">
-                <i class="fa-solid fa-coins text-[#ff7eb3]"></i>
+                <i class="fa-solid fa-coins text-[#C084FC]"></i>
                 <span>Reset All Sales & Incentives to ₹0</span>
               </button>
 
@@ -1063,10 +1124,10 @@ const firebaseConfig = {
           </div>
 
           <!-- Portal Security & Login Credentials -->
-          <div class="bg-[#0d0d15] rounded-3xl border border-[#ff2a85]/30 p-6 shadow-2xl space-y-4">
+          <div class="bg-[#080808] rounded-3xl border border-[#D0DAE2]/15 p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-[#1f1f32] pb-3">
               <h2 class="font-syne font-bold text-base text-white flex items-center gap-2">
-                <i class="fa-solid fa-shield-halved text-[#ff2a85]"></i>
+                <i class="fa-solid fa-shield-halved text-[#C084FC]"></i>
                 <span>Portal Login Credentials</span>
               </h2>
               <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">2 ACTIVE ACCOUNTS</span>
@@ -1074,7 +1135,7 @@ const firebaseConfig = {
             
             <div class="space-y-4 text-xs">
               <!-- Account 1: Owner Account -->
-              <div class="p-3.5 bg-[#121220] rounded-2xl border border-[#222238] space-y-2.5">
+              <div class="p-3.5 bg-[#121220] rounded-2xl border border-[#D0DAE2]/12 space-y-2.5">
                 <div class="flex items-center justify-between">
                   <span class="font-bold text-white flex items-center gap-1.5">
                     <i class="fa-solid fa-crown text-amber-400"></i>
@@ -1085,17 +1146,17 @@ const firebaseConfig = {
                 <div>
                   <label class="block text-gray-400 mb-1">Username / Email</label>
                   <input type="text" id="adminAuthUsername" value="kancherlavatsalsai@gmial.com" 
-                    class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+                    class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
                 </div>
                 <div>
                   <label class="block text-gray-400 mb-1">Change Owner Password</label>
                   <input type="text" id="adminAuthPassword" placeholder="Enter new password to change"
-                    class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+                    class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
                 </div>
               </div>
 
               <!-- Account 2: Manager Account -->
-              <div class="p-3.5 bg-[#121220] rounded-2xl border border-[#222238] space-y-2.5">
+              <div class="p-3.5 bg-[#121220] rounded-2xl border border-[#D0DAE2]/12 space-y-2.5">
                 <div class="flex items-center justify-between">
                   <span class="font-bold text-white flex items-center gap-1.5">
                     <i class="fa-solid fa-user-tie text-purple-400"></i>
@@ -1107,17 +1168,17 @@ const firebaseConfig = {
                 <div>
                   <label class="block text-gray-400 mb-1">Username / Email</label>
                   <input type="text" id="adminManagerUsername" value="Greentrendskothapet@gmail.com" 
-                    class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+                    class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
                 </div>
                 <div>
                   <label class="block text-gray-400 mb-1">Change Manager Password</label>
                   <input type="text" id="adminManagerPassword" placeholder="Enter new password to change"
-                    class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+                    class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
                 </div>
               </div>
 
               <button type="button" onclick="saveAdminCredentials()" 
-                class="w-full py-2.5 rounded-xl text-xs font-bold bg-[#ff2a85] hover:bg-[#ff4d9a] text-white shadow-lg shadow-[#ff2a85]/25 transition-all cursor-pointer">
+                class="w-full py-2.5 rounded-xl text-xs font-bold bg-[#00FFFF] hover:bg-[#54E29C] text-black font-bold shadow-lg shadow-[#00FFFF]/20 transition-all cursor-pointer">
                 Update Login Credentials
               </button>
             </div>
@@ -1134,7 +1195,7 @@ const firebaseConfig = {
   <!-- MODAL: PAY SLIP VOUCHER (PRINTABLE)        -->
   <!-- ========================================== -->
   <div id="paySlipModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
-    <div class="relative w-full max-w-2xl bg-[#0c0c14] border border-[#ff2a85]/40 rounded-3xl p-6 sm:p-8 shadow-2xl text-white my-8">
+    <div class="relative w-full max-w-2xl bg-[#0c0c14] border border-[#D0DAE2]/15 rounded-3xl p-6 sm:p-8 shadow-2xl text-white my-8">
       
       <button onclick="closePaySlipModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white w-8 h-8 rounded-full bg-[#181826] flex items-center justify-center">
         <i class="fa-solid fa-xmark"></i>
@@ -1146,7 +1207,7 @@ const firebaseConfig = {
         <div class="border-b border-[#202032] pb-5 flex items-start justify-between">
           <div>
             <div class="flex items-center gap-2.5">
-              <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#ff2a85] to-[#ff7eb3] text-white flex items-center justify-center text-sm shadow-md shadow-[#ff2a85]/30">
+              <span class="w-8 h-8 rounded-xl bg-[#00FFFF]/20 text-[#00FFFF] flex items-center justify-center text-sm shadow-md shadow-[#00FFFF]/20">
                 <i class="fa-solid fa-scissors"></i>
               </span>
               <h2 class="font-syne font-extrabold text-2xl text-white tracking-wider">GREEN TRENDS KOTHAPET</h2>
@@ -1154,7 +1215,7 @@ const firebaseConfig = {
             <p class="text-xs text-gray-400 mt-1">Official Monthly Salary Slip & Commission Voucher</p>
           </div>
           <div class="text-right">
-            <span class="text-xs px-3 py-1 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] font-bold font-mono border border-[#ff2a85]/30" id="psMonthYear">
+            <span class="text-xs px-3 py-1 rounded-full bg-[#00FFFF]/15 text-[#00FFFF] font-bold font-mono border border-[#D0DAE2]/15" id="psMonthYear">
               SEP 2026
             </span>
             <p class="text-[10px] text-gray-500 mt-1" id="psGeneratedDate">Date: 26 Sep 2026</p>
@@ -1177,7 +1238,7 @@ const firebaseConfig = {
           </div>
           <div>
             <span class="text-gray-400 block text-[10px] uppercase font-semibold">Daily Rate</span>
-            <span class="text-[#ff7eb3] font-bold font-mono" id="psPerDayRate">₹833.33</span>
+            <span class="text-[#00FFFF] font-bold font-mono" id="psPerDayRate">₹833.33</span>
           </div>
         </div>
 
@@ -1217,7 +1278,7 @@ const firebaseConfig = {
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-300">Net OT (<span id="psOtHoursText">0h</span> @ ₹50/h)</span>
-                <span class="font-mono text-[#ff7eb3] font-semibold" id="psOtPay">₹0</span>
+                <span class="font-mono text-[#C084FC] font-semibold" id="psOtPay">₹0</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-300" id="psServiceIncentiveLabel">Services Commission</span>
@@ -1252,13 +1313,13 @@ const firebaseConfig = {
           </div>
 
           <!-- Total Net Payable Box -->
-          <div class="bg-gradient-to-r from-[#170a1a] to-[#0c0c14] p-4 border-t border-[#ff2a85]/40 flex items-center justify-between">
+          <div class="bg-gradient-to-r from-[#170a1a] to-[#0c0c14] p-4 border-t border-[#D0DAE2]/15 flex items-center justify-between">
             <div>
               <span class="text-xs text-gray-400 uppercase tracking-wider block">Net Take-Home Salary</span>
               <span class="text-[10px] text-gray-400">Green Trends Kothapet</span>
             </div>
             <div class="text-right">
-              <span class="text-2xl sm:text-3xl font-heading font-extrabold text-[#ff2a85] font-mono tracking-tight" id="psNetPayable">₹26,500</span>
+              <span class="text-2xl sm:text-3xl font-heading font-extrabold text-[#00FFFF] font-mono tracking-tight" id="psNetPayable">₹26,500</span>
             </div>
           </div>
         </div>
@@ -1282,7 +1343,7 @@ const firebaseConfig = {
         <button onclick="closePaySlipModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-[#161624] hover:bg-[#202034] text-gray-300">
           Close
         </button>
-        <button onclick="printPaySlip()" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] hover:brightness-110 text-white flex items-center gap-2 shadow-lg shadow-[#ff2a85]/30">
+        <button onclick="printPaySlip()" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#00FFFF] hover:bg-[#54E29C] text-black font-extrabold flex items-center gap-2 shadow-md shadow-[#00FFFF]/20">
           <i class="fa-solid fa-print"></i>
           <span>Print / Save PDF</span>
         </button>
@@ -1304,13 +1365,13 @@ const firebaseConfig = {
         <div>
           <label class="block text-gray-400 mb-1">Staff Full Name</label>
           <input type="text" id="staffFormName" required placeholder="e.g. Rahul Verma"
-            class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+            class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
         </div>
 
         <div>
           <label class="block text-gray-400 mb-1">Role / Designation</label>
           <select id="staffFormRole" required
-            class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85] cursor-pointer">
+            class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF] cursor-pointer">
             <option value="Manager">Manager</option>
             <option value="Hair Stylist" selected>Hair Stylist</option>
             <option value="Beauty">Beauty</option>
@@ -1322,20 +1383,20 @@ const firebaseConfig = {
         <div>
           <label class="block text-gray-400 mb-1">Monthly Base Salary (₹)</label>
           <input type="number" id="staffFormSalary" required min="0" placeholder="e.g. 25000"
-            class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+            class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
         </div>
 
         <div>
           <label class="block text-gray-400 mb-1">Food Allowance (₹)</label>
           <input type="number" id="staffFormFood" value="0" min="0" placeholder="e.g. 1500"
-            class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+            class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
         </div>
 
-        <div class="flex items-center justify-end gap-3 pt-3 border-t border-[#1f1f30]">
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-[#D0DAE2]/12">
           <button type="button" onclick="closeStaffModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-[#141420] text-gray-400 hover:text-white">
             Cancel
           </button>
-          <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#ff2a85] hover:bg-[#ff4d9a] text-white shadow-lg shadow-[#ff2a85]/30">
+          <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#00FFFF] hover:bg-[#54E29C] text-black font-bold shadow-md shadow-[#00FFFF]/20">
             Save Staff Member
           </button>
         </div>
@@ -1348,7 +1409,7 @@ const firebaseConfig = {
   <!-- ========================================== -->
   <div id="quickAddRosterModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="relative w-full max-w-md bg-[#0c0c14] border border-[#222236] rounded-3xl p-6 shadow-2xl text-white">
-      <div class="flex items-center justify-between pb-3 border-b border-[#1f1f30] mb-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[#D0DAE2]/12 mb-4">
         <div>
           <h3 class="font-syne font-bold text-lg text-white">Add Staff to Roster</h3>
           <p class="text-xs text-gray-400">Select any stylist to manually add or override in scanned roster</p>
@@ -1362,7 +1423,7 @@ const firebaseConfig = {
         <!-- Rendered dynamically -->
       </div>
 
-      <div class="flex items-center justify-end gap-3 pt-4 border-t border-[#1f1f30] mt-4">
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-[#D0DAE2]/12 mt-4">
         <button type="button" onclick="closeQuickAddStaffModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-[#141420] text-gray-400 hover:text-white">
           Done
         </button>
@@ -1374,18 +1435,18 @@ const firebaseConfig = {
 
   <!-- Progressive Web App (PWA) Install Guide Modal -->
   <div id="pwaModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="relative w-full max-w-md bg-[#0c0c14] border border-[#ff2a85]/40 rounded-3xl p-6 sm:p-7 shadow-2xl text-white">
+    <div class="relative w-full max-w-md bg-[#0c0c14] border border-[#D0DAE2]/15 rounded-3xl p-6 sm:p-7 shadow-2xl text-white">
       <button type="button" onclick="closePwaInstallModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white w-8 h-8 rounded-full bg-[#181826] flex items-center justify-center">
         <i class="fa-solid fa-xmark"></i>
       </button>
       
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#ff2a85] to-[#ff7eb3] p-0.5 flex items-center justify-center shadow-lg shadow-[#ff2a85]/30 shrink-0">
+        <div class="w-12 h-12 rounded-2xl bg-[#00FFFF]/20 text-[#00FFFF] p-0.5 flex items-center justify-center shadow-md shadow-[#00FFFF]/20 shrink-0">
           <img src="icon-192.png" alt="App Icon" class="w-full h-full rounded-[14px] object-cover">
         </div>
         <div>
           <h3 class="font-syne font-bold text-base text-white">Install Green Trends App</h3>
-          <p class="text-[11px] text-[#ff7eb3] font-mono">Mobile App Mode (PWA)</p>
+          <p class="text-[11px] text-[#00FFFF] font-mono">Mobile App Mode (PWA)</p>
         </div>
       </div>
 
@@ -1395,16 +1456,16 @@ const firebaseConfig = {
 
       <div class="space-y-3 text-xs">
         <div id="pwaStepIos" class="p-3.5 rounded-2xl bg-[#12121e] border border-[#222236] transition-all flex items-start gap-3">
-          <span class="w-7 h-7 rounded-xl bg-pink-500/20 text-[#ff7eb3] flex items-center justify-center font-bold shrink-0 text-sm">
+          <span class="w-7 h-7 rounded-xl bg-pink-500/20 text-[#C084FC] flex items-center justify-center font-bold shrink-0 text-sm">
             <i class="fa-brands fa-apple"></i>
           </span>
           <div>
             <div class="flex items-center gap-2">
               <span class="font-bold text-white block">iPhone / iPad (Safari)</span>
-              <span id="badgeIos" class="hidden text-[9px] px-1.5 py-0.5 rounded bg-pink-500/20 text-[#ff7eb3] font-bold">Your Device</span>
+              <span id="badgeIos" class="hidden text-[9px] px-1.5 py-0.5 rounded bg-pink-500/20 text-[#00FFFF] font-bold">Your Device</span>
             </div>
             <span class="text-gray-300 text-[11px] leading-relaxed block mt-0.5">
-              Tap the <i class="fa-solid fa-arrow-up-from-bracket text-sky-400 font-bold"></i> <strong>Share</strong> button at the bottom of Safari, scroll down, then tap <strong>'Add to Home Screen'</strong> <i class="fa-solid fa-square-plus text-[#ff2a85]"></i>.
+              Tap the <i class="fa-solid fa-arrow-up-from-bracket text-sky-400 font-bold"></i> <strong>Share</strong> button at the bottom of Safari, scroll down, then tap <strong>'Add to Home Screen'</strong> <i class="fa-solid fa-square-plus text-[#00FFFF]"></i>.
             </span>
           </div>
         </div>
@@ -1444,7 +1505,7 @@ const firebaseConfig = {
         <button type="button" onclick="closePwaInstallModal()" class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#181828] text-gray-300 hover:text-white cursor-pointer">
           Close
         </button>
-        <button type="button" id="pwaDirectInstallBtn" onclick="triggerNativeInstall()" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#ff2a85] to-[#ff5c99] text-white shadow-lg shadow-[#ff2a85]/30 hover:brightness-110 flex items-center gap-1.5 cursor-pointer">
+        <button type="button" id="pwaDirectInstallBtn" onclick="triggerNativeInstall()" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#00FFFF] to-[#4BA2E2] text-black font-extrabold shadow-md shadow-[#00FFFF]/20 hover:brightness-110 flex items-center gap-1.5 cursor-pointer">
           <i class="fa-solid fa-download"></i>
           <span id="pwaDirectInstallText">Install Now</span>
         </button>
@@ -1454,7 +1515,7 @@ const firebaseConfig = {
 
   <!-- Firebase 1-Minute Setup Guide Modal -->
   <div id="firebaseHelpModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-[#0e0e18] border border-[#ff2a85]/40 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+    <div class="bg-[#0e0e18] border border-[#D0DAE2]/15 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between border-b border-[#1f1f32] pb-3">
         <div class="flex items-center gap-2.5">
           <span class="w-8 h-8 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center">
@@ -1473,7 +1534,7 @@ const firebaseConfig = {
       <div class="space-y-3.5 text-xs text-gray-300 leading-relaxed max-h-[420px] overflow-y-auto pr-1">
         <!-- Step 1 -->
         <div class="p-3.5 bg-[#131322] rounded-2xl border border-[#232338] space-y-1">
-          <span class="text-[#ff7eb3] font-bold text-xs">Step 1: Create Free Project</span>
+          <span class="text-[#00FFFF] font-bold text-xs">Step 1: Create Free Project</span>
           <p class="text-gray-400">
             Open <a href="https://console.firebase.google.com" target="_blank" class="text-white underline font-semibold">console.firebase.google.com</a> with your Google account. Click <strong>"Add project"</strong> and enter name: <code class="text-pink-300 bg-black/40 px-1 py-0.5 rounded">green-trends-kothapet</code>. Click Continue until created.
           </p>
@@ -1481,7 +1542,7 @@ const firebaseConfig = {
 
         <!-- Step 2 -->
         <div class="p-3.5 bg-[#131322] rounded-2xl border border-[#232338] space-y-1">
-          <span class="text-[#ff7eb3] font-bold text-xs">Step 2: Create Firestore Database</span>
+          <span class="text-[#00FFFF] font-bold text-xs">Step 2: Create Firestore Database</span>
           <p class="text-gray-400">
             In your Firebase dashboard, click <strong>"Build"</strong> $\rightarrow$ <strong>"Firestore Database"</strong> $\rightarrow$ click <strong>"Create database"</strong>. Select <strong>"Start in test mode"</strong> (allows free read/write) and click Enable.
           </p>
@@ -1489,7 +1550,7 @@ const firebaseConfig = {
 
         <!-- Step 3 -->
         <div class="p-3.5 bg-[#131322] rounded-2xl border border-[#232338] space-y-1">
-          <span class="text-[#ff7eb3] font-bold text-xs">Step 3: Register Web App & Copy Code</span>
+          <span class="text-[#00FFFF] font-bold text-xs">Step 3: Register Web App & Copy Code</span>
           <p class="text-gray-400">
             Click Project Settings (Gear icon ⚙️) $\rightarrow$ scroll down to "Your apps" $\rightarrow$ click the Web icon <strong>`</>`</strong>. Give it any nickname and click "Register app". Copy the generated <code class="text-pink-300 bg-black/40 px-1 py-0.5 rounded">const firebaseConfig = { ... }</code> snippet and paste it into the Cloud Sync box!
           </p>
@@ -1497,7 +1558,7 @@ const firebaseConfig = {
       </div>
 
       <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#1f1f32]">
-        <a href="https://console.firebase.google.com" target="_blank" class="px-4 py-2 rounded-xl text-xs font-bold bg-[#ff2a85] hover:bg-[#ff4d9a] text-white transition-all flex items-center gap-1.5">
+        <a href="https://console.firebase.google.com" target="_blank" class="px-4 py-2 rounded-xl text-xs font-bold bg-[#00FFFF] hover:bg-[#54E29C] text-black font-bold transition-all flex items-center gap-1.5">
           <span>Open Firebase Console</span>
           <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
         </a>
@@ -1511,7 +1572,7 @@ const firebaseConfig = {
   <!-- Modern Native Mobile Bottom Navigation Bar (6 Tabs) -->
   <nav id="mobileBottomNav" class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#080812]/95 backdrop-blur-xl border-t border-[#1c1c2e] px-1 py-1 safe-bottom shadow-2xl">
     <div id="mobileNavGrid" class="grid grid-cols-6 gap-0.5 text-center w-full max-w-lg mx-auto">
-      <button onclick="navigateTo('attendance')" id="mobileNav-attendance" class="py-1 px-0.5 text-[10px] font-bold rounded-xl text-[#ff2a85] bg-[#ff2a85]/15 transition-all cursor-pointer">
+      <button onclick="navigateTo('attendance')" id="mobileNav-attendance" class="py-1 px-0.5 text-[10px] font-bold rounded-xl text-[#00FFFF] bg-[#00FFFF]/15 transition-all cursor-pointer">
         <i class="fa-solid fa-calendar-check block text-sm mb-0.5"></i>
         <span>Attd</span>
       </button>
@@ -1580,7 +1641,7 @@ const firebaseConfig = {
         
         if (isIOS) {
           if (bIos) bIos.classList.remove('hidden');
-          if (stepIos) stepIos.classList.add('border-[#ff2a85]', 'bg-[#ff2a85]/10');
+          if (stepIos) stepIos.classList.add('border-[#00FFFF]', 'bg-[#00FFFF]/10');
         } else if (isAndroid) {
           if (bAndroid) bAndroid.classList.remove('hidden');
           if (stepAndroid) stepAndroid.classList.add('border-emerald-500', 'bg-emerald-500/10');

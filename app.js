@@ -296,7 +296,7 @@ const FULL_SALON_ATTENDANCE_DATA = {"2026-07-25":{"staff_4":{"productsSold":0,"w
 const SEPTEMBER_2026_REAL_ATTENDANCE = FULL_SALON_ATTENDANCE_DATA;
 
 const DATA_VERSION = '20260929_clean_v1';
-const INITIALIZED_KEY = 'gt_kothapet_storage_initialized_v5';
+const INITIALIZED_KEY = 'gt_kothapet_storage_initialized_v6';
 
 function initStorage() {
   const isInitialized = localStorage.getItem(INITIALIZED_KEY);
@@ -353,9 +353,9 @@ function initStorage() {
     }
 
     if (savedAttendance) {
-      try { attendanceData = JSON.parse(savedAttendance); } catch(e) { attendanceData = JSON.parse(JSON.stringify(FULL_SALON_ATTENDANCE_DATA)); }
+      try { attendanceData = JSON.parse(savedAttendance); } catch(e) { attendanceData = {}; }
     } else {
-      attendanceData = JSON.parse(JSON.stringify(FULL_SALON_ATTENDANCE_DATA));
+      attendanceData = {};
     }
 
     if (savedAdvances) {
@@ -378,11 +378,19 @@ function initStorage() {
     localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(salonExpenses));
   }
 
-  window.staffList = staffList;
-  window.attendanceData = attendanceData;
-  window.salonRules = salonRules;
-  window.advanceData = advanceData;
-  window.salonExpenses = salonExpenses;
+  try {
+    Object.defineProperty(window, 'staffList', { get() { return staffList; }, set(v) { staffList = v; }, configurable: true });
+    Object.defineProperty(window, 'attendanceData', { get() { return attendanceData; }, set(v) { attendanceData = v; }, configurable: true });
+    Object.defineProperty(window, 'salonRules', { get() { return salonRules; }, set(v) { salonRules = v; }, configurable: true });
+    Object.defineProperty(window, 'advanceData', { get() { return advanceData; }, set(v) { advanceData = v; }, configurable: true });
+    Object.defineProperty(window, 'salonExpenses', { get() { return salonExpenses; }, set(v) { salonExpenses = v; }, configurable: true });
+  } catch(e) {
+    window.staffList = staffList;
+    window.attendanceData = attendanceData;
+    window.salonRules = salonRules;
+    window.advanceData = advanceData;
+    window.salonExpenses = salonExpenses;
+  }
 }
 
 function syncRealSeptemberAttendanceData() {
@@ -454,15 +462,17 @@ async function pushLocalDataToFirestore(showToastNotification = false) {
     isSyncingToCloud = true;
     updateCloudSyncUI('syncing');
 
+    const resetTs = parseInt(localStorage.getItem('gt_kothapet_attendance_last_reset') || '0', 10);
     await firestoreDb.collection('salons').doc('green_trends_kothapet').set({
       attendance: attendanceData,
       staff: staffList,
       rules: salonRules,
       advances: advanceData,
       expenses: salonExpenses,
+      lastAttendanceReset: resetTs,
       lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
       updatedBy: getSessionUser()?.username || 'Owner'
-    }, { merge: true });
+    }, { merge: false });
 
     setTimeout(() => {
       isSyncingToCloud = false;
@@ -497,8 +507,10 @@ async function pullDataFromFirestore(showToastNotification = false) {
       const data = docSnap.data();
       let updated = false;
 
-      if (data.attendance) {
-        attendanceData = data.attendance;
+      const localResetTime = parseInt(localStorage.getItem('gt_kothapet_attendance_last_reset') || '0', 10);
+      const cloudResetTime = data.lastAttendanceReset || 0;
+      if (localResetTime <= cloudResetTime && data.attendance !== undefined) {
+        attendanceData = data.attendance || {};
         localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceData));
         updated = true;
       }
@@ -630,10 +642,18 @@ function initFirebaseSync() {
           const cloudData = doc.data();
           if (cloudData && !isSyncingToCloud) {
             let changed = false;
-            if (cloudData.attendance && JSON.stringify(cloudData.attendance) !== JSON.stringify(attendanceData)) {
-              attendanceData = cloudData.attendance;
-              localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceData));
-              changed = true;
+            const localReset = parseInt(localStorage.getItem('gt_kothapet_attendance_last_reset') || '0', 10);
+            const cloudReset = cloudData.lastAttendanceReset || 0;
+
+            if (localReset > cloudReset) {
+              // Local was reset more recently than cloud snapshot: do not resurrect old cloud attendance
+              pushLocalDataToFirestore(false);
+            } else if (cloudData.attendance !== undefined) {
+              if (JSON.stringify(cloudData.attendance) !== JSON.stringify(attendanceData)) {
+                attendanceData = cloudData.attendance || {};
+                localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceData));
+                changed = true;
+              }
             }
             if (cloudData.staff && JSON.stringify(cloudData.staff) !== JSON.stringify(staffList)) {
               staffList = cloudData.staff;
@@ -727,9 +747,9 @@ function updateCloudSyncUI(status, projectId = '') {
       headerText.className = 'text-emerald-400 font-bold text-xs';
       headerText.innerHTML = '<i class="fa-solid fa-cloud text-emerald-400 mr-1"></i><span class="hidden 2xl:inline">Cloud </span>Live';
     } else if (status === 'syncing') {
-      headerDot.className = 'w-1.5 h-1.5 rounded-full bg-[#ff2a85] animate-ping';
-      headerText.className = 'text-[#ff7eb3] font-bold text-xs';
-      headerText.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin text-[#ff2a85] mr-1"></i><span class="hidden 2xl:inline">Syncing...</span>';
+      headerDot.className = 'w-1.5 h-1.5 rounded-full bg-[#54E29C] animate-ping';
+      headerText.className = 'text-[#54E29C] font-bold text-xs';
+      headerText.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin text-[#54E29C] mr-1"></i><span class="hidden 2xl:inline">Syncing...</span>';
     } else if (status === 'error') {
       headerDot.className = 'w-1.5 h-1.5 rounded-full bg-rose-500';
       headerText.className = 'text-rose-400 font-bold text-xs';
@@ -760,8 +780,8 @@ function updateCloudSyncUI(status, projectId = '') {
       if (projName) projName.innerText = `Connected: ${projectId || 'green-trends-kothapet'}`;
       if (syncTime) syncTime.innerText = `Live 2-Way Sync Active (${new Date().toLocaleTimeString()})`;
     } else if (status === 'syncing') {
-      adminBadge.className = 'text-[10px] font-bold font-mono px-2.5 py-1 rounded-full bg-[#ff2a85]/15 text-[#ff7eb3] border border-[#ff2a85]/30 flex items-center gap-1.5';
-      adminDot.className = 'w-1.5 h-1.5 rounded-full bg-[#ff2a85] animate-ping';
+      adminBadge.className = 'text-[10px] font-bold font-mono px-2.5 py-1 rounded-full bg-[#54E29C]/15 text-[#54E29C] border border-[#54E29C]/30 flex items-center gap-1.5';
+      adminDot.className = 'w-1.5 h-1.5 rounded-full bg-[#54E29C] animate-ping';
       adminText.innerText = 'Syncing...';
     } else if (status === 'error') {
       adminBadge.className = 'text-[10px] font-bold font-mono px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30 flex items-center gap-1.5';
@@ -1413,7 +1433,7 @@ function updateViewFromHash() {
         navBtn.classList.add('text-white');
       }
       if (mobBtn) {
-        mobBtn.classList.add('text-[#ff2a85]', 'bg-[#ff2a85]/15');
+        mobBtn.classList.add('text-[#00FFFF]', 'bg-[#00FFFF]/15');
         mobBtn.classList.remove('text-gray-400');
       }
     } else {
@@ -1423,7 +1443,7 @@ function updateViewFromHash() {
         navBtn.classList.add('text-gray-400');
       }
       if (mobBtn) {
-        mobBtn.classList.remove('text-[#ff2a85]', 'bg-[#ff2a85]/15');
+        mobBtn.classList.remove('text-[#00FFFF]', 'bg-[#00FFFF]/15');
         mobBtn.classList.add('text-gray-400');
       }
     }
@@ -1449,10 +1469,6 @@ function renderDailyAttendance() {
   const dateKey = selectedDateStr;
   const isWeekend = isWeekendDay(dateKey);
   const dayName = getDayOfWeekName(dateKey);
-
-  if (!attendanceData[dateKey]) {
-    attendanceData[dateKey] = {};
-  }
 
   let presentCount = 0;
   let weeklyOffCount = 0;
@@ -1484,25 +1500,26 @@ function renderDailyAttendance() {
   }
 
   staffList.forEach((staff) => {
-    if (!attendanceData[dateKey][staff.id]) {
-      const isHk = !!staff.isHousekeeping;
-      attendanceData[dateKey][staff.id] = {
-        status: 'Present',
-        inH: isHk ? 9 : 10,
-        inM: 0,
-        inAmpm: 'AM',
-        outH: isHk ? 9 : 7,
-        outM: 0,
-        workedMinutes: isHk ? 720 : 540,
-        otHours: 0,
-        shortfallHours: 0,
-        otPay: 0,
-        servicesDone: 0,
-        productsSold: 0
-      };
-    }
+    const rawRecord = attendanceData[dateKey] && attendanceData[dateKey][staff.id];
+    const isHk = !!staff.isHousekeeping;
+    const isRecorded = !!rawRecord && !!rawRecord.status;
 
-    const record = attendanceData[dateKey][staff.id];
+    // Use existing record or defaults for display without saving into attendanceData until user marks
+    const record = rawRecord || {
+      status: 'Unmarked',
+      inH: isHk ? 9 : 10,
+      inM: 0,
+      inAmpm: 'AM',
+      outH: isHk ? 9 : 7,
+      outM: 0,
+      outAmpm: 'PM',
+      workedMinutes: 0,
+      otHours: 0,
+      shortfallHours: 0,
+      otPay: 0,
+      servicesDone: 0,
+      productsSold: 0
+    };
     record.inH = record.inH || (staff.isHousekeeping ? 9 : 10);
     record.inM = record.inM !== undefined ? record.inM : 0;
     record.inAmpm = record.inAmpm || 'AM';
@@ -1520,7 +1537,7 @@ function renderDailyAttendance() {
     const perDayDaily = Math.round(staff.baseSalary / 30);
     const doubleCutVal = perDayDaily * 2;
 
-    if (record.status === 'Present') {
+    if (isRecorded && record.status === 'Present') {
       record.workedMinutes = shiftCalc.workedMinutes;
       if (record.isOtManual !== true) {
         record.otHours = shiftCalc.otHours;
@@ -1534,15 +1551,15 @@ function renderDailyAttendance() {
       dailyOtPayTotal += Number(record.otPay || 0);
       dailyServicesTotal += Number(record.servicesDone || 0);
       dailyProductsTotal += Number(record.productsSold || 0);
-    } else if (record.status === 'Weekly Off') {
+    } else if (isRecorded && record.status === 'Weekly Off') {
       weeklyOffCount++;
-    } else if (record.status === 'Leave' || record.status === 'Absent') {
+    } else if (isRecorded && (record.status === 'Leave' || record.status === 'Absent')) {
       leaveCount++;
     }
 
-    const isPresent = record.status === 'Present';
-    const isOff = record.status === 'Weekly Off';
-    const isLeave = record.status === 'Leave' || record.status === 'Absent';
+    const isPresent = isRecorded && record.status === 'Present';
+    const isOff = isRecorded && record.status === 'Weekly Off';
+    const isLeave = isRecorded && (record.status === 'Leave' || record.status === 'Absent');
 
     // Live Shift Progress & Overtime Calculations
     const targetHours = staff.isHousekeeping ? 12 : 9;
@@ -1566,12 +1583,12 @@ function renderDailyAttendance() {
         const remH = Math.floor(remainingMin / 60);
         const remM = remainingMin % 60;
         shiftTimerLabel = `⏱️ ${shiftCalc.formattedDuration} elapsed • ${remH}h ${remM > 0 ? remM + 'm ' : ''}remaining in ${targetHours}h shift (${shiftCalc.shortfallHours}h Shortfall)`;
-        shiftBadgeClass = 'bg-[#ff2a85]/15 text-[#ff7eb3] border-[#ff2a85]/30';
+        shiftBadgeClass = 'bg-[#00FFFF]/15 text-[#00FFFF] border-[#00FFFF]/30';
       }
     } else if (isOff) {
       shiftTimerLabel = `☕ On Scheduled Weekly Off`;
       shiftBadgeClass = 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30';
-    } else {
+    } else if (isLeave) {
       if (isWeekend) {
         shiftTimerLabel = `🚨 Saturday/Sunday Mandatory Day Leave — DOUBLE SALARY CUT (-₹${doubleCutVal.toLocaleString('en-IN')})`;
         shiftBadgeClass = 'bg-rose-500/20 text-rose-300 border-rose-500/40 font-bold';
@@ -1579,6 +1596,9 @@ function renderDailyAttendance() {
         shiftTimerLabel = `❌ Full Day Leave (Daily Salary Deducted -₹${perDayDaily.toLocaleString('en-IN')})`;
         shiftBadgeClass = 'bg-rose-500/15 text-rose-300 border-rose-500/30';
       }
+    } else {
+      shiftTimerLabel = `⏳ Attendance Not Marked Today (Pending)`;
+      shiftBadgeClass = 'bg-gray-800/40 text-gray-400 border-gray-700/40';
     }
 
     html += `
@@ -1588,13 +1608,13 @@ function renderDailyAttendance() {
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#181826] pb-3.5">
           <!-- Staff Identity -->
           <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#1a0d1e] to-[#26102a] border border-[#ff2a85]/40 flex items-center justify-center font-syne font-bold text-lg text-[#ff7eb3] shadow-md shadow-[#ff2a85]/15">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#0a0a0a] to-[#141414] border border-[#C084FC]/30 flex items-center justify-center font-syne font-bold text-lg text-[#60A5FA] shadow-md shadow-black">
               ${staff.name.substring(0, 2).toUpperCase()}
             </div>
             <div>
               <div class="flex items-center gap-2">
                 <h3 class="font-syne font-bold text-white text-base">${staff.name}</h3>
-                ${staff.isManager ? '<span class="text-[9px] px-2 py-0.5 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] font-bold border border-[#ff2a85]/30">MANAGER</span>' : ''}
+                ${staff.isManager ? '<span class="text-[9px] px-2 py-0.5 rounded-full bg-[#C084FC]/20 text-[#C084FC] font-bold border border-[#D0DAE2]/15">MANAGER</span>' : ''}
                 ${staff.foodAllowance > 0 ? '<span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30">+₹1500 FOOD</span>' : ''}
               </div>
               <div class="flex items-center gap-2 mt-0.5 text-xs text-gray-400">
@@ -1643,7 +1663,7 @@ function renderDailyAttendance() {
             </span>
           </div>
           <div class="flex items-center gap-2 text-[11px] text-gray-400">
-            <i class="fa-solid fa-broom text-[#ff7eb3]"></i>
+            <i class="fa-solid fa-broom text-[#60A5FA]"></i>
             <span>House Keeping Staff • ₹${staff.baseSalary.toLocaleString('en-IN')}/mo • Excluded from Roster Scanner</span>
           </div>
         </div>
@@ -1656,7 +1676,7 @@ function renderDailyAttendance() {
             <!-- Check-In -->
             <div class="flex flex-col gap-1">
               <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Check In</span>
-              <div class="flex items-center bg-[#08080f] border border-[#202032] rounded-2xl p-1.5 gap-1 focus-within:border-[#ff2a85]">
+              <div class="flex items-center bg-[#08080f] border border-[#202032] rounded-2xl p-1.5 gap-1 focus-within:border-[#00FFFF]">
                 <input type="number" min="1" max="12" value="${record.inH}" 
                   onfocus="this.select()" onclick="this.select()"
                   oninput="if(parseInt(this.value, 10) === 12) updateTimeDigit('${staff.id}', 'inH', 12)"
@@ -1682,7 +1702,7 @@ function renderDailyAttendance() {
             <!-- Check-Out -->
             <div class="flex flex-col gap-1">
               <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Check Out (PM)</span>
-              <div class="flex items-center bg-[#08080f] border border-[#202032] rounded-2xl p-1.5 gap-1 focus-within:border-[#ff2a85]">
+              <div class="flex items-center bg-[#08080f] border border-[#202032] rounded-2xl p-1.5 gap-1 focus-within:border-[#00FFFF]">
                 <input type="number" min="1" max="12" value="${record.outH}" 
                   onfocus="this.select()" onclick="this.select()"
                   onchange="updateTimeDigit('${staff.id}', 'outH', this.value)"
@@ -1739,14 +1759,14 @@ function renderDailyAttendance() {
               <input type="number" min="0" placeholder="0" value="${record.servicesDone || ''}" 
                 onfocus="this.select()" onclick="this.select()"
                 onchange="updateStaffSales('${staff.id}', 'servicesDone', this.value)"
-                class="w-28 bg-[#08080f] border border-[#202032] text-white text-xs font-bold rounded-2xl px-3 py-2.5 focus:border-[#ff2a85]">
+                class="w-28 bg-[#08080f] border border-[#202032] text-white text-xs font-bold rounded-2xl px-3 py-2.5 focus:border-[#00FFFF]">
             </div>
             <div>
-              <label class="text-[10px] uppercase font-bold text-pink-400 block mb-1">Products (₹)</label>
+              <label class="text-[10px] uppercase font-bold text-[#C084FC] block mb-1">Products (₹)</label>
               <input type="number" min="0" placeholder="0" value="${record.productsSold || ''}" 
                 onfocus="this.select()" onclick="this.select()"
                 onchange="updateStaffSales('${staff.id}', 'productsSold', this.value)"
-                class="w-28 bg-[#08080f] border border-[#202032] text-white text-xs font-bold rounded-2xl px-3 py-2.5 focus:border-[#ff2a85]">
+                class="w-28 bg-[#08080f] border border-[#202032] text-white text-xs font-bold rounded-2xl px-3 py-2.5 focus:border-[#00FFFF]">
             </div>
           </div>
 
@@ -1758,8 +1778,8 @@ function renderDailyAttendance() {
           <div class="flex flex-wrap items-center justify-between gap-2 text-xs mb-1.5 font-medium">
             <div class="flex items-center gap-2">
               <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full ${hasOt ? 'bg-amber-400 opacity-75' : (isShiftComplete ? 'bg-emerald-400 opacity-75' : 'bg-[#ff2a85] opacity-75')}"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 ${hasOt ? 'bg-amber-400' : (isShiftComplete ? 'bg-emerald-400' : 'bg-[#ff2a85]')}"></span>
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full ${hasOt ? 'bg-amber-400 opacity-75' : (isShiftComplete ? 'bg-emerald-400 opacity-75' : 'bg-[#00FFFF] opacity-75')}"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 ${hasOt ? 'bg-amber-400' : (isShiftComplete ? 'bg-emerald-400' : 'bg-[#00FFFF]')}"></span>
               </span>
               <span class="text-white font-bold text-[11px] sm:text-xs tracking-tight">${shiftTimerLabel}</span>
             </div>
@@ -1774,7 +1794,7 @@ function renderDailyAttendance() {
           </div>
           ${isPresent ? `
           <div class="w-full h-1.5 bg-[#12121e] rounded-full overflow-hidden p-0.5 border border-[#1f1f32]">
-            <div class="h-full rounded-full transition-all duration-500 ${hasOt ? 'bg-gradient-to-r from-emerald-500 via-[#ff2a85] to-amber-400' : (isShiftComplete ? 'bg-gradient-to-r from-emerald-500 to-teal-400' : 'bg-gradient-to-r from-[#ff2a85] via-purple-500 to-[#ff7eb3]')}" style="width: ${progressPct}%"></div>
+            <div class="h-full rounded-full transition-all duration-500 ${hasOt ? 'bg-gradient-to-r from-[#54E29C] to-[#00FFFF]' : (isShiftComplete ? 'bg-gradient-to-r from-emerald-500 to-teal-400' : 'bg-gradient-to-r from-[#4BA2E2] to-[#00FFFF]')}" style="width: ${progressPct}%"></div>
           </div>
           ` : ''}
         </div>
@@ -1794,8 +1814,6 @@ function renderDailyAttendance() {
   document.getElementById('kpiOvertimeHours').innerText = `${dailyOtHoursTotal} hrs logged`;
   document.getElementById('kpiServicesTotal').innerText = `₹${dailyServicesTotal.toLocaleString('en-IN')}`;
   document.getElementById('kpiProductsTotal').innerText = `₹${dailyProductsTotal.toLocaleString('en-IN')}`;
-
-  saveAttendanceData();
 }
 
 function setAttendancePill(staffId, newStatus) {
@@ -1808,9 +1826,28 @@ function setAttendancePill(staffId, newStatus) {
   }
 
   if (!attendanceData[dateKey]) attendanceData[dateKey] = {};
-  if (!attendanceData[dateKey][staffId]) attendanceData[dateKey][staffId] = {};
+  if (!attendanceData[dateKey][staffId]) {
+    const staff = staffList.find(s => s.id === staffId);
+    const isHk = staff ? !!staff.isHousekeeping : false;
+    attendanceData[dateKey][staffId] = {
+      status: newStatus,
+      inH: isHk ? 9 : 10,
+      inM: 0,
+      inAmpm: 'AM',
+      outH: isHk ? 9 : 7,
+      outM: 0,
+      outAmpm: 'PM',
+      workedMinutes: newStatus === 'Present' ? (isHk ? 720 : 540) : 0,
+      otHours: 0,
+      shortfallHours: 0,
+      otPay: 0,
+      servicesDone: 0,
+      productsSold: 0
+    };
+  } else {
+    attendanceData[dateKey][staffId].status = newStatus;
+  }
 
-  attendanceData[dateKey][staffId].status = newStatus;
   if (isWeekend && newStatus === 'Leave') {
     attendanceData[dateKey][staffId].weekendCut = true;
   }
@@ -1992,7 +2029,7 @@ function renderMonthlyPayroll() {
         <td class="py-3 px-3 whitespace-nowrap sticky-first-col">
           <div class="flex items-center gap-1.5">
             <span class="font-syne font-bold text-white text-xs sm:text-sm">${staff.name}</span>
-            ${staff.isManager ? '<span class="text-[9px] px-1.5 py-0.2 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] font-bold">MGR</span>' : ''}
+            ${staff.isManager ? '<span class="text-[9px] px-1.5 py-0.2 rounded-full bg-[#C084FC]/20 text-[#C084FC] font-bold">MGR</span>' : ''}
           </div>
           <div class="text-[10px] text-gray-400">${staff.role}</div>
         </td>
@@ -2045,7 +2082,7 @@ function renderMonthlyPayroll() {
 
         <td class="py-3 px-2 font-mono whitespace-nowrap">
           ${p.netOtPay > 0 ? 
-            `<span class="text-[#ff7eb3] font-bold">+₹${p.netOtPay.toLocaleString('en-IN')}</span>` : 
+            `<span class="text-[#60A5FA] font-bold">+₹${p.netOtPay.toLocaleString('en-IN')}</span>` : 
             `<span class="text-gray-600">₹0</span>`
           }
         </td>
@@ -2063,18 +2100,18 @@ function renderMonthlyPayroll() {
             <span class="text-rose-400 font-bold text-xs shrink-0 select-none whitespace-nowrap">-₹</span>
             <input type="number" min="0" step="500" value="${p.advanceTaken > 0 ? p.advanceTaken : ''}" placeholder="0"
               onchange="updateStaffAdvance('${staff.id}', this.value)"
-              class="w-16 bg-[#161626] border border-[#27273d] focus:border-[#ff2a85] rounded-lg px-1.5 py-1 text-rose-300 font-mono text-xs font-bold text-right outline-none transition-colors"
+              class="w-16 bg-[#161626] border border-[#27273d] focus:border-[#00FFFF] rounded-lg px-1.5 py-1 text-rose-300 font-mono text-xs font-bold text-right outline-none transition-colors"
               title="Enter mid-month salary advance or loan taken">
           </div>
         </td>
 
-        <td class="py-3 px-3 font-mono font-extrabold text-sm text-[#ff2a85] text-right whitespace-nowrap">
+        <td class="py-3 px-3 font-mono font-extrabold text-sm text-[#54E29C] text-right whitespace-nowrap">
           ₹${p.netPayable.toLocaleString('en-IN')}
         </td>
 
         <td class="py-3 px-3 text-center whitespace-nowrap">
           <button onclick="openPaySlipModal('${staff.id}')" 
-            class="px-2.5 py-1 rounded-xl text-xs font-bold bg-[#141420] hover:bg-[#ff2a85] text-gray-300 hover:text-white transition-all border border-[#222234] hover:border-[#ff2a85] inline-flex items-center justify-center gap-1 shadow-sm">
+            class="px-2.5 py-1 rounded-xl text-xs font-bold bg-[#141420] hover:bg-[#00FFFF] hover:text-black text-gray-300 hover:text-white transition-all border border-[#222234] hover:border-[#00FFFF] inline-flex items-center justify-center gap-1 shadow-sm">
             <i class="fa-solid fa-receipt text-[10px]"></i>
             <span>Slip</span>
           </button>
@@ -2095,10 +2132,10 @@ function renderMonthlyPayroll() {
       <td class="py-3 px-2 text-center text-gray-400 whitespace-nowrap">--</td>
       <td class="py-3 px-2 font-mono text-rose-400 whitespace-nowrap">-₹${Math.round(totalDeductions).toLocaleString('en-IN')}</td>
       <td class="py-3 px-2 text-center text-gray-400 whitespace-nowrap">--</td>
-      <td class="py-3 px-2 font-mono text-[#ff7eb3] whitespace-nowrap">+₹${totalNetOtPay.toLocaleString('en-IN')}</td>
+      <td class="py-3 px-2 font-mono text-[#60A5FA] whitespace-nowrap">+₹${totalNetOtPay.toLocaleString('en-IN')}</td>
       <td class="py-3 px-2 font-mono text-purple-400 whitespace-nowrap">+₹${totalIncentives.toLocaleString('en-IN')}</td>
       <td class="py-3 px-2 font-mono text-rose-400 font-bold text-center whitespace-nowrap">-₹${totalAdvances.toLocaleString('en-IN')}</td>
-      <td class="py-3 px-3 font-mono font-extrabold text-base text-[#ff2a85] text-right whitespace-nowrap">₹${totalNetPayout.toLocaleString('en-IN')}</td>
+      <td class="py-3 px-3 font-mono font-extrabold text-base text-[#54E29C] text-right whitespace-nowrap">₹${totalNetPayout.toLocaleString('en-IN')}</td>
       <td class="py-3 px-3 text-center text-gray-500 whitespace-nowrap">--</td>
     </tr>
   `;
@@ -2221,7 +2258,7 @@ function renderIncentivesView() {
     }
 
     if (item.staff.id === retailChampionStaffId && item.productsSold > 0) {
-      badges.push({ icon: '<i class="fa-solid fa-bag-shopping text-pink-400"></i>', label: 'Retail Champion', border: 'border-pink-500/40 bg-pink-500/15 text-pink-300' });
+      badges.push({ icon: '<i class="fa-solid fa-bag-shopping text-[#C084FC]"></i>', label: 'Retail Champion', border: 'border-[#C084FC]/40 bg-[#C084FC]/15 text-[#C084FC]' });
     }
 
     if (item.targetAchieved) {
@@ -2231,7 +2268,7 @@ function renderIncentivesView() {
     }
 
     if (item.totalIncentives > 0) {
-      badges.push({ icon: '<i class="fa-solid fa-sack-dollar text-[#ff7eb3]"></i>', label: 'Incentives Active', border: 'border-[#ff2a85]/40 bg-[#ff2a85]/15 text-[#ff7eb3]' });
+      badges.push({ icon: '<i class="fa-solid fa-sack-dollar text-[#60A5FA]"></i>', label: 'Incentives Active', border: 'border-[#C084FC]/30 bg-[#C084FC]/15 text-[#C084FC]' });
     }
 
     stylistRankMeta[item.staff.id] = {
@@ -2259,7 +2296,7 @@ function renderIncentivesView() {
             <span class="text-[10px] text-gray-500 font-mono">/ ₹${salonTarget.toLocaleString('en-IN')}</span>
           </div>
           <div class="w-full bg-[#161628] h-1.5 rounded-full overflow-hidden mt-2">
-            <div class="h-full ${managerAchieved ? 'bg-gradient-to-r from-purple-500 to-emerald-400' : 'bg-[#ff2a85]'} transition-all" style="width: ${targetPct}%"></div>
+            <div class="h-full ${managerAchieved ? 'bg-gradient-to-r from-purple-500 to-emerald-400' : 'bg-[#00FFFF]'} transition-all" style="width: ${targetPct}%"></div>
           </div>
           <span class="text-[10px] mt-1.5 block ${managerAchieved ? 'text-emerald-400 font-bold' : 'text-gray-400'}">
             ${managerAchieved ? `<i class="fa-solid fa-check text-emerald-400 mr-1"></i>Target Met! Manager 1% = +₹${managerCommissionEarned.toLocaleString('en-IN')}` : `₹${Math.max(0, salonTarget - totalSalonRev).toLocaleString('en-IN')} left to unlock 1%`}
@@ -2271,10 +2308,10 @@ function renderIncentivesView() {
       <div class="bg-[#0e0e18] p-4 rounded-2xl border border-[#232338] shadow-lg">
         <div class="flex items-center justify-between text-xs text-gray-400 font-semibold">
           <span>Total Commission Pool</span>
-          <i class="fa-solid fa-coins text-[#ff7eb3] text-xs"></i>
+          <i class="fa-solid fa-coins text-[#60A5FA] text-xs"></i>
         </div>
         <div class="mt-2">
-          <span class="text-xl font-black font-heading text-[#ff7eb3]">₹${totalStylistCommissions.toLocaleString('en-IN')}</span>
+          <span class="text-xl font-black font-heading text-[#60A5FA]">₹${totalStylistCommissions.toLocaleString('en-IN')}</span>
           <span class="text-[10px] text-gray-400 block mt-1">
             ${activeCommissionEarners} of ${staffList.filter(s => !s.isManager && !s.isHousekeeping).length} stylists earned incentives
           </span>
@@ -2302,14 +2339,14 @@ function renderIncentivesView() {
       <div class="bg-[#0e0e18] p-4 rounded-2xl border border-[#232338] shadow-lg">
         <div class="flex items-center justify-between text-xs text-gray-400 font-semibold">
           <span>Top Product Retailer</span>
-          <i class="fa-solid fa-bottle-droplet text-pink-400 text-xs"></i>
+          <i class="fa-solid fa-bottle-droplet text-[#C084FC] text-xs"></i>
         </div>
         <div class="mt-2">
           <div class="flex items-center justify-between">
             <span class="text-base font-bold font-heading text-white truncate max-w-[160px]">${topProductStylist.name}</span>
-            <span class="text-xs font-mono font-bold text-pink-400 whitespace-nowrap">₹${topProductStylist.amount.toLocaleString('en-IN')}</span>
+            <span class="text-xs font-mono font-bold text-[#C084FC] whitespace-nowrap">₹${topProductStylist.amount.toLocaleString('en-IN')}</span>
           </div>
-          <span class="text-[10px] text-[#ff7eb3] font-bold block mt-1 truncate">
+          <span class="text-[10px] text-[#60A5FA] font-bold block mt-1 truncate">
             ${topProductStylist.commission > 0 ? `+₹${topProductStylist.commission.toLocaleString('en-IN')} commission` : 'Below min tier'}
           </span>
         </div>
@@ -2380,7 +2417,7 @@ function renderIncentivesView() {
               <span class="text-white font-mono font-bold">₹${item.servicesDone.toLocaleString('en-IN')} <span class="text-gray-500 font-normal">/ ₹${item.target.toLocaleString('en-IN')}</span></span>
             </div>
             <div class="w-full bg-[#141422] h-2 rounded-full overflow-hidden">
-              <div class="h-full rounded-full transition-all duration-500 ${item.targetAchieved ? 'bg-gradient-to-r from-purple-500 to-emerald-400' : 'bg-gradient-to-r from-[#ff2a85] to-purple-500'}" style="width: ${item.targetPercent}%"></div>
+              <div class="h-full rounded-full transition-all duration-500 ${item.targetAchieved ? 'bg-gradient-to-r from-purple-500 to-emerald-400' : 'bg-gradient-to-r from-[#00FFFF] to-[#C084FC]'}" style="width: ${item.targetPercent}%"></div>
             </div>
             <div class="flex items-center justify-between text-[10px] text-gray-400">
               <span>Target Met: <strong class="${item.targetAchieved ? 'text-emerald-400' : 'text-gray-300'} font-mono">${item.targetPercent}%</strong></span>
@@ -2392,11 +2429,11 @@ function renderIncentivesView() {
           <div class="grid grid-cols-2 gap-2 text-xs mb-3 font-mono">
             <div class="bg-[#080810]/50 p-2.5 rounded-xl border border-[#181826]">
               <span class="text-[10px] text-gray-400 block font-sans">Retail Sales</span>
-              <span class="font-bold text-pink-400">₹${item.productsSold.toLocaleString('en-IN')}</span>
+              <span class="font-bold text-[#C084FC]">₹${item.productsSold.toLocaleString('en-IN')}</span>
             </div>
             <div class="bg-[#080810]/50 p-2.5 rounded-xl border border-[#181826]">
               <span class="text-[10px] text-gray-400 block font-sans">Commission</span>
-              <span class="font-bold ${item.totalIncentives > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">₹${item.totalIncentives.toLocaleString('en-IN')}</span>
+              <span class="font-bold ${item.totalIncentives > 0 ? 'text-[#60A5FA]' : 'text-gray-500'}">₹${item.totalIncentives.toLocaleString('en-IN')}</span>
             </div>
           </div>
 
@@ -2448,11 +2485,11 @@ function renderIncentivesView() {
                     </div>
                     <div class="text-right">
                       <span class="text-[10px] text-gray-500 block font-sans">Retail</span>
-                      <span class="text-pink-400 font-bold whitespace-nowrap">₹${item.productsSold.toLocaleString('en-IN')}</span>
+                      <span class="text-[#C084FC] font-bold whitespace-nowrap">₹${item.productsSold.toLocaleString('en-IN')}</span>
                     </div>
                     <div class="text-right">
                       <span class="text-[10px] text-gray-500 block font-sans">Incentives</span>
-                      <span class="font-bold whitespace-nowrap ${item.totalIncentives > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">+₹${item.totalIncentives.toLocaleString('en-IN')}</span>
+                      <span class="font-bold whitespace-nowrap ${item.totalIncentives > 0 ? 'text-[#60A5FA]' : 'text-gray-500'}">+₹${item.totalIncentives.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
                 </div>
@@ -2483,7 +2520,7 @@ function renderIncentivesView() {
         <div class="flex items-center gap-2 bg-[#121220] px-3.5 py-1.5 rounded-2xl border border-[#202036]">
           <i class="fa-solid fa-medal text-amber-400 text-xs"></i>
           <span class="text-xs text-gray-400">Total Stylist Incentives:</span>
-          <span class="text-xs font-bold font-mono text-[#ff7eb3]">₹${totalStylistCommissions.toLocaleString('en-IN')}</span>
+          <span class="text-xs font-bold font-mono text-[#60A5FA]">₹${totalStylistCommissions.toLocaleString('en-IN')}</span>
         </div>
       </div>
 
@@ -2511,7 +2548,7 @@ function renderIncentivesView() {
         <div class="bg-[#0d0d15] p-6 rounded-3xl border border-[#1f1f30] shadow-xl space-y-4">
           <div class="flex items-center justify-between border-b border-[#181826] pb-3">
             <div class="flex items-center gap-3">
-              <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#1f1024] to-[#2a102e] border border-[#ff2a85]/30 flex items-center justify-center font-bold text-white text-sm">
+              <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#0a0a0a] to-[#141414] border border-[#D0DAE2]/15 flex items-center justify-center font-bold text-white text-sm">
                 ${staff.name.substring(0, 2).toUpperCase()}
               </div>
               <div>
@@ -2521,7 +2558,7 @@ function renderIncentivesView() {
             </div>
             <div class="text-right">
               <span class="text-[10px] text-gray-400 uppercase tracking-wider block">Commission Earned</span>
-              <span class="font-heading font-bold text-lg ${p.serviceCommission > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">
+              <span class="font-heading font-bold text-lg ${p.serviceCommission > 0 ? 'text-[#60A5FA]' : 'text-gray-500'}">
                 +₹${p.serviceCommission.toLocaleString('en-IN')}
               </span>
             </div>
@@ -2596,7 +2633,7 @@ function renderIncentivesView() {
       <div class="bg-[#0d0d15] p-6 rounded-3xl border border-[#1f1f30] shadow-xl space-y-4">
         <div class="flex items-center justify-between border-b border-[#181826] pb-3">
           <div class="flex items-center gap-3 min-w-0">
-            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#ff2a85]/20 to-purple-500/20 border border-[#ff2a85]/30 flex items-center justify-center font-bold text-white text-sm shrink-0">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#00FFFF]/15 to-[#60A5FA]/15 border border-[#D0DAE2]/15 flex items-center justify-center font-bold text-white text-sm shrink-0">
               ${staff.name.substring(0, 2).toUpperCase()}
             </div>
             <div class="min-w-0">
@@ -2614,7 +2651,7 @@ function renderIncentivesView() {
           </div>
           <div class="text-right shrink-0">
             <span class="text-[10px] text-gray-400 uppercase tracking-wider block">Commissions Earned</span>
-            <span class="font-heading font-bold text-lg whitespace-nowrap ${p.totalIncentives > 0 ? 'text-[#ff7eb3]' : 'text-gray-500'}">
+            <span class="font-heading font-bold text-lg whitespace-nowrap ${p.totalIncentives > 0 ? 'text-[#60A5FA]' : 'text-gray-500'}">
               +₹${p.totalIncentives.toLocaleString('en-IN')}
             </span>
           </div>
@@ -2643,7 +2680,7 @@ function renderIncentivesView() {
               Product Sales: <strong class="text-white font-mono">₹${p.totalProductsSold.toLocaleString('en-IN')}</strong>
             </span>
             ${p.productCommission > 0 ? 
-              `<span class="px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-400 font-bold text-[10px]">Commission: +₹${p.productCommission.toLocaleString('en-IN')}</span>` : 
+              `<span class="px-2 py-0.5 rounded-full bg-[#C084FC]/20 text-[#C084FC] font-bold text-[10px]">Commission: +₹${p.productCommission.toLocaleString('en-IN')}</span>` : 
               `<span class="text-gray-500 text-[10px] font-mono">Below ₹${t1Min.toLocaleString('en-IN')}</span>`
             }
           </div>
@@ -2654,8 +2691,8 @@ function renderIncentivesView() {
         <div class="pt-2 border-t border-[#181826] flex items-center justify-between">
           <span class="text-[10px] text-gray-500">Log daily billings for ${selectedDateStr}</span>
           <button type="button" onclick="openQuickSalesModal('${staff.id}')" 
-            class="px-3 py-1.5 rounded-xl bg-[#171728] hover:bg-[#ff2a85]/20 text-gray-300 hover:text-[#ff7eb3] border border-[#2b2b40] hover:border-[#ff2a85]/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
-            <i class="fa-solid fa-plus-circle text-[#ff2a85]"></i>
+            class="px-3 py-1.5 rounded-xl bg-[#171728] hover:bg-[#00FFFF] hover:text-black/20 text-gray-300 hover:text-[#60A5FA] border border-[#2b2b40] hover:border-[#C084FC]/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+            <i class="fa-solid fa-plus-circle text-[#54E29C]"></i>
             <span>Log Daily Sales</span>
           </button>
         </div>
@@ -3492,7 +3529,7 @@ function renderParsedRosterList() {
         <div>
           <div class="flex items-center gap-2">
             <strong class="text-white font-heading text-sm">${s.name}</strong>
-            <span class="text-[9px] px-2 py-0.5 rounded-full bg-[#ff2a85]/15 text-[#ff7eb3] uppercase font-bold border border-[#ff2a85]/30">In Roster</span>
+            <span class="text-[9px] px-2 py-0.5 rounded-full bg-[#C084FC]/15 text-[#C084FC] uppercase font-bold border border-[#D0DAE2]/15">In Roster</span>
           </div>
           <span class="text-[10px] text-gray-400 block mt-0.5">${s.role}</span>
         </div>
@@ -3515,7 +3552,7 @@ function renderParsedRosterList() {
 
           <!-- Quick status override dropdown -->
           <select onchange="updateDetectedStaffStatus('${id}', this.value)" 
-            class="bg-[#141424] border border-[#27273e] text-gray-300 rounded-xl px-2 py-1 text-[11px] font-semibold focus:border-[#ff2a85] focus:outline-none">
+            class="bg-[#141424] border border-[#27273e] text-gray-300 rounded-xl px-2 py-1 text-[11px] font-semibold focus:border-[#00FFFF] focus:outline-none">
             <option value="Present" ${item.status === 'Present' ? 'selected' : ''}>Present</option>
             <option value="Weekly Off" ${isOff ? 'selected' : ''}>Day Off (0 Cut)</option>
             <option value="Leave" ${isLeave ? 'selected' : ''}>Leave (Cut)</option>
@@ -3531,11 +3568,11 @@ function renderParsedRosterList() {
       <div class="p-3.5 rounded-2xl bg-[#0e0e18] border border-[#1d1d2b] text-xs text-gray-400 mt-3">
         <div class="flex items-center justify-between gap-2 flex-wrap mb-2">
           <span class="text-gray-300 font-bold flex items-center gap-1.5">
-            <i class="fa-solid fa-shield-halved text-[#ff7eb3]"></i> 
+            <i class="fa-solid fa-shield-halved text-[#60A5FA]"></i> 
             Not in this roster (${unmentionedStaff.length} stylists):
           </span>
           <button type="button" onclick="openQuickAddStaffToRoster()" 
-            class="text-[11px] font-bold text-[#ff7eb3] hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
+            class="text-[11px] font-bold text-[#60A5FA] hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
             <i class="fa-solid fa-user-plus"></i> Manual Modal
           </button>
         </div>
@@ -3557,7 +3594,7 @@ function renderParsedRosterList() {
           <span class="font-bold text-white text-[11px] px-1.5">${s.name}</span>
           <button type="button" 
             onclick="quickAddStaffWithShift('${s.id}', 'Present', ${defInH}, 0, '${defAmpm}', ${defOutH}, 0)" 
-            class="px-2 py-0.5 rounded-lg bg-[#ff2a85] hover:bg-[#ff4d9a] text-white font-bold text-[10px] cursor-pointer"
+            class="px-2 py-0.5 rounded-lg bg-[#00FFFF] hover:bg-[#54E29C] text-white font-bold text-[10px] cursor-pointer"
             title="Add ${s.name} (${shiftLabel})">
             + ${shiftLabel}
           </button>
@@ -3613,7 +3650,7 @@ function openQuickAddStaffToRoster() {
           ${isAlreadyIn ? 
             `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Added (${currentStatus})</span>` :
             `<button type="button" onclick="quickAddStaffWithShift('${s.id}', 'Present', 10, 0, 'AM', 7, 0)" 
-               class="px-2.5 py-1 rounded-xl bg-[#ff2a85] hover:bg-[#ff4d9a] text-white font-bold text-[11px] shadow-sm cursor-pointer">
+               class="px-2.5 py-1 rounded-xl bg-[#00FFFF] hover:bg-[#54E29C] text-white font-bold text-[11px] shadow-sm cursor-pointer">
                + 10-7 Shift
              </button>
              <button type="button" onclick="quickAddStaffWithShift('${s.id}', 'Weekly Off', 10, 0, 'AM', 7, 0)" 
@@ -3729,6 +3766,11 @@ function applyRosterToAttendance() {
 function renderAdminView() {
   const container = document.getElementById('adminStaffList');
   if (!container) return;
+  const resetStart = document.getElementById('resetStartDate');
+  if (resetStart && !resetStart.value) {
+    setResetRangePreset('today');
+  }
+
 
   document.getElementById('adminShiftHours').value = salonRules.shiftHours || 9;
   document.getElementById('adminOtThreshold').value = salonRules.otGraceThresholdMinutes || 45;
@@ -3777,14 +3819,14 @@ function renderAdminView() {
       <div class="bg-[#11111c] p-5 rounded-2xl border border-[#202032] space-y-4 text-xs">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#181826] pb-3">
           <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-xl bg-[#181826] text-[#ff7eb3] font-bold flex items-center justify-center font-mono">
+            <span class="w-8 h-8 rounded-xl bg-[#181826] text-[#60A5FA] font-bold flex items-center justify-center font-mono">
               ${idx + 1}
             </span>
             <div>
               <input type="text" id="admin_name_${staff.id}" value="${staff.name}" 
-                class="bg-[#181828] border border-[#26263a] rounded-xl px-3 py-1 text-white font-bold font-heading text-sm focus:border-[#ff2a85]">
+                class="bg-[#181828] border border-[#26263a] rounded-xl px-3 py-1 text-white font-bold font-heading text-sm focus:border-[#00FFFF]">
               <select id="admin_role_${staff.id}" 
-                class="bg-[#181828] border border-[#26263a] rounded-xl px-2 py-1 text-gray-300 text-xs mt-1 focus:border-[#ff2a85] block w-full cursor-pointer">
+                class="bg-[#181828] border border-[#26263a] rounded-xl px-2 py-1 text-gray-300 text-xs mt-1 focus:border-[#00FFFF] block w-full cursor-pointer">
                 <option value="Manager" ${staff.role === 'Manager' ? 'selected' : ''}>Manager</option>
                 <option value="Hair Stylist" ${staff.role === 'Hair Stylist' ? 'selected' : ''}>Hair Stylist</option>
                 <option value="Beauty" ${staff.role === 'Beauty' ? 'selected' : ''}>Beauty</option>
@@ -3795,7 +3837,7 @@ function renderAdminView() {
           </div>
 
           <div class="flex items-center gap-2">
-            ${staff.isManager ? `<span class="px-2.5 py-1 rounded-full bg-[#ff2a85]/20 text-[#ff7eb3] font-bold text-[10px]">MANAGER (${salonRules.managerCommissionRate || 1}% SALON REVENUE)</span>` : ''}
+            ${staff.isManager ? `<span class="px-2.5 py-1 rounded-full bg-[#C084FC]/20 text-[#C084FC] font-bold text-[10px]">MANAGER (${salonRules.managerCommissionRate || 1}% SALON REVENUE)</span>` : ''}
             <button onclick="removeStaffMember('${staff.id}')" title="Delete Staff Member"
               class="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-all cursor-pointer">
               <i class="fa-solid fa-trash text-xs"></i>
@@ -3809,14 +3851,14 @@ function renderAdminView() {
             <label class="text-[10px] text-gray-400 uppercase font-semibold block mb-1">Base Salary (₹)</label>
             <input type="number" id="admin_salary_${staff.id}" value="${staff.baseSalary}" 
               onfocus="this.select()"
-              class="w-full bg-[#181828] border border-[#26263a] rounded-xl px-2.5 py-1.5 text-white font-mono font-bold focus:border-[#ff2a85]">
+              class="w-full bg-[#181828] border border-[#26263a] rounded-xl px-2.5 py-1.5 text-white font-mono font-bold focus:border-[#00FFFF]">
           </div>
 
           <div>
             <label class="text-[10px] text-gray-400 uppercase font-semibold block mb-1">Food Allowance (₹)</label>
             <input type="number" id="admin_food_${staff.id}" value="${staff.foodAllowance || 0}" 
               onfocus="this.select()"
-              class="w-full bg-[#181828] border border-[#26263a] rounded-xl px-2.5 py-1.5 text-emerald-400 font-mono font-bold focus:border-[#ff2a85]">
+              class="w-full bg-[#181828] border border-[#26263a] rounded-xl px-2.5 py-1.5 text-emerald-400 font-mono font-bold focus:border-[#00FFFF]">
           </div>
 
           ${staff.isManager ? `
@@ -3832,14 +3874,14 @@ function renderAdminView() {
               <label class="text-[10px] text-purple-400 uppercase font-semibold block mb-1">Service Comm. (%)</label>
               <input type="number" id="admin_serv_rate_${staff.id}" value="${staff.serviceCommissionRate || 5}" min="0" max="100" 
                 onfocus="this.select()"
-                class="w-full bg-[#181828] border border-[#26263a] rounded-xl px-2.5 py-1.5 text-purple-300 font-mono font-bold focus:border-[#ff2a85]">
+                class="w-full bg-[#181828] border border-[#26263a] rounded-xl px-2.5 py-1.5 text-purple-300 font-mono font-bold focus:border-[#00FFFF]">
             </div>
 
             <div>
               <label class="text-[10px] text-purple-400 uppercase font-semibold block mb-1">Service Target (₹)</label>
               <input type="number" id="admin_serv_target_${staff.id}" value="${staff.serviceTarget || (staff.baseSalary * 5)}" 
                 onfocus="this.select()"
-                class="w-full bg-[#181828] border border-[#26263a] rounded-xl px-2.5 py-1.5 text-purple-300 font-mono font-bold focus:border-[#ff2a85]">
+                class="w-full bg-[#181828] border border-[#26263a] rounded-xl px-2.5 py-1.5 text-purple-300 font-mono font-bold focus:border-[#00FFFF]">
             </div>
           `)}
         </div>
@@ -3847,29 +3889,29 @@ function renderAdminView() {
         <!-- Row 2: Product Percentage Tiers (For Stylists) -->
         ${(!staff.isManager && !staff.isHousekeeping) ? `
           <div class="p-3 bg-[#0a0a14] rounded-xl border border-[#1e1e30] space-y-2">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-pink-400 block">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#C084FC] block">
               <i class="fa-solid fa-bottle-droplet mr-1"></i> Retail Product Commission Percentage Rules
             </span>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               <div>
                 <label class="text-[9px] text-gray-400 block mb-0.5">Tier 1 Comm (%)</label>
                 <input type="number" id="admin_prod_tier1_rate_${staff.id}" value="${staff.productTier1Rate || 5}" min="0" max="100"
-                  class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-pink-300 font-mono text-xs font-bold focus:border-[#ff2a85]">
+                  class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-[#C084FC] font-mono text-xs font-bold focus:border-[#00FFFF]">
               </div>
               <div>
                 <label class="text-[9px] text-gray-400 block mb-0.5">Tier 1 Min Sales (₹)</label>
                 <input type="number" id="admin_prod_tier1_min_${staff.id}" value="${staff.productTier1Min || 8000}" min="0"
-                  class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-white font-mono text-xs font-bold focus:border-[#ff2a85]">
+                  class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-white font-mono text-xs font-bold focus:border-[#00FFFF]">
               </div>
               <div>
                 <label class="text-[9px] text-gray-400 block mb-0.5">Tier 2 Comm (%)</label>
                 <input type="number" id="admin_prod_tier2_rate_${staff.id}" value="${staff.productTier2Rate || 8}" min="0" max="100"
-                  class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-pink-300 font-mono text-xs font-bold focus:border-[#ff2a85]">
+                  class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-[#C084FC] font-mono text-xs font-bold focus:border-[#00FFFF]">
               </div>
               <div>
                 <label class="text-[9px] text-gray-400 block mb-0.5">Tier 2 Min Sales (₹)</label>
                 <input type="number" id="admin_prod_tier2_min_${staff.id}" value="${staff.productTier2Min || 15000}" min="0"
-                  class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-white font-mono text-xs font-bold focus:border-[#ff2a85]">
+                  class="w-full bg-[#181828] border border-[#26263a] rounded-lg px-2 py-1 text-white font-mono text-xs font-bold focus:border-[#00FFFF]">
               </div>
             </div>
           </div>
@@ -4053,6 +4095,10 @@ function removeStaffMember(staffId) {
       saveAdvancesData();
     }
 
+    if (firestoreDb) {
+      pushLocalDataToFirestore(false);
+    }
+
     renderAdminView();
     renderDailyAttendance();
     renderKioskView();
@@ -4133,12 +4179,259 @@ function resetAllSalesAndIncentivesToZero(buttonElement) {
   }
 }
 
-function clearAllAttendanceDataToZero(buttonElement) {
-  attendanceData = {};
-  saveAttendanceData();
+function setResetRangePreset(preset) {
+  const startInput = document.getElementById('resetStartDate');
+  const endInput = document.getElementById('resetEndDate');
+  if (!startInput || !endInput) return;
+
+  const now = new Date();
+  const formatYMD = (d) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  if (preset === 'today') {
+    const todayStr = formatYMD(now);
+    startInput.value = todayStr;
+    endInput.value = todayStr;
+  } else if (preset === 'yesterday') {
+    const yest = new Date(now);
+    yest.setDate(yest.getDate() - 1);
+    const yestStr = formatYMD(yest);
+    startInput.value = yestStr;
+    endInput.value = yestStr;
+  } else if (preset === 'thisMonth') {
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    startInput.value = formatYMD(startOfMonth);
+    endInput.value = formatYMD(endOfMonth);
+  } else if (preset === 'last7') {
+    const past7 = new Date(now);
+    past7.setDate(past7.getDate() - 6);
+    startInput.value = formatYMD(past7);
+    endInput.value = formatYMD(now);
+  }
+}
+
+async function resetAttendanceForSelectedDates(buttonElement) {
+  const startInput = document.getElementById('resetStartDate');
+  const endInput = document.getElementById('resetEndDate');
+  const startDate = startInput ? startInput.value : '';
+  const endDate = endInput ? endInput.value : '';
+
+  if (!startDate || !endDate) {
+    alert('Please choose both Start Date and End Date to reset attendance.');
+    return;
+  }
+
+  const minDate = startDate <= endDate ? startDate : endDate;
+  const maxDate = startDate <= endDate ? endDate : startDate;
+
+  // Find existing date keys in attendanceData matching the selected range
+  const datesToClear = Object.keys(attendanceData).filter(dateKey => {
+    return dateKey >= minDate && dateKey <= maxDate;
+  });
+
+  const rangeLabel = minDate === maxDate ? minDate : `${minDate} to ${maxDate}`;
+
+  if (datesToClear.length === 0) {
+    alert(`No attendance records found for ${rangeLabel}. All other dates remain intact.`);
+    return;
+  }
+
+  const confirmMsg = `Are you sure you want to reset attendance for ${datesToClear.length} date(s) (${rangeLabel})?\n\n• ONLY these selected dates will be cleared.\n• All other historical dates will remain completely intact.`;
+  if (!confirm(confirmMsg)) {
+    return;
+  }
+
+  // 1. Delete only those selected date keys
+  datesToClear.forEach(dateKey => {
+    delete attendanceData[dateKey];
+  });
+
+  // 2. Persist updated attendanceData to localStorage
+  localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceData));
+
+  // 3. Mark last reset timestamp so old cached data doesn't resurrect
+  const resetTimestamp = Date.now();
+  localStorage.setItem('gt_kothapet_attendance_last_reset', resetTimestamp.toString());
+
+  // 4. Overwrite Firestore cleanly without resurrecting deleted dates
+  if (firestoreDb) {
+    try {
+      isSyncingToCloud = true;
+      updateCloudSyncUI('syncing');
+      await firestoreDb.collection('salons').doc('green_trends_kothapet').set({
+        attendance: attendanceData,
+        staff: staffList,
+        rules: salonRules,
+        advances: advanceData,
+        expenses: salonExpenses,
+        lastAttendanceReset: resetTimestamp,
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedBy: getSessionUser()?.username || 'Owner'
+      }, { merge: false });
+      isSyncingToCloud = false;
+      const savedConfig = localStorage.getItem(STORAGE_KEYS.FIREBASE);
+      const projectId = savedConfig ? JSON.parse(savedConfig).projectId : '';
+      updateCloudSyncUI('connected', projectId);
+    } catch (err) {
+      console.error('Firestore reset error:', err);
+      isSyncingToCloud = false;
+      updateCloudSyncUI('error');
+    }
+  }
+
+  // 5. Refresh all views
   renderDailyAttendance();
   renderMonthlyPayroll();
   renderIncentivesView();
+  renderKioskView();
+
+  showToast(`✓ Cleared attendance for ${datesToClear.length} date(s) (${rangeLabel}). Other dates preserved!`);
+
+  if (buttonElement && buttonElement.innerHTML) {
+    const originalText = buttonElement.innerHTML;
+    buttonElement.innerHTML = `<i class="fa-solid fa-check text-[#54E29C]"></i> <span class="text-[#54E29C] font-bold">Cleared ${datesToClear.length} Day(s)!</span>`;
+    setTimeout(() => {
+      buttonElement.innerHTML = originalText;
+    }, 2500);
+  }
+}
+
+async function resetSalesForSelectedDates(buttonElement) {
+  const startInput = document.getElementById('resetStartDate');
+  const endInput = document.getElementById('resetEndDate');
+  const startDate = startInput ? startInput.value : '';
+  const endDate = endInput ? endInput.value : '';
+
+  if (!startDate || !endDate) {
+    alert('Please choose both Start Date and End Date to reset sales.');
+    return;
+  }
+
+  const minDate = startDate <= endDate ? startDate : endDate;
+  const maxDate = startDate <= endDate ? endDate : startDate;
+
+  const datesToReset = Object.keys(attendanceData).filter(dateKey => {
+    return dateKey >= minDate && dateKey <= maxDate;
+  });
+
+  const rangeLabel = minDate === maxDate ? minDate : `${minDate} to ${maxDate}`;
+
+  if (datesToReset.length === 0) {
+    alert(`No sales/service data found for ${rangeLabel}.`);
+    return;
+  }
+
+  if (!confirm(`Zero out service & retail revenue for ${datesToReset.length} date(s) (${rangeLabel})? Shifts and attendance status will be preserved.`)) {
+    return;
+  }
+
+  datesToReset.forEach(dateKey => {
+    const dayRecords = attendanceData[dateKey];
+    if (dayRecords) {
+      Object.keys(dayRecords).forEach(staffId => {
+        if (dayRecords[staffId]) {
+          dayRecords[staffId].serviceRevenue = 0;
+          dayRecords[staffId].retailRevenue = 0;
+        }
+      });
+    }
+  });
+
+  localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceData));
+
+  if (firestoreDb) {
+    try {
+      isSyncingToCloud = true;
+      updateCloudSyncUI('syncing');
+      await firestoreDb.collection('salons').doc('green_trends_kothapet').set({
+        attendance: attendanceData,
+        staff: staffList,
+        rules: salonRules,
+        advances: advanceData,
+        expenses: salonExpenses,
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedBy: getSessionUser()?.username || 'Owner'
+      }, { merge: false });
+      isSyncingToCloud = false;
+      const savedConfig = localStorage.getItem(STORAGE_KEYS.FIREBASE);
+      const projectId = savedConfig ? JSON.parse(savedConfig).projectId : '';
+      updateCloudSyncUI('connected', projectId);
+    } catch (err) {
+      console.error('Firestore reset sales error:', err);
+      isSyncingToCloud = false;
+      updateCloudSyncUI('error');
+    }
+  }
+
+  renderDailyAttendance();
+  renderMonthlyPayroll();
+  renderIncentivesView();
+  showToast(`✓ Zeroed sales for ${datesToReset.length} date(s) (${rangeLabel})!`);
+
+  if (buttonElement && buttonElement.innerHTML) {
+    const originalText = buttonElement.innerHTML;
+    buttonElement.innerHTML = `<i class="fa-solid fa-check text-[#54E29C]"></i> <span class="text-[#54E29C] font-bold">Sales Reset!</span>`;
+    setTimeout(() => {
+      buttonElement.innerHTML = originalText;
+    }, 2500);
+  }
+}
+
+window.setResetRangePreset = setResetRangePreset;
+window.resetAttendanceForSelectedDates = resetAttendanceForSelectedDates;
+window.resetSalesForSelectedDates = resetSalesForSelectedDates;
+
+async function clearAllAttendanceDataToZero(buttonElement) {
+  if (!confirm('Are you sure you want to permanently clear ALL attendance records to a clean slate (0 records)? This will delete all attendance locally and in Cloud Firestore.')) {
+    return;
+  }
+
+  // 1. Wipe in memory
+  attendanceData = {};
+
+  // 2. Wipe in localStorage
+  localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify({}));
+
+  // 3. Mark local reset timestamp
+  const resetTimestamp = Date.now();
+  localStorage.setItem('gt_kothapet_attendance_last_reset', resetTimestamp.toString());
+
+  // 4. Immediately overwrite Firestore document cleanly without merge: true!
+  if (firestoreDb) {
+    try {
+      isSyncingToCloud = true;
+      updateCloudSyncUI('syncing');
+      await firestoreDb.collection('salons').doc('green_trends_kothapet').set({
+        attendance: {},
+        staff: staffList,
+        rules: salonRules,
+        advances: advanceData,
+        expenses: salonExpenses,
+        lastAttendanceReset: resetTimestamp,
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedBy: getSessionUser()?.username || 'Owner'
+      }, { merge: false });
+      isSyncingToCloud = false;
+      const savedConfig = localStorage.getItem(STORAGE_KEYS.FIREBASE);
+      const projectId = savedConfig ? JSON.parse(savedConfig).projectId : '';
+      updateCloudSyncUI('connected', projectId);
+    } catch (err) {
+      console.error('Firestore wipe error:', err);
+      isSyncingToCloud = false;
+      updateCloudSyncUI('error');
+    }
+  }
+
+  // 5. Update UI views
+  renderDailyAttendance();
+  renderMonthlyPayroll();
+  renderIncentivesView();
+  renderKioskView();
   showToast('✓ All attendance and sales data cleared to a clean 0 slate!');
 
   if (buttonElement && buttonElement.innerHTML) {
@@ -4153,14 +4446,43 @@ function clearAllAttendanceDataToZero(buttonElement) {
 window.resetAllSalesAndIncentivesToZero = resetAllSalesAndIncentivesToZero;
 window.clearAllAttendanceDataToZero = clearAllAttendanceDataToZero;
 
-function confirmResetDefaults() {
-  if (confirm('Reset Green Trends Kothapet to factory default settings?')) {
-    staffList = [...DEFAULT_STAFF];
+async function confirmResetDefaults() {
+  if (confirm('Reset Green Trends Kothapet to factory default settings? This will clear all attendance, reset staff, and wipe cloud records.')) {
+    staffList = JSON.parse(JSON.stringify(DEFAULT_STAFF));
     salonRules = { ...DEFAULT_SALON_RULES };
     attendanceData = {};
-    saveStaffList();
-    saveSalonRules();
-    saveAttendanceData();
+    advanceData = {};
+    salonExpenses = [...DEFAULT_SALON_EXPENSES];
+
+    localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify(staffList));
+    localStorage.setItem(STORAGE_KEYS.RULES, JSON.stringify(salonRules));
+    localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify({}));
+    localStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify({}));
+    localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(salonExpenses));
+
+    const resetTimestamp = Date.now();
+    localStorage.setItem('gt_kothapet_attendance_last_reset', resetTimestamp.toString());
+
+    if (firestoreDb) {
+      try {
+        isSyncingToCloud = true;
+        updateCloudSyncUI('syncing');
+        await firestoreDb.collection('salons').doc('green_trends_kothapet').set({
+          attendance: {},
+          staff: staffList,
+          rules: salonRules,
+          advances: advanceData,
+          expenses: salonExpenses,
+          lastAttendanceReset: resetTimestamp,
+          lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedBy: getSessionUser()?.username || 'Owner'
+        }, { merge: false });
+        isSyncingToCloud = false;
+      } catch(e) {
+        isSyncingToCloud = false;
+      }
+    }
+
     renderAdminView();
     updateViewFromHash();
     showToast('Reset system to factory default configurations!');
@@ -4279,9 +4601,9 @@ function showToast(message) {
   if (!container) return;
 
   const toast = document.createElement('div');
-  toast.className = 'bg-[#141420] text-white border border-[#ff2a85]/50 px-4 py-2.5 rounded-2xl shadow-2xl text-xs flex items-center gap-2 transform transition-all duration-300 pointer-events-auto';
+  toast.className = 'bg-[#080808] text-white border border-[#00FFFF]/35 px-4 py-2.5 rounded-xl shadow-2xl text-xs flex items-center gap-2 transform transition-all duration-300 pointer-events-auto';
   toast.innerHTML = `
-    <i class="fa-solid fa-circle-check text-[#ff2a85]"></i>
+    <i class="fa-solid fa-circle-check text-[#54E29C]"></i>
     <span>${message}</span>
   `;
 
@@ -4363,15 +4685,15 @@ function bootstrapApp() {
   if (dropZone) {
     dropZone.addEventListener('dragover', (e) => {
       e.preventDefault();
-      dropZone.classList.add('border-[#ff2a85]', 'bg-[#150b1a]');
+      dropZone.classList.add('border-[#00FFFF]', 'bg-[#00FFFF]/5');
     });
     dropZone.addEventListener('dragleave', (e) => {
       e.preventDefault();
-      dropZone.classList.remove('border-[#ff2a85]', 'bg-[#150b1a]');
+      dropZone.classList.remove('border-[#00FFFF]', 'bg-[#00FFFF]/5');
     });
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
-      dropZone.classList.remove('border-[#ff2a85]', 'bg-[#150b1a]');
+      dropZone.classList.remove('border-[#00FFFF]', 'bg-[#00FFFF]/5');
       if (e.dataTransfer && e.dataTransfer.files) {
         for (let i = 0; i < e.dataTransfer.files.length; i++) {
           addRosterImageFile(e.dataTransfer.files[i]);
@@ -4409,7 +4731,7 @@ function markAppAsInstalled() {
   if (installBtn) {
     installBtn.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i> <span>Installed</span>';
     installBtn.title = '✓ Green Trends App is installed on your Home Screen';
-    installBtn.classList.remove('from-[#ff2a85]/20', 'to-purple-500/20', 'border-[#ff2a85]/40', 'text-[#ff7eb3]');
+    installBtn.classList.remove('from-[#00FFFF]/20', 'to-purple-500/20', 'border-[#C084FC]/30', 'text-[#60A5FA]');
     installBtn.classList.add('bg-emerald-500/15', 'border-emerald-500/35', 'text-emerald-400');
   }
 }
@@ -4488,7 +4810,7 @@ function openPwaInstallHelpModal() {
   const stepDesktop = document.getElementById('pwaStepDesktop');
   const directBtnText = document.getElementById('pwaDirectInstallText');
 
-  if (stepIos) stepIos.classList.remove('border-[#ff2a85]', 'bg-[#ff2a85]/10');
+  if (stepIos) stepIos.classList.remove('border-[#00FFFF]', 'bg-[#00FFFF]/10');
   if (stepAndroid) stepAndroid.classList.remove('border-emerald-500', 'bg-emerald-500/10');
   if (stepDesktop) stepDesktop.classList.remove('border-indigo-500', 'bg-indigo-500/10');
 
@@ -4496,7 +4818,7 @@ function openPwaInstallHelpModal() {
 
   if (isIOS) {
     if (bIos) bIos.classList.remove('hidden');
-    if (stepIos) stepIos.classList.add('border-[#ff2a85]', 'bg-[#ff2a85]/10');
+    if (stepIos) stepIos.classList.add('border-[#00FFFF]', 'bg-[#00FFFF]/10');
     if (directBtnText) directBtnText.innerText = 'Got It (Share ➔ Add)';
   } else if (isAndroid) {
     if (bAndroid) bAndroid.classList.remove('hidden');
@@ -4851,10 +5173,13 @@ function renderKioskView() {
   }
 
   grid.innerHTML = staffList.map(staff => {
-    const rec = dayRecords[staff.id] || { status: 'Present', inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0, outAmpm: 'PM' };
-    const isPresent = rec.status === 'Present';
-    const isOff = rec.status === 'Weekly Off';
-    const isLeave = rec.status === 'Leave' || rec.status === 'Absent';
+    const rawRec = dayRecords[staff.id];
+    const isRecorded = !!rawRec && !!rawRec.status;
+    const rec = rawRec || { status: 'Pending', inH: 10, inM: 0, inAmpm: 'AM', outH: 7, outM: 0, outAmpm: 'PM' };
+    const isPresent = isRecorded && rec.status === 'Present';
+    const isOff = isRecorded && rec.status === 'Weekly Off';
+    const isLeave = isRecorded && (rec.status === 'Leave' || rec.status === 'Absent');
+    const isPending = !isRecorded || rec.status === 'Pending';
 
     const inTimeFormatted = `${rec.inH || 10}:${String(rec.inM || 0).padStart(2, '0')} ${rec.inAmpm || 'AM'}`;
     const outTimeFormatted = `${rec.outH || 7}:${String(rec.outM || 0).padStart(2, '0')} ${rec.outAmpm || 'PM'}`;
@@ -4892,26 +5217,31 @@ function renderKioskView() {
         <i class="fa-solid fa-mug-hot text-xs"></i> WEEKLY OFF
       </span>`;
       cardBorder = 'border-indigo-500/30';
-    } else {
+    } else if (isLeave) {
       statusPill = `<span class="px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-bold flex items-center gap-1">
         <i class="fa-solid fa-xmark text-xs"></i> LEAVE
       </span>`;
       cardBorder = 'border-rose-500/30';
+    } else {
+      statusPill = `<span class="px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-bold flex items-center gap-1">
+        <i class="fa-solid fa-user-clock text-xs"></i> PENDING
+      </span>`;
+      cardBorder = 'border-amber-500/25';
     }
 
     return `
-      <div class="kiosk-card bg-[#0d0d18] ${cardBorder} p-5 rounded-3xl shadow-xl ${glow} flex flex-col justify-between space-y-4 hover:border-[#ff2a85]/50 transition-all">
+      <div class="kiosk-card bg-[#0d0d18] ${cardBorder} p-5 rounded-3xl shadow-xl ${glow} flex flex-col justify-between space-y-4 hover:border-[#00FFFF]/50 transition-all">
         <!-- Card Header: Avatar & Info -->
         <div class="flex items-start justify-between gap-3">
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#1f1025] to-[#2d1234] border border-[#ff2a85]/40 flex items-center justify-center font-syne font-black text-lg text-[#ff7eb3] shadow-md shadow-[#ff2a85]/20 shrink-0">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#0a0a0a] to-[#141414] border border-[#C084FC]/30 flex items-center justify-center font-syne font-black text-lg text-[#60A5FA] shadow-md shadow-black shrink-0">
               ${staff.name.substring(0, 2).toUpperCase()}
             </div>
             <div>
               <h3 class="font-syne font-black text-base text-white leading-tight">${staff.name}</h3>
               <div class="flex items-center gap-1.5 mt-0.5">
                 <span class="text-xs text-gray-400 font-medium">${staff.role}</span>
-                ${staff.isManager ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-[#ff2a85]/20 text-[#ff7eb3] font-bold border border-[#ff2a85]/30">MANAGER</span>' : ''}
+                ${staff.isManager ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-[#C084FC]/20 text-[#C084FC] font-bold border border-[#D0DAE2]/15">MANAGER</span>' : ''}
               </div>
             </div>
           </div>
@@ -4951,7 +5281,7 @@ function renderKioskView() {
             </button>
 
             <button type="button" onclick="kioskClockOut('${staff.id}')" 
-              class="w-full py-3 rounded-2xl text-xs font-extrabold bg-gradient-to-r from-rose-600 to-pink-600 hover:brightness-110 active:scale-95 text-white shadow-lg shadow-rose-500/25 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              class="w-full py-3 rounded-2xl text-xs font-extrabold bg-gradient-to-r from-rose-600 to-rose-700 hover:brightness-110 active:scale-95 text-white shadow-lg shadow-rose-500/25 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               title="1-Tap Check-Out with current time">
               <i class="fa-solid fa-flag-checkered text-sm"></i>
               <span>1-Tap Out</span>
@@ -5197,9 +5527,11 @@ window.loadSampleUploadedRoster = loadSampleUploadedRoster;
 
 
 // Global Window Attachments for Core Navigation & Salon Management
-window.staffList = staffList;
-window.salonRules = salonRules;
-window.attendanceData = attendanceData;
+try {
+  Object.defineProperty(window, 'staffList', { get() { return staffList; }, set(v) { staffList = v; }, configurable: true });
+  Object.defineProperty(window, 'salonRules', { get() { return salonRules; }, set(v) { salonRules = v; }, configurable: true });
+  Object.defineProperty(window, 'attendanceData', { get() { return attendanceData; }, set(v) { attendanceData = v; }, configurable: true });
+} catch(e) {}
 window.DEFAULT_AUTH = DEFAULT_AUTH;
 window.quickLogin = quickLogin;
 window.resetLoginCredentials = resetLoginCredentials;

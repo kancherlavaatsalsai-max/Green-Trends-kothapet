@@ -1,56 +1,59 @@
-/* Luxe Salon & Spa - Ultra-Premium Theme & Micro-Interactions */
+/* Green Trends Kothapet - Clean Minimalist High-Performance Stylesheet */
+/* Palette: #C084FC (Lavender), #00FFFF (Cyan), #60A5FA (Sky Blue), #54E29C (Mint Green), #4BA2E2 (Ocean Cerulean), #D0DAE2 (Platinum Gray), Solid Black Background (#000000) */
 
-/* Custom Scrollbars */
+/* Custom Clean Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #08080d;
+  background: #000000;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1f1f30;
+  background: #181a20;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #ff2a85;
+  background: #00FFFF;
 }
 
 html, body {
-  background-color: #050508;
-  color: #ffffff;
+  background-color: #000000 !important;
+  color: #D0DAE2;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   max-width: 100%;
 }
 
-/* Tabular figures for non-distorted numbers */
+/* Tabular figures for aligned, non-distorting metrics */
 .tabular-nums, [id^="kpi"], .font-mono, td, th {
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1;
 }
 
-/* Nav Tab Styling - Luxury Vibrant Accent */
+/* Minimalist Nav Tab Styling */
 .nav-tab {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.18s ease;
   white-space: nowrap;
+  color: #94a3b8;
 }
 .nav-tab:hover:not(.active) {
-  background-color: rgba(255, 255, 255, 0.06);
+  background-color: rgba(208, 218, 226, 0.06);
   color: #ffffff !important;
 }
 .nav-tab.active {
-  background: linear-gradient(135deg, #ff2a85 0%, #ff529c 100%) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
-  box-shadow: 0 4px 18px rgba(255, 42, 133, 0.45) !important;
+  background: #00FFFF !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
+  border: 1px solid #00FFFF !important;
+  box-shadow: 0 0 16px rgba(0, 255, 255, 0.35) !important;
 }
 .nav-tab.active i {
-  color: #ffffff !important;
+  color: #000000 !important;
 }
 
-/* Hide scrollbars for slick horizontal tab scroll on small screens */
+/* Hide scrollbars for slick horizontal scroll on small devices */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -59,21 +62,23 @@ html, body {
   scrollbar-width: none;
 }
 
-/* Pink Neon Hover and Focus Glows */
+/* Minimalist Focus & Input Glows */
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #ff2a85 !important;
-  box-shadow: 0 0 0 2px rgba(255, 42, 133, 0.3) !important;
+  border-color: #00FFFF !important;
+  box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.25) !important;
 }
 
-/* Staff Card Hover */
+/* Staff Card Styling & Subtle Hover */
 .staff-card {
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
+  background-color: #080808;
+  border-color: rgba(208, 218, 226, 0.12);
 }
 .staff-card:hover {
-  border-color: rgba(255, 42, 133, 0.4);
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 42, 133, 0.1);
+  border-color: rgba(0, 255, 255, 0.35);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.9), 0 0 16px rgba(0, 255, 255, 0.08);
 }
 
 /* Remove default number input spinners */
@@ -88,49 +93,49 @@ input[type="number"] {
 
 /* Segmented Attendance Status Buttons */
 .status-pill {
-  transition: all 0.2s ease-in-out;
+  transition: all 0.18s ease-in-out;
   cursor: pointer;
   user-select: none;
 }
 .status-pill.active-present {
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
-  border-color: rgba(16, 185, 129, 0.5);
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+  background: rgba(84, 226, 156, 0.18);
+  color: #54E29C;
+  border-color: rgba(84, 226, 156, 0.55);
+  box-shadow: 0 0 12px rgba(84, 226, 156, 0.25);
 }
 .status-pill.active-off {
-  background: rgba(99, 102, 241, 0.2);
-  color: #a5b4fc;
-  border-color: rgba(99, 102, 241, 0.5);
-  box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+  background: rgba(96, 165, 250, 0.18);
+  color: #60A5FA;
+  border-color: rgba(96, 165, 250, 0.5);
+  box-shadow: 0 0 12px rgba(96, 165, 250, 0.25);
 }
 .status-pill.active-leave {
-  background: rgba(244, 63, 94, 0.2);
-  color: #fb7185;
-  border-color: rgba(244, 63, 94, 0.5);
-  box-shadow: 0 0 12px rgba(244, 63, 94, 0.3);
+  background: rgba(192, 132, 252, 0.18);
+  color: #C084FC;
+  border-color: rgba(192, 132, 252, 0.5);
+  box-shadow: 0 0 12px rgba(192, 132, 252, 0.25);
 }
 .status-pill.active-half {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
-  border-color: rgba(245, 158, 11, 0.5);
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+  background: rgba(75, 162, 226, 0.18);
+  color: #4BA2E2;
+  border-color: rgba(75, 162, 226, 0.5);
+  box-shadow: 0 0 12px rgba(75, 162, 226, 0.25);
 }
 
 /* Custom AM / PM Toggler */
 .ampm-toggle {
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
   user-select: none;
 }
 .ampm-toggle.is-am {
-  background: rgba(56, 189, 248, 0.2);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.4);
+  background: rgba(96, 165, 250, 0.2);
+  color: #60A5FA;
+  border: 1px solid rgba(96, 165, 250, 0.45);
 }
 .ampm-toggle.is-pm {
-  background: rgba(255, 42, 133, 0.25);
-  color: #ff7eb3;
-  border: 1px solid rgba(255, 42, 133, 0.5);
+  background: rgba(0, 255, 255, 0.18);
+  color: #00FFFF;
+  border: 1px solid rgba(0, 255, 255, 0.45);
 }
 
 /* Print Styles for Official Pay Slip & Reports */
@@ -155,18 +160,18 @@ input[type="number"] {
   #paySlipModal > div {
     max-width: 100% !important;
     background: #ffffff !important;
-    color: #111118 !important;
+    color: #000000 !important;
     border: 2px solid #000000 !important;
     box-shadow: none !important;
     padding: 20px !important;
   }
 
   #paySlipPrintArea {
-    color: #111118 !important;
+    color: #000000 !important;
   }
 
   #paySlipPrintArea * {
-    color: #111118 !important;
+    color: #000000 !important;
     border-color: #d1d5db !important;
   }
 
@@ -180,7 +185,7 @@ input[type="number"] {
   }
 
   #psNetPayable {
-    color: #ff2a85 !important;
+    color: #000000 !important;
     font-weight: 900 !important;
   }
 }
@@ -202,15 +207,15 @@ input[type="number"] {
     position: sticky;
     left: 0;
     z-index: 10;
-    background-color: #0d0d15 !important;
-    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.75);
+    background-color: #080808 !important;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.85);
   }
   thead th.sticky-first-col {
-    background-color: #12121e !important;
+    background-color: #0e0e0e !important;
     z-index: 15;
   }
   tfoot td.sticky-first-col {
-    background-color: #10101b !important;
+    background-color: #0b0b0b !important;
     z-index: 15;
   }
   .touch-scroll {
@@ -224,24 +229,25 @@ input[type="number"] {
 
 /* Front Desk Kiosk Mode Animations & Interactions */
 .kiosk-card {
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
+  background-color: #080808;
+  border-color: rgba(208, 218, 226, 0.12);
 }
 .kiosk-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), 0 0 25px rgba(16, 185, 129, 0.15);
+  border-color: rgba(84, 226, 156, 0.4);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.85), 0 0 18px rgba(84, 226, 156, 0.15);
 }
 .kiosk-card:active {
-  transform: scale(0.98);
+  transform: scale(0.99);
 }
 
 @keyframes bounceOnce {
   0% { transform: scale(0.85); opacity: 0; }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.04); }
   100% { transform: scale(1); opacity: 1; }
 }
 .animate-bounce-once {
   animation: bounceOnce 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
-
