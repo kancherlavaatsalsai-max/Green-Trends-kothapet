@@ -163,26 +163,6 @@
           <span>Sign In to Portal</span>
           <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
         </button>
-
-        <!-- Quick 1-Tap Sign In Options -->
-        <div class="pt-3 border-t border-[#1d1d2d] space-y-2">
-          <p class="text-[11px] text-gray-400 text-center font-medium">Quick 1-Tap Access (No Typing Required):</p>
-          <div class="grid grid-cols-2 gap-2">
-            <button type="button" onclick="quickLogin('owner')" 
-              class="py-2.5 px-3 rounded-xl bg-[#1a1429] hover:bg-[#251d3b] border border-purple-500/30 text-purple-300 hover:text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
-              <i class="fa-solid fa-crown text-amber-400 text-xs"></i>
-              <span>Owner Access</span>
-            </button>
-            <button type="button" onclick="quickLogin('manager')" 
-              class="py-2.5 px-3 rounded-xl bg-[#0f1f1d] hover:bg-[#152e2a] border border-emerald-500/30 text-emerald-300 hover:text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
-              <i class="fa-solid fa-scissors text-emerald-400 text-xs"></i>
-              <span>Manager Access</span>
-            </button>
-          </div>
-          <div class="flex items-center justify-between text-[11px] text-gray-500 pt-1">
-            <span title="Owner: kancherlavatsalsai@gmail.com / Vinayaka@9">🔑 Default: Vinayaka@9</span>
-          </div>
-        </div>
       </form>
     </div>
   </div>
@@ -1145,12 +1125,12 @@ const firebaseConfig = {
                 </div>
                 <div>
                   <label class="block text-gray-400 mb-1">Username / Email</label>
-                  <input type="text" id="adminAuthUsername" value="kancherlavatsalsai@gmial.com" 
+                  <input type="text" id="adminAuthUsername" placeholder="Owner username or email" 
                     class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
                 </div>
                 <div>
                   <label class="block text-gray-400 mb-1">Change Owner Password</label>
-                  <input type="text" id="adminAuthPassword" placeholder="Enter new password to change"
+                  <input type="password" id="adminAuthPassword" autocomplete="new-password" placeholder="Enter new password to change"
                     class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
                 </div>
               </div>
@@ -1167,12 +1147,12 @@ const firebaseConfig = {
                 <p class="text-[11px] text-gray-400">Authorized for Admin Controls, Timesheet, Kiosk & Operations.</p>
                 <div>
                   <label class="block text-gray-400 mb-1">Username / Email</label>
-                  <input type="text" id="adminManagerUsername" value="Greentrendskothapet@gmail.com" 
+                  <input type="text" id="adminManagerUsername" placeholder="Manager username or email" 
                     class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
                 </div>
                 <div>
                   <label class="block text-gray-400 mb-1">Change Manager Password</label>
-                  <input type="text" id="adminManagerPassword" placeholder="Enter new password to change"
+                  <input type="password" id="adminManagerPassword" autocomplete="new-password" placeholder="Enter new password to change"
                     class="w-full bg-[#181828] border border-[#2b2b42] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#00FFFF]">
                 </div>
               </div>

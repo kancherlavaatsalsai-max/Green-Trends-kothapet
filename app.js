@@ -945,18 +945,7 @@ function initAuth() {
 
 
 function quickLogin(role) {
-  let matchedUser;
-  if (role === 'owner') {
-    matchedUser = { username: 'kancherlavatsalsai@gmail.com', role: 'Owner & Administrator' };
-  } else {
-    matchedUser = { username: 'Greentrendskothapet@gmail.com', role: 'Salon Manager' };
-  }
-  const errorAlert = document.getElementById('loginErrorAlert');
-  if (errorAlert) errorAlert.classList.add('hidden');
-  saveSessionUser(matchedUser, true);
-  initAuth();
-  updateViewFromHash();
-  showToast('Welcome! Logged in as ' + matchedUser.role + '.');
+  // Quick 1-tap bypass removed for security
 }
 
 function resetLoginCredentials() {
@@ -965,9 +954,9 @@ function resetLoginCredentials() {
   sessionStorage.removeItem(STORAGE_KEYS.SESSION);
   const uInput = document.getElementById('loginUsername');
   const pInput = document.getElementById('loginPassword');
-  if (uInput) uInput.value = 'kancherlavatsalsai@gmail.com';
-  if (pInput) pInput.value = 'Vinayaka@9';
-  showToast('Credentials reset to defaults.');
+  if (uInput) uInput.value = '';
+  if (pInput) pInput.value = '';
+  showToast('Session and credentials cleared.');
 }
 
 function handleLoginSubmit(e) {
