@@ -174,7 +174,6 @@
           </div>
           <div class="flex items-center justify-between text-[11px] text-gray-500 pt-1">
             <span title="Owner: kancherlavatsalsai@gmail.com / Vinayaka@9">🔑 Default: Vinayaka@9</span>
-            <button type="button" onclick="resetLoginCredentials()" class="hover:text-rose-400 underline transition-colors cursor-pointer">Reset Login</button>
           </div>
         </div>
       </form>
@@ -347,12 +346,6 @@
             <i class="fa-solid fa-check-double"></i>
             <span>Mark All Present</span>
           </button>
-
-          <button onclick="clearAllAttendanceDataToZero(this)" 
-            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-amber-950/40 hover:bg-amber-900/60 text-amber-200 border border-amber-800/50 transition-all flex items-center gap-1.5 shadow-lg shadow-amber-950/30 cursor-pointer" title="Wipe all data and reset to 0">
-            <i class="fa-solid fa-rotate-left text-amber-400"></i>
-            <span>Reset All to 0</span>
-          </button>
         </div>
       </div>
 
@@ -368,7 +361,7 @@
           </div>
           <div class="mt-2.5 flex items-baseline gap-1.5">
             <span id="kpiPresentCount" class="text-2xl font-black font-heading text-white tracking-tight">0</span>
-            <span class="text-xs text-gray-400 font-bold">/ 8 Staff</span>
+            <span class="text-xs text-gray-400 font-bold">/ <span id="kpiTotalStaffCount">8</span> Staff</span>
           </div>
         </div>
 
@@ -567,9 +560,9 @@
         <div class="p-5 border-b border-[#1f1f30] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 class="font-syne font-bold text-lg text-white">Staff Salary Breakdown</h2>
-            <p class="text-xs text-gray-400 mt-0.5">Kalyan: 1% salon revenue | Stylists: 5% service commission & tiered product % | Mid-month advances deducted from net.</p>
+            <p class="text-xs text-gray-400 mt-0.5">Manager Commission: 1% salon revenue | Stylists: 5% service commission & tiered product % | Mid-month advances deducted from net.</p>
           </div>
-          <span class="text-xs text-gray-400">Total Staff: <strong class="text-white">13 Team Members</strong></span>
+          <span class="text-xs text-gray-400">Total Staff: <strong class="text-white" id="payrollTotalStaffCount">Team</strong></span>
         </div>
 
         <!-- Mobile Horizontal Swipe Guidance Indicator -->
@@ -846,7 +839,7 @@
             <h1 class="text-2xl font-syne font-extrabold text-white">Green Trends Owner Master Controls</h1>
           </div>
           <p class="text-xs text-gray-300 mt-1">
-            Configure base salaries, food allowances, Kalyan's salon revenue target, individual percentage commissions, and OT settings.
+            Configure base salaries, food allowances, Manager salon revenue target, individual percentage commissions, and OT settings.
           </p>
         </div>
 
@@ -887,11 +880,11 @@
         <!-- Right: Salon Monthly Target & Rules (1 col) -->
         <div class="space-y-6">
           
-          <!-- Kalyan Salon Target Setting -->
+          <!-- Manager Salon Target Setting -->
           <div class="bg-[#0d0d15] rounded-3xl border border-[#1f1f30] p-6 shadow-2xl space-y-4">
             <h2 class="font-syne font-bold text-base text-white flex items-center gap-2">
               <i class="fa-solid fa-crown text-[#ff7eb3]"></i>
-              <span>Kalyan Manager Commission</span>
+              <span>Manager Commission</span>
             </h2>
             
             <div class="space-y-3 text-xs">
@@ -899,7 +892,7 @@
                 <label class="block text-gray-400 mb-1">Monthly Salon Service Revenue Target (₹)</label>
                 <input type="number" id="adminSalonTarget" value="600000" 
                   class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-mono font-bold focus:outline-none focus:border-[#ff2a85]">
-                <span class="text-[10px] text-gray-500">Kalyan gets 1% on total salon service revenue when this target is reached.</span>
+                <span class="text-[10px] text-gray-500">Manager gets 1% on total salon service revenue when this target is reached.</span>
               </div>
 
               <div>
@@ -1049,12 +1042,6 @@ const firebaseConfig = {
               </button>
               <input type="file" id="restoreFileInput" onchange="restoreSystemData(event)" accept=".json" class="hidden">
 
-              <button onclick="syncRealSeptemberAttendanceData()" 
-                class="w-full py-2.5 rounded-xl text-xs font-bold bg-[#141424] hover:bg-[#202038] text-purple-300 border border-purple-800/40 transition-all flex items-center justify-center gap-2 cursor-pointer" title="Load accurate WhatsApp login/logout attendance records for Sep 1-26">
-                <i class="fa-solid fa-rotate text-[#ff7eb3]"></i>
-                <span>Re-Sync WhatsApp Chat Check-in Data (Sep 1–26)</span>
-              </button>
-
               <button onclick="resetAllSalesAndIncentivesToZero(this)" 
                 class="w-full py-2.5 rounded-xl text-xs font-bold bg-purple-950/30 hover:bg-purple-900/50 text-purple-200 border border-purple-800/40 transition-all flex items-center justify-center gap-2 cursor-pointer">
                 <i class="fa-solid fa-coins text-[#ff7eb3]"></i>
@@ -1178,7 +1165,7 @@ const firebaseConfig = {
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#11111c] p-4 rounded-2xl border border-[#202032] text-xs">
           <div>
             <span class="text-gray-400 block text-[10px] uppercase font-semibold">Staff Name</span>
-            <strong class="text-white text-sm" id="psStaffName">KALYAN</strong>
+            <strong class="text-white text-sm" id="psStaffName">Staff Member</strong>
           </div>
           <div>
             <span class="text-gray-400 block text-[10px] uppercase font-semibold">Role / Category</span>
@@ -1322,8 +1309,14 @@ const firebaseConfig = {
 
         <div>
           <label class="block text-gray-400 mb-1">Role / Designation</label>
-          <input type="text" id="staffFormRole" required placeholder="e.g. Senior Stylist"
-            class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85]">
+          <select id="staffFormRole" required
+            class="w-full bg-[#141420] border border-[#252538] rounded-xl px-3 py-2 text-white font-semibold focus:outline-none focus:border-[#ff2a85] cursor-pointer">
+            <option value="Manager">Manager</option>
+            <option value="Hair Stylist" selected>Hair Stylist</option>
+            <option value="Beauty">Beauty</option>
+            <option value="Unisex">Unisex</option>
+            <option value="House Keeping">House Keeping</option>
+          </select>
         </div>
 
         <div>

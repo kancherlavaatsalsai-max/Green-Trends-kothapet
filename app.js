@@ -18,7 +18,7 @@ const DEFAULT_STAFF = [
   {
     id: 'staff_1',
     name: 'KALYAN',
-    role: 'Salon Manager',
+    role: 'Manager',
     gender: 'male',
     baseSalary: 25000,
     foodAllowance: 0,
@@ -29,7 +29,7 @@ const DEFAULT_STAFF = [
   {
     id: 'staff_2',
     name: 'ISLAM',
-    role: 'Hair Stylist & Groomer',
+    role: 'Hair Stylist',
     gender: 'male',
     baseSalary: 25000,
     foodAllowance: 1500,
@@ -45,7 +45,7 @@ const DEFAULT_STAFF = [
   {
     id: 'staff_3',
     name: 'IQRAM',
-    role: 'Hair Stylist & Colourist',
+    role: 'Hair Stylist',
     gender: 'male',
     baseSalary: 25000,
     foodAllowance: 1500,
@@ -61,7 +61,7 @@ const DEFAULT_STAFF = [
   {
     id: 'staff_4',
     name: 'SULEMAN',
-    role: 'Senior Stylist',
+    role: 'Hair Stylist',
     gender: 'male',
     baseSalary: 25000,
     foodAllowance: 1500,
@@ -77,7 +77,7 @@ const DEFAULT_STAFF = [
   {
     id: 'staff_5',
     name: 'AFRIN',
-    role: 'Beauty & Skin Therapist',
+    role: 'Beauty',
     gender: 'female',
     baseSalary: 18000,
     foodAllowance: 0,
@@ -93,7 +93,7 @@ const DEFAULT_STAFF = [
   {
     id: 'staff_6',
     name: 'RESHMA',
-    role: 'Senior Beautician & Makeup',
+    role: 'Beauty',
     gender: 'female',
     baseSalary: 25000,
     foodAllowance: 0,
@@ -109,7 +109,7 @@ const DEFAULT_STAFF = [
   {
     id: 'staff_7',
     name: 'Aruna',
-    role: 'Spa & Hair Specialist',
+    role: 'Beauty',
     gender: 'female',
     baseSalary: 23000,
     foodAllowance: 0,
@@ -125,7 +125,7 @@ const DEFAULT_STAFF = [
   {
     id: 'staff_8',
     name: 'Anusha (HOUSE KEEPING)',
-    role: 'House Keeping & Salon Care',
+    role: 'House Keeping',
     gender: 'female',
     baseSalary: 16000,
     foodAllowance: 0,
@@ -135,7 +135,7 @@ const DEFAULT_STAFF = [
   {
     id: 'staff_9',
     name: 'KARTHIK',
-    role: 'Hair Stylist & Groomer',
+    role: 'Hair Stylist',
     gender: 'male',
     baseSalary: 25000,
     foodAllowance: 1500,
@@ -151,7 +151,7 @@ const DEFAULT_STAFF = [
   {
     id: 'staff_10',
     name: 'BHARGAVI',
-    role: 'Beautician & Skin Specialist',
+    role: 'Beauty',
     gender: 'female',
     baseSalary: 20000,
     foodAllowance: 0,
@@ -167,7 +167,7 @@ const DEFAULT_STAFF = [
   {
     id: 'staff_11',
     name: 'NAVANITHA',
-    role: 'Beautician & Hair Stylist',
+    role: 'Unisex',
     gender: 'female',
     baseSalary: 20000,
     foodAllowance: 0,
@@ -183,7 +183,7 @@ const DEFAULT_STAFF = [
   {
     id: 'staff_12',
     name: 'VARSHA',
-    role: 'Salon Manager (May–Jul 2026)',
+    role: 'Manager',
     gender: 'female',
     baseSalary: 25000,
     foodAllowance: 0,
@@ -194,7 +194,7 @@ const DEFAULT_STAFF = [
   {
     id: 'staff_13',
     name: 'RAMESH',
-    role: 'Assistant Manager',
+    role: 'Manager',
     gender: 'male',
     baseSalary: 22000,
     foodAllowance: 0,
@@ -210,7 +210,7 @@ const DEFAULT_SALON_RULES = {
   shiftHours: 9,
   otGraceThresholdMinutes: 45,
   otHourlyRate: 50,
-  salonMonthlyServiceTarget: 600000, // Target for Kalyan's 1%
+  salonMonthlyServiceTarget: 600000, // Target for Manager Commission (1%)
   managerCommissionRate: 1
 };
 
@@ -295,83 +295,94 @@ const FULL_SALON_ATTENDANCE_DATA = {"2026-07-25":{"staff_4":{"productsSold":0,"w
 ;
 const SEPTEMBER_2026_REAL_ATTENDANCE = FULL_SALON_ATTENDANCE_DATA;
 
-const DATA_VERSION = '20260926_chat_v2';
+const DATA_VERSION = '20260929_clean_v1';
+const INITIALIZED_KEY = 'gt_kothapet_storage_initialized_v5';
 
 function initStorage() {
+  const isInitialized = localStorage.getItem(INITIALIZED_KEY);
   const savedStaff = localStorage.getItem(STORAGE_KEYS.STAFF);
-  if (savedStaff) {
-    try { staffList = JSON.parse(savedStaff); } catch(e) { staffList = [...DEFAULT_STAFF]; }
-  } else {
-    staffList = [...DEFAULT_STAFF];
-  }
-  // Ensure all current staff definitions exist (including Karthik, Bhargavi, Navanitha, Varsha, Ramesh)
-  DEFAULT_STAFF.forEach(defStaff => {
-    if (!staffList.some(s => s.id === defStaff.id)) {
-      staffList.push({ ...defStaff });
-    }
-  });
-  window.staffList = staffList;
-  localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify(staffList));
-
+  const savedAttendance = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
   const savedRules = localStorage.getItem(STORAGE_KEYS.RULES);
-  if (savedRules) {
-    try { salonRules = JSON.parse(savedRules); } catch(e) { salonRules = { ...DEFAULT_SALON_RULES }; }
-  } else {
-    salonRules = { ...DEFAULT_SALON_RULES };
-    localStorage.setItem(STORAGE_KEYS.RULES, JSON.stringify(salonRules));
-  }
+  const savedAdvances = localStorage.getItem(STORAGE_KEYS.ADVANCES);
+  const savedExpenses = localStorage.getItem(STORAGE_KEYS.EXPENSES);
 
-  // Load and merge attendance data
-  let savedAttendance = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
-  if (!savedAttendance) {
-    const olderKeys = ['gt_kothapet_attendance_v3', 'gt_kothapet_attendance_v2', 'gt_kothapet_attendance_v1', 'gt_kothapet_attendance', 'gt_attendance_data'];
-    for (const ok of olderKeys) {
-      const val = localStorage.getItem(ok);
-      if (val) {
-        savedAttendance = val;
-        break;
-      }
+  if (isInitialized) {
+    // Client has already initialized storage: respect exactly what is saved!
+    // NEVER restore deleted staff members or re-inject wiped attendance data.
+    if (savedStaff) {
+      try { staffList = JSON.parse(savedStaff); } catch(e) { staffList = [...DEFAULT_STAFF]; }
+    } else {
+      staffList = [];
     }
-  }
 
-  if (savedAttendance) {
-    try {
-      attendanceData = JSON.parse(savedAttendance);
-    } catch(e) {
+    if (savedRules) {
+      try { salonRules = JSON.parse(savedRules); } catch(e) { salonRules = { ...DEFAULT_SALON_RULES }; }
+    } else {
+      salonRules = { ...DEFAULT_SALON_RULES };
+    }
+
+    if (savedAttendance) {
+      try { attendanceData = JSON.parse(savedAttendance); } catch(e) { attendanceData = {}; }
+    } else {
       attendanceData = {};
     }
-  } else {
-    attendanceData = {};
-  }
 
-  // Merge full roster from May 5 to Sep 26 into attendanceData
-  for (const dateKey in FULL_SALON_ATTENDANCE_DATA) {
-    if (!attendanceData[dateKey]) {
-      attendanceData[dateKey] = JSON.parse(JSON.stringify(FULL_SALON_ATTENDANCE_DATA[dateKey]));
+    if (savedAdvances) {
+      try { advanceData = JSON.parse(savedAdvances); } catch(e) { advanceData = {}; }
     } else {
-      for (const staffId in FULL_SALON_ATTENDANCE_DATA[dateKey]) {
-        if (!attendanceData[dateKey][staffId]) {
-          attendanceData[dateKey][staffId] = JSON.parse(JSON.stringify(FULL_SALON_ATTENDANCE_DATA[dateKey][staffId]));
-        }
-      }
+      advanceData = {};
     }
-  }
-  localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceData));
 
-  const savedAdvances = localStorage.getItem(STORAGE_KEYS.ADVANCES);
-  if (savedAdvances) {
-    try { advanceData = JSON.parse(savedAdvances); } catch(e) { advanceData = {}; }
+    if (savedExpenses) {
+      try { salonExpenses = JSON.parse(savedExpenses); } catch(e) { salonExpenses = []; }
+    } else {
+      salonExpenses = [];
+    }
   } else {
-    advanceData = {};
+    // First run initialization on fresh browser
+    if (savedStaff) {
+      try { staffList = JSON.parse(savedStaff); } catch(e) { staffList = [...DEFAULT_STAFF]; }
+    } else {
+      staffList = [...DEFAULT_STAFF];
+    }
+
+    if (savedRules) {
+      try { salonRules = JSON.parse(savedRules); } catch(e) { salonRules = { ...DEFAULT_SALON_RULES }; }
+    } else {
+      salonRules = { ...DEFAULT_SALON_RULES };
+    }
+
+    if (savedAttendance) {
+      try { attendanceData = JSON.parse(savedAttendance); } catch(e) { attendanceData = JSON.parse(JSON.stringify(FULL_SALON_ATTENDANCE_DATA)); }
+    } else {
+      attendanceData = JSON.parse(JSON.stringify(FULL_SALON_ATTENDANCE_DATA));
+    }
+
+    if (savedAdvances) {
+      try { advanceData = JSON.parse(savedAdvances); } catch(e) { advanceData = {}; }
+    } else {
+      advanceData = {};
+    }
+
+    if (savedExpenses) {
+      try { salonExpenses = JSON.parse(savedExpenses); } catch(e) { salonExpenses = [...DEFAULT_SALON_EXPENSES]; }
+    } else {
+      salonExpenses = [...DEFAULT_SALON_EXPENSES];
+    }
+
+    localStorage.setItem(INITIALIZED_KEY, 'true');
+    localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify(staffList));
+    localStorage.setItem(STORAGE_KEYS.RULES, JSON.stringify(salonRules));
+    localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceData));
+    localStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(advanceData));
+    localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(salonExpenses));
   }
 
-  const savedExpenses = localStorage.getItem(STORAGE_KEYS.EXPENSES);
-  if (savedExpenses) {
-    try { salonExpenses = JSON.parse(savedExpenses); } catch(e) { salonExpenses = [...DEFAULT_SALON_EXPENSES]; }
-  } else {
-    salonExpenses = [...DEFAULT_SALON_EXPENSES];
-    saveSalonExpenses();
-  }
+  window.staffList = staffList;
+  window.attendanceData = attendanceData;
+  window.salonRules = salonRules;
+  window.advanceData = advanceData;
+  window.salonExpenses = salonExpenses;
 }
 
 function syncRealSeptemberAttendanceData() {
@@ -1775,6 +1786,8 @@ function renderDailyAttendance() {
   container.innerHTML = html;
 
   document.getElementById('kpiPresentCount').innerText = presentCount;
+  const totalStaffEl = document.getElementById('kpiTotalStaffCount');
+  if (totalStaffEl) totalStaffEl.innerText = staffList.length;
   document.getElementById('kpiWeeklyOffCount').innerText = weeklyOffCount;
   document.getElementById('kpiLeaveCount').innerText = leaveCount;
   document.getElementById('kpiOvertimePay').innerText = `₹${dailyOtPayTotal.toLocaleString('en-IN')}`;
@@ -1944,7 +1957,10 @@ function renderMonthlyPayroll() {
   const daysInMonth = getDaysInMonth(year, month);
 
   const monthName = new Date(year, month - 1, 1).toLocaleString('default', { month: 'long', year: 'numeric' });
-  document.getElementById('payrollMonthBadge').innerText = monthName;
+  const payrollMonthBadge = document.getElementById('payrollMonthBadge');
+  if (payrollMonthBadge) payrollMonthBadge.innerText = monthName;
+  const payrollTotalEl = document.getElementById('payrollTotalStaffCount');
+  if (payrollTotalEl) payrollTotalEl.innerText = `${staffList.length} Team Members`;
 
   let totalGrossBase = 0;
   let totalFoodAllowances = 0;
@@ -2229,10 +2245,10 @@ function renderIncentivesView() {
   if (summaryBox) {
     const targetPct = Math.min(100, Math.round((totalSalonRev / salonTarget) * 100));
     summaryBox.innerHTML = `
-      <!-- Card 1: Salon Target & Kalyan Manager 1% -->
+      <!-- Card 1: Salon Target & Manager Commission -->
       <div class="bg-[#0e0e18] p-4 rounded-2xl border border-[#232338] shadow-lg relative overflow-hidden">
         <div class="flex items-center justify-between text-xs text-gray-400 font-semibold">
-          <span>Salon Target (Kalyan 1%)</span>
+          <span>Salon Target (Manager Commission 1%)</span>
           <span class="px-2 py-0.5 rounded-full ${managerAchieved ? 'bg-emerald-500/20 text-emerald-400' : 'bg-purple-500/20 text-purple-300'} font-bold font-mono text-[10px]">
             ${targetPct}%
           </span>
@@ -2246,7 +2262,7 @@ function renderIncentivesView() {
             <div class="h-full ${managerAchieved ? 'bg-gradient-to-r from-purple-500 to-emerald-400' : 'bg-[#ff2a85]'} transition-all" style="width: ${targetPct}%"></div>
           </div>
           <span class="text-[10px] mt-1.5 block ${managerAchieved ? 'text-emerald-400 font-bold' : 'text-gray-400'}">
-            ${managerAchieved ? `<i class="fa-solid fa-check text-emerald-400 mr-1"></i>Target Met! Kalyan 1% = +₹${managerCommissionEarned.toLocaleString('en-IN')}` : `₹${Math.max(0, salonTarget - totalSalonRev).toLocaleString('en-IN')} left to unlock 1%`}
+            ${managerAchieved ? `<i class="fa-solid fa-check text-emerald-400 mr-1"></i>Target Met! Manager 1% = +₹${managerCommissionEarned.toLocaleString('en-IN')}` : `₹${Math.max(0, salonTarget - totalSalonRev).toLocaleString('en-IN')} left to unlock 1%`}
           </span>
         </div>
       </div>
@@ -2524,7 +2540,7 @@ function renderIncentivesView() {
             <div class="w-full bg-[#131320] h-2.5 rounded-full overflow-hidden">
               <div class="h-full rounded-full transition-all duration-500 ${achieved ? 'bg-gradient-to-r from-purple-500 to-emerald-400' : 'bg-purple-500'}" style="width: ${targetPercent}%"></div>
             </div>
-            <p class="text-[10px] text-gray-500 italic mt-1">* Kalyan receives ${salonRules.managerCommissionRate || 1}% on total salon service revenue only; no product commission.</p>
+            <p class="text-[10px] text-gray-500 italic mt-1">* Manager receives ${salonRules.managerCommissionRate || 1}% on total salon service revenue only; no product commission.</p>
           </div>
         </div>
       `;
@@ -3767,8 +3783,14 @@ function renderAdminView() {
             <div>
               <input type="text" id="admin_name_${staff.id}" value="${staff.name}" 
                 class="bg-[#181828] border border-[#26263a] rounded-xl px-3 py-1 text-white font-bold font-heading text-sm focus:border-[#ff2a85]">
-              <input type="text" id="admin_role_${staff.id}" value="${staff.role}" 
-                class="bg-transparent border-b border-[#222234] text-gray-400 text-xs mt-1 px-1 py-0.5 focus:border-[#ff2a85] block w-full">
+              <select id="admin_role_${staff.id}" 
+                class="bg-[#181828] border border-[#26263a] rounded-xl px-2 py-1 text-gray-300 text-xs mt-1 focus:border-[#ff2a85] block w-full cursor-pointer">
+                <option value="Manager" ${staff.role === 'Manager' ? 'selected' : ''}>Manager</option>
+                <option value="Hair Stylist" ${staff.role === 'Hair Stylist' ? 'selected' : ''}>Hair Stylist</option>
+                <option value="Beauty" ${staff.role === 'Beauty' ? 'selected' : ''}>Beauty</option>
+                <option value="Unisex" ${staff.role === 'Unisex' ? 'selected' : ''}>Unisex</option>
+                <option value="House Keeping" ${staff.role === 'House Keeping' ? 'selected' : ''}>House Keeping</option>
+              </select>
             </div>
           </div>
 
@@ -3799,7 +3821,7 @@ function renderAdminView() {
 
           ${staff.isManager ? `
             <div class="col-span-2 p-2.5 rounded-xl bg-[#090910] border border-[#1b1b2a] text-gray-400 text-[11px] flex items-center">
-              Kalyan earns ${salonRules.managerCommissionRate || 1}% on total salon service revenue when salon target is met.
+              Manager earns ${salonRules.managerCommissionRate || 1}% on total salon service revenue when salon target is met.
             </div>
           ` : (staff.isHousekeeping ? `
             <div class="col-span-2 p-2.5 rounded-xl bg-[#090910] border border-[#1b1b2a] text-gray-400 text-[11px] flex items-center">
@@ -3868,7 +3890,11 @@ function saveAllStaffEdits() {
     const foodEl = document.getElementById(`admin_food_${staff.id}`);
 
     if (nameEl) staff.name = nameEl.value.trim();
-    if (roleEl) staff.role = roleEl.value.trim();
+    if (roleEl) {
+      staff.role = roleEl.value;
+      staff.isManager = (staff.role === 'Manager');
+      staff.isHousekeeping = (staff.role === 'House Keeping');
+    }
     if (salaryEl) staff.baseSalary = parseFloat(salaryEl.value) || 0;
     if (foodEl) staff.foodAllowance = parseFloat(foodEl.value) || 0;
 
@@ -3890,7 +3916,11 @@ function saveAllStaffEdits() {
   });
 
   saveStaffList();
+  renderAdminView();
+  renderDailyAttendance();
+  renderMonthlyPayroll();
   renderIncentivesView();
+  renderKioskView();
   showToast('All staff salaries, targets & percentage commission rates saved!');
 }
 
@@ -3902,7 +3932,9 @@ function saveSalonManagerTarget() {
   salonRules.managerCommissionRate = rate;
 
   saveSalonRules();
-  showToast('Salon revenue target for Kalyan updated!');
+  renderMonthlyPayroll();
+  renderIncentivesView();
+  showToast('Salon revenue target for Manager Commission updated!');
 }
 
 function saveAdminShiftRules() {
@@ -3921,7 +3953,8 @@ function saveAdminShiftRules() {
 function openAddStaffModal() {
   document.getElementById('staffFormId').value = '';
   document.getElementById('staffFormName').value = '';
-  document.getElementById('staffFormRole').value = '';
+  const roleEl = document.getElementById('staffFormRole');
+  if (roleEl) roleEl.value = 'Hair Stylist';
   document.getElementById('staffFormSalary').value = '';
   document.getElementById('staffFormFood').value = '0';
   document.getElementById('staffModalTitle').innerText = 'Add New Staff Member';
@@ -3935,9 +3968,18 @@ function closeStaffModal() {
 function handleStaffFormSubmit(e) {
   e.preventDefault();
   const name = document.getElementById('staffFormName').value.trim();
-  const role = document.getElementById('staffFormRole').value.trim();
+  const roleEl = document.getElementById('staffFormRole');
+  const role = roleEl ? roleEl.value : 'Hair Stylist';
   const salary = parseFloat(document.getElementById('staffFormSalary').value) || 0;
   const food = parseFloat(document.getElementById('staffFormFood').value) || 0;
+
+  if (!name) {
+    showToast('Please enter staff name');
+    return;
+  }
+
+  const isManager = (role === 'Manager');
+  const isHousekeeping = (role === 'House Keeping');
 
   const newStaff = {
     id: 'staff_' + Date.now(),
@@ -3946,10 +3988,10 @@ function handleStaffFormSubmit(e) {
     gender: 'female',
     baseSalary: salary,
     foodAllowance: food,
-    isManager: false,
-    isHousekeeping: false,
+    isManager: isManager,
+    isHousekeeping: isHousekeeping,
     serviceTarget: salary * 5,
-    serviceCommissionRate: 5,
+    serviceCommissionRate: isManager ? 1 : 5,
     productTier1Min: 8000,
     productTier1Rate: 5,
     productTier2Min: 15000,
@@ -3958,20 +4000,65 @@ function handleStaffFormSubmit(e) {
 
   staffList.push(newStaff);
   saveStaffList();
+
+  // Initialize today's attendance for the new staff member as Present
+  const todayKey = selectedDateStr || new Date().toISOString().split('T')[0];
+  if (!attendanceData[todayKey]) attendanceData[todayKey] = {};
+  if (!attendanceData[todayKey][newStaff.id]) {
+    attendanceData[todayKey][newStaff.id] = {
+      status: 'Present',
+      inH: isHousekeeping ? 9 : 10,
+      inM: 0,
+      inAmpm: 'AM',
+      outH: isHousekeeping ? 9 : 7,
+      outM: 0,
+      outAmpm: 'PM',
+      workedMinutes: isHousekeeping ? 720 : 540,
+      otHours: 0,
+      shortfallHours: 0,
+      otPay: 0,
+      servicesDone: 0,
+      productsSold: 0
+    };
+    saveAttendanceData();
+  }
+
   closeStaffModal();
   renderAdminView();
-  showToast(`Added ${name} to Green Trends Kothapet!`);
+  renderDailyAttendance();
+  renderKioskView();
+  renderMonthlyPayroll();
+  renderIncentivesView();
+  showToast(`Added ${name} (${role}) to Green Trends Kothapet!`);
 }
 
 function removeStaffMember(staffId) {
   const staff = staffList.find(s => s.id === staffId);
   if (!staff) return;
 
-  if (confirm(`Remove ${staff.name} from the roster?`)) {
+  if (confirm(`Remove ${staff.name} permanently from the salon roster? This will delete all their attendance records.`)) {
     staffList = staffList.filter(s => s.id !== staffId);
     saveStaffList();
+
+    // Clean up their attendance records across all dates
+    for (const dateKey in attendanceData) {
+      if (attendanceData[dateKey] && attendanceData[dateKey][staffId]) {
+        delete attendanceData[dateKey][staffId];
+      }
+    }
+    saveAttendanceData();
+
+    if (advanceData && advanceData[staffId]) {
+      delete advanceData[staffId];
+      saveAdvancesData();
+    }
+
     renderAdminView();
-    showToast(`Removed ${staff.name}.`);
+    renderDailyAttendance();
+    renderKioskView();
+    renderMonthlyPayroll();
+    renderIncentivesView();
+    showToast(`Removed ${staff.name} permanently.`);
   }
 }
 
@@ -4941,13 +5028,7 @@ function kioskClockIn(staffId) {
   renderKioskView();
 
   const formattedTime = `${hours12}:${String(minutes).padStart(2, '0')} ${ampm}`;
-  showKioskCelebration(
-    staff ? staff.name : 'Stylist',
-    'CHECK-IN CONFIRMED',
-    `Clocked in at ${formattedTime}`,
-    'Have a fabulous, productive shift at Green Trends Kothapet! ✨',
-    'check'
-  );
+  showToast(`✅ ${staff ? staff.name : 'Stylist'} clocked in at ${formattedTime}`);
 }
 
 function kioskClockOut(staffId) {
@@ -5002,13 +5083,7 @@ function kioskClockOut(staffId) {
   renderKioskView();
 
   const formattedTime = `${hours12}:${String(minutes).padStart(2, '0')} ${ampm}`;
-  showKioskCelebration(
-    staff ? staff.name : 'Stylist',
-    'CHECK-OUT CONFIRMED',
-    `Clocked out at ${formattedTime}`,
-    summaryMsg,
-    'flag-checkered'
-  );
+  showToast(`🏁 ${staff ? staff.name : 'Stylist'} clocked out at ${formattedTime}. ${summaryMsg}`);
 }
 
 function kioskMarkOff(staffId) {
@@ -5047,53 +5122,11 @@ function kioskMarkLeave(staffId) {
   saveAttendanceData();
   renderKioskView();
 
-  showKioskCelebration(
-    staffName,
-    'LEAVE RECORDED',
-    `Marked Leave for ${dateKey}`,
-    'Full day unpaid leave logged on the timesheet.',
-    'user-xmark'
-  );
+  showToast(`⚠️ ${staffName} marked on Leave for ${dateKey}`);
 }
 
 function showKioskCelebration(name, badge, subtitle, message, iconType = 'check') {
-  const modal = document.getElementById('kioskCelebrationModal');
-  if (!modal) return;
-
-  const titleEl = document.getElementById('kioskModalTitle');
-  const badgeEl = document.getElementById('kioskModalBadge');
-  const subEl = document.getElementById('kioskModalSubtitle');
-  const msgEl = document.getElementById('kioskModalMessage');
-  const iconEl = document.getElementById('kioskModalIcon');
-
-  if (titleEl) titleEl.innerText = name;
-  if (badgeEl) {
-    badgeEl.innerText = badge;
-    if (iconType === 'user-xmark') {
-      badgeEl.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-rose-500/20 text-rose-400 border border-rose-500/30';
-    } else {
-      badgeEl.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-    }
-  }
-  if (subEl) subEl.innerText = subtitle;
-  if (msgEl) msgEl.innerText = message;
-  if (iconEl) {
-    if (iconType === 'flag-checkered') {
-      iconEl.className = 'fa-solid fa-flag-checkered text-2xl text-emerald-400';
-    } else if (iconType === 'user-xmark') {
-      iconEl.className = 'fa-solid fa-user-xmark text-2xl text-rose-400';
-    } else {
-      iconEl.className = 'fa-solid fa-check text-2xl text-emerald-400';
-    }
-  }
-
-  modal.classList.remove('hidden');
-  modal.style.display = 'flex';
-
-  if (window._kioskCelebrationTimeout) clearTimeout(window._kioskCelebrationTimeout);
-  window._kioskCelebrationTimeout = setTimeout(() => {
-    closeKioskCelebration();
-  }, 3200);
+  showToast(`${name}: ${badge} - ${subtitle}`);
 }
 
 function closeKioskCelebration() {
